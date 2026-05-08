@@ -560,6 +560,9 @@ function phase5_reveal() {
     removeScanningDots();
     DOM.body.classList.remove('is-scanning');
     updateConnectionPill('Scan Complete', 'done');
+
+    // Write shareable URL hash with this scan's results
+    encodeResultsToHash(STATE.networkData);
   }, 480);
 }
 
@@ -1500,6 +1503,106 @@ function updateConnectionPill(label, state) {
 
 
 /* ============================================================
+   SHAREABLE URL — encode/decode results in URL hash
+   Format: #r=<base64url(JSON)>
+   ============================================================ */
+
+/**
+ * encodeResultsToHash(networkData)
+ * Serialises the current scan result into a compact base64url string and
+ * writes it to location.hash so the URL is shareable.
+ */
+function encodeResultsToHash(networkData) {
+  try {
+    const payload = {
+      dl: STATE.speedMbps,
+      ul: STATE.uploadMbps,
+      p:  STATE.pingMs,
+      j:  STATE.jitterMs,
+      g:  calculateGrade(STATE.speedMbps, STATE.pingMs),
+      isp: (networkData && networkData.isp)  || '',
+      loc: (networkData && networkData.city)  || '',
+      r:  STATE.roastText,
+    };
+    const json    = JSON.stringify(payload);
+    const b64     = btoa(unescape(encodeURIComponent(json)));
+    history.replaceState(null, '', `#r=${b64}`);
+  } catch (_) {}
+}
+
+/**
+ * decodeResultsFromHash()
+ * If the page loaded with a #r= hash, parse it and return the payload object.
+ * Returns null if hash is absent or malformed.
+ */
+function decodeResultsFromHash() {
+  try {
+    const hash = location.hash;
+    if (!hash.startsWith('#r=')) return null;
+    const b64  = hash.slice(3);
+    const json = decodeURIComponent(escape(atob(b64)));
+    return JSON.parse(json);
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * loadSharedResult(payload)
+ * Populates the UI with a previously shared result without running a scan.
+ * Shows a "Feel the same shame?" CTA banner above the results.
+ */
+function loadSharedResult(payload) {
+  // Reconstruct enough STATE for the receipt and roast to render
+  STATE.speedMbps  = payload.dl  ?? 0.1;
+  STATE.uploadMbps = payload.ul  ?? null;
+  STATE.pingMs     = payload.p   ?? 999;
+  STATE.jitterMs   = payload.j   ?? 0;
+  STATE.roastText  = payload.r   || '';
+
+  const fakeNetwork = {
+    ip: null, isp: payload.isp || '—', org: '',
+    city: payload.loc || '', region: '', country: '',
+    countryCode: '', latitude: null, longitude: null,
+    _fallback: true, _reason: 'shared_link',
+  };
+
+  // Run locale detection so roast language is consistent
+  detectLocale();
+
+  // Show speedometer section briefly, then skip straight to results
+  DOM.speedometerSect.style.display = 'none';
+  injectReceiptData(fakeNetwork, STATE.roastText);
+
+  DOM.resultsRow.setAttribute('aria-hidden', 'false');
+  DOM.roastContainer.setAttribute('aria-hidden', 'false');
+
+  // Insert the shame CTA banner above results
+  const existing = document.getElementById('shared-result-banner');
+  if (!existing) {
+    const banner = document.createElement('div');
+    banner.id        = 'shared-result-banner';
+    banner.className = 'shared-banner';
+    banner.innerHTML = `
+      <span class="shared-banner__label">👀 Someone shared their internet shame with you.</span>
+      <button class="shared-banner__cta" id="shared-banner-cta">Feel the same shame? Test yours →</button>
+    `;
+    DOM.resultsRow.parentNode.insertBefore(banner, DOM.resultsRow);
+    document.getElementById('shared-banner-cta').addEventListener('click', () => {
+      banner.remove();
+      history.replaceState(null, '', location.pathname);
+      DOM.speedometerSect.style.display = '';
+      DOM.resultsRow.setAttribute('aria-hidden', 'true');
+      DOM.roastContainer.setAttribute('aria-hidden', 'true');
+      updateStatus('Ready to profile your connection.', 'Hit GO and brace yourself.');
+    });
+  }
+
+  updateConnectionPill('Shared Result', 'done');
+}
+
+
+/* ============================================================
    ENTRY POINT
    ============================================================ */
 async function startScan() {
@@ -1568,6 +1671,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ensure needle starts at correct position
   setNeedle(NEEDLE.start);
   setGaugeFill(0);
+
+  // If the URL contains a shared result hash, display it immediately.
+  // All event listeners below still attach so GO works after the user
+  // dismisses the shared view and wants to run their own scan.
+  const sharedPayload = decodeResultsFromHash();
+  if (sharedPayload) loadSharedResult(sharedPayload);
 
   // GO button
   DOM.goBtn.addEventListener('click', startScan);

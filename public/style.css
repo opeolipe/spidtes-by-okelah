@@ -1555,3 +1555,42 @@ body.is-scanning .go-scanning-dots {
     transform: none;
   }
 }
+
+/* ── Shared result banner ── */
+.shared-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 620px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.07), rgba(123,95,255,0.07));
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  animation: fade-in 0.4s ease;
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.shared-banner__label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.shared-banner__cta {
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 10px 22px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+.shared-banner__cta:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
