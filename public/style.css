@@ -383,6 +383,8 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
 /* Needle */
 .gauge-needle-group {
+  transform-box: view-box;           /* makes px origin values map to SVG user units */
+  transform-origin: 160px 160px;     /* pivot = gauge centre in viewBox coordinates */
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .gauge-needle {
@@ -1267,15 +1269,15 @@ body.is-scanning .go-btn-ring {
 }
 
 @keyframes needle-stutter {
-  0%   { transform: rotate(var(--needle-stutter-pos, 120deg)); }
-  10%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) + 18deg)); }
-  20%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) - 22deg)); }
-  30%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) + 14deg)); }
-  40%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) - 10deg)); }
-  55%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) + 8deg)); }
-  70%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) - 6deg)); }
-  85%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) + 4deg)); }
-  100% { transform: rotate(var(--needle-stutter-pos, 120deg)); }
+  0%   { transform: rotate(var(--needle-stutter-pos, 437deg)); }
+  10%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) + 18deg)); }
+  20%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) - 22deg)); }
+  30%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) + 14deg)); }
+  40%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) - 10deg)); }
+  55%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) + 8deg)); }
+  70%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) - 6deg)); }
+  85%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) + 4deg)); }
+  100% { transform: rotate(var(--needle-stutter-pos, 437deg)); }
 }
 
 /* ── Phase 3: Crash — needle slams to 0 ── */
@@ -1441,32 +1443,21 @@ body.is-scanning .go-btn-ring {
 .receipt-stage.receipt--active .receipt-header        { margin-bottom: 20px; }
 .receipt-stage.receipt--active .barcode-lines         { height: 28px; width: 120px; }
 
-/* Scan Again button (injected by JS into receipt) */
-.scan-again-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 14px 0;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border-bright);
+/* Scan Again — sits inside share-actions, gets its own cyan accent on hover */
+.share-btn--rescan {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   color: var(--text-secondary);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  margin-top: 16px;
-  font-family: var(--font-sans);
+  backdrop-filter: blur(8px);
+  flex: 1;
+  justify-content: center;
 }
-.scan-again-btn:hover {
-  background: rgba(0, 212, 255, 0.1);
+.share-btn--rescan:hover {
   border-color: var(--accent-cyan);
   color: var(--accent-cyan);
+  background: rgba(0, 212, 255, 0.08);
 }
-.scan-again-btn:active {
+.share-btn--rescan:active {
   transform: scale(0.97);
 }
 

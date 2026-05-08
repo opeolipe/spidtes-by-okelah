@@ -71,14 +71,14 @@ const DOM = {
    ============================================================ */
 const STATE = {
   isScanning:  false,
-  scanCount:   0,          // Escalating roast intensity
+  scanCount:   0,          // Escalating roast intensity (persisted via localStorage)
   timers:      [],         // Held for potential cleanup
   locale:      'en-US',    // Set by detectLocale()
   networkData: null,       // Set by fetchNetworkData()
   roastText:   '',         // Set by generateRoast()
   isVpn:       false,      // Set by detectVpnMismatch()
-  speed:       0,          // Un-mocked in startScan()
-  ping:        0,          // Un-mocked in startScan()
+  pingMs:      999,        // Set by measurePing()
+  speedMbps:   0.1,        // Set by measureSpeed()
 };
 
 /**
@@ -200,7 +200,7 @@ function flashCrashOverlay() {
  *  'en-US' → Judgy SysAdmin (Global default)
  */
 function detectLocale() {
-  const lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  const lang = (navigator.language || 'en').toLowerCase();
   STATE.locale = lang.startsWith('id') ? 'id-ID' : 'en-US';
   return STATE.locale;
 }
@@ -299,9 +299,77 @@ async function fetchNetworkData() {
 
   } catch (err) {
     clearTimeout(timeoutId);
-    console.warn('Network fetch failed, using fallback data:', err);
-    const reason = (err.name === 'AbortError') ? 'timeout' : 'error';
+    const reason = (err.name === 'AbortError') ? 'timeout' : 'adblocker';
     return getFallbackData(reason);
+  }
+}
+
+
+/* ============================================================
+   PHASE B2 — REAL PING & BANDWIDTH MEASUREMENT
+   ============================================================ */
+
+/**
+ * measurePing()
+ * Times a HEAD request to Cloudflare's lightweight trace endpoint.
+ * Returns round-trip latency in ms, or 999 on failure.
+ */
+async function measurePing() {
+  const start = performance.now();
+  try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 5000);
+    await fetch('https://www.cloudflare.com/cdn-cgi/trace', {
+      cache:  'no-store',
+      signal: ctrl.signal,
+    });
+    clearTimeout(tid);
+    return Math.round(performance.now() - start);
+  } catch {
+    return 999;
+  }
+}
+
+/**
+ * measureSpeed()
+ * Returns download speed in Mbps.
+ * 1st: reads navigator.connection.downlink (instant, no request).
+ * 2nd: downloads the self-hosted /speedtest.bin (200 KB, xorshift-random,
+ *      incompressible — won't be gzip'd by the server).
+ * 3rd: falls back to Cloudflare's speed-test endpoint if the hosted file
+ *      isn't reachable (e.g., running locally without the asset served).
+ * Returns a number ≥ 0.1 so the roast engine always has a real value.
+ */
+async function measureSpeed() {
+  // Fast path: Network Information API (Chrome/Android, no request needed)
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn && conn.downlink > 0) {
+    return Math.round(conn.downlink * 10) / 10;
+  }
+
+  // Helper: time a fetch and compute Mbps from bytes received
+  async function timedDownload(url, timeoutMs) {
+    const ctrl  = new AbortController();
+    const tid   = setTimeout(() => ctrl.abort(), timeoutMs);
+    const start = performance.now();
+    const resp  = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+    const buf   = await resp.arrayBuffer();
+    clearTimeout(tid);
+    const elapsed = (performance.now() - start) / 1000;
+    const mbps    = (buf.byteLength * 8) / (elapsed * 1_000_000);
+    return Math.max(0.1, Math.round(mbps * 10) / 10);
+  }
+
+  // Primary: self-hosted file (same origin, stable, no CORS, no rate limits)
+  try {
+    return await timedDownload('./speedtest.bin', 12000);
+  } catch { /* fall through */ }
+
+  // Secondary: Cloudflare speed-test CDN (undocumented but reliable)
+  try {
+    return await timedDownload('https://speed.cloudflare.com/__down?bytes=200000', 10000);
+  } catch {
+    return 0.5; // conservative fallback when all fetches fail
   }
 }
 
@@ -327,8 +395,11 @@ function phase1_rev() {
   const TARGET_MBPS = 82;
   const TARGET_ROT  = NEEDLE.mbpsToRot(TARGET_MBPS); // ≈ 437 deg
 
-  // Add revving class (smooth transition), then set rotation
+  // Add revving class first, force reflow so the new transition timing is
+  // committed before the property change, otherwise the browser batches both
+  // and skips the animation entirely.
   DOM.needleGroup.classList.add('needle--revving');
+  void DOM.needleGroup.getBoundingClientRect(); // reflow
   setNeedle(TARGET_ROT);
   setGaugeFill(TARGET_MBPS);
 
@@ -351,7 +422,7 @@ function phase2_stutter() {
   DOM.needleGroup.classList.remove('needle--revving');
   DOM.needleGroup.classList.add('needle--stutter');
 
-  // Flicker the speed number
+  // Flicker the speed number — register the interval so clearAllTimers() can stop it
   let flickerCount = 0;
   const flickerInterval = setInterval(() => {
     const noise = Math.round(Math.random() * 30 - 15);
@@ -359,6 +430,7 @@ function phase2_stutter() {
     flickerCount++;
     if (flickerCount >= 6) clearInterval(flickerInterval);
   }, 100);
+  STATE.timers.push(flickerInterval);
 
   updateStatus('Hmm... something\'s not right.', 'Signal unstable.');
 }
@@ -367,6 +439,7 @@ function phase2_stutter() {
 function phase3_crash() {
   DOM.needleGroup.classList.remove('needle--stutter');
   DOM.needleGroup.classList.add('needle--crash');
+  void DOM.needleGroup.getBoundingClientRect(); // reflow so crash transition is active
 
   // Slam needle to 0
   setNeedle(NEEDLE.start); // 240deg = 0 Mbps
@@ -382,7 +455,7 @@ function phase3_crash() {
 
   // Screen shake on the section
   DOM.speedometerSect.classList.add('screen-shake');
-  setTimeout(() => DOM.speedometerSect.classList.remove('screen-shake'), 600);
+  schedule(() => DOM.speedometerSect.classList.remove('screen-shake'), 600);
 
   updateStatus('💀 Connection collapsed.', 'Your ISP has failed you.');
 }
@@ -412,7 +485,7 @@ function phase5_reveal() {
   DOM.speedometerSect.classList.add('section--exit');
 
   // After exit animation completes, hide it and show on-screen results
-  setTimeout(() => {
+  schedule(() => {
     DOM.speedometerSect.style.display = 'none';
 
     // Show on-screen results
@@ -423,23 +496,98 @@ function phase5_reveal() {
     STATE.isScanning = false;
     removeScanningDots();
     DOM.body.classList.remove('is-scanning');
+    updateConnectionPill('Scan Complete', 'done');
   }, 480);
 }
 
 
 /* ============================================================
-   PHASE C — VPN MISMATCH DETECTION
+   PHASE C — VPN MISMATCH DETECTION (global)
    ============================================================ */
 
 /**
+ * Maps a browser language prefix to the expected ISO-3166-1 alpha-2
+ * country code(s) for that language's primary region(s).
+ * A mismatch between browser language and the IP's country code
+ * strongly suggests a VPN or proxy is active.
+ */
+const LOCALE_COUNTRY_MAP = {
+  'id':  ['ID'],
+  'ms':  ['MY', 'BN', 'SG'],
+  'fil': ['PH'],
+  'th':  ['TH'],
+  'vi':  ['VN'],
+  'km':  ['KH'],
+  'my':  ['MM'],
+  'lo':  ['LA'],
+  'ja':  ['JP'],
+  'ko':  ['KR'],
+  'zh':  ['CN', 'TW', 'HK', 'MO', 'SG'],
+  'de':  ['DE', 'AT', 'CH'],
+  'fr':  ['FR', 'BE', 'CH', 'CA', 'LU'],
+  'es':  ['ES', 'MX', 'AR', 'CL', 'CO', 'PE', 'VE', 'EC', 'BO', 'PY', 'UY', 'CR', 'GT', 'HN', 'SV', 'NI', 'PA', 'DO', 'CU'],
+  'pt':  ['PT', 'BR', 'AO', 'MZ'],
+  'ru':  ['RU', 'BY', 'KZ'],
+  'uk':  ['UA'],
+  'pl':  ['PL'],
+  'cs':  ['CZ'],
+  'sk':  ['SK'],
+  'hu':  ['HU'],
+  'ro':  ['RO'],
+  'bg':  ['BG'],
+  'hr':  ['HR'],
+  'sr':  ['RS'],
+  'sl':  ['SI'],
+  'nl':  ['NL', 'BE'],
+  'sv':  ['SE'],
+  'da':  ['DK'],
+  'fi':  ['FI'],
+  'nb':  ['NO'],
+  'nn':  ['NO'],
+  'tr':  ['TR'],
+  'ar':  ['SA', 'AE', 'EG', 'IQ', 'MA', 'DZ', 'TN', 'LY', 'JO', 'LB', 'SY', 'YE', 'OM', 'KW', 'QA', 'BH'],
+  'fa':  ['IR', 'AF'],
+  'he':  ['IL'],
+  'hi':  ['IN'],
+  'bn':  ['BD', 'IN'],
+  'ta':  ['IN', 'LK'],
+  'te':  ['IN'],
+  'mr':  ['IN'],
+  'ur':  ['PK', 'IN'],
+  'el':  ['GR', 'CY'],
+  'it':  ['IT', 'CH'],
+  'lt':  ['LT'],
+  'lv':  ['LV'],
+  'et':  ['EE'],
+  'ka':  ['GE'],
+  'hy':  ['AM'],
+  'az':  ['AZ'],
+  'uz':  ['UZ'],
+  'kk':  ['KZ'],
+};
+
+/**
  * detectVpnMismatch(networkData)
- * Compares browser locale language against the API-returned countryCode.
- * Indonesian browser + non-ID IP = VPN detected.
+ * Globally compares the browser's language prefix against the API-returned
+ * countryCode. If the IP's country isn't in the expected set for that language,
+ * it's flagged as a likely VPN / proxy.
+ *
+ * English (en) is intentionally excluded — it is used as a global lingua
+ * franca and would produce too many false positives.
  */
 function detectVpnMismatch(networkData) {
-  const browserIsId  = navigator.language.toLowerCase().startsWith('id');
-  const ipIsId       = networkData.countryCode === 'ID';
-  STATE.isVpn        = browserIsId && !ipIsId;
+  const lang    = navigator.language.toLowerCase();
+  const prefix  = lang.split('-')[0];
+  const ipCode  = networkData.countryCode;
+
+  // Only flag if we have a specific country mapping for this language
+  const expected = LOCALE_COUNTRY_MAP[prefix];
+  if (!expected || !ipCode) {
+    STATE.isVpn = false;
+    return false;
+  }
+
+  STATE.isVpn = !expected.includes(ipCode);
   return STATE.isVpn;
 }
 
@@ -453,6 +601,8 @@ const ROAST_DICT = {
     vpnRoast: [
       'Browser-mu Indo, IP-mu Amerika. Pake VPN gratisan ya bang? Kirain pro.',
       'Detected VPN. Sok internasional, padahal koneksinya tetep lemot.',
+      'IP-mu abroad tapi ping-mu tetap nangis. VPN-nya gratisan atau yang bayar juga sama aja?',
+      'Pake VPN biar kelihatan keren. Speed-nya tetap bikin malu.',
     ],
     pingReact: [
       'Ping-mu lebih tinggi dari harapan hidupmu.',
@@ -463,6 +613,7 @@ const ROAST_DICT = {
       'Speedmu {speed} Mbps. Siput pun ngakak.',
       '{speed} Mbps? Kamu mau streaming atau meditasi?',
       'Bahkan IndiHome promo pun malu sama angka ini.',
+    ],
     ispRoast: {
       'indihome':   ['IndiHome, raja throttling nusantara. Mahal, lambat, tapi tetep dipake karena ga ada pilihan.', 'IndiHome: karena monopoli itu nyata.'],
       'telkomsel':  ['Telkomsel Orbit katanya solusi rumahan. Solusi apa, bro? Solusi bikin emosi?', 'Orbit by Telkomsel: mahal dan tetap kecewa.'],
@@ -471,7 +622,7 @@ const ROAST_DICT = {
       'myrepublic': ['MyRepublic katanya gaming ISP. Gaming ISP buat gamer yang suka DC.'],
       'smartfren':  ['Smartfren. Smart dari mana? Dari namanya doang.', 'Smartfren: sinyal 4G, kecepatan 2G.'],
       'first media':['First Media: first dalam harga, last dalam performa.'],
-      'default':    ['Wah, ISP apaan nih \'{isp}\'? Pasti RT/RW Net patungan se-kosan ya? Atau numpang Wi-Fi kelurahan di {city}? Pantesan grade lu F.'],
+      'default':    ['ISP "{isp}"? Baru denger. Kayaknya RT/RW Net patungan se-kosan ya?', 'Ga ketemu di database, tapi kalau koneksinya segini, udah ketebak kualitasnya.'],
     },
     locationRoast: {
       'bali':     ['Work From Bali tapi WiFi kosan Rp150rb sebulan. Vibes bagus, koneksi ngenes.', 'Digital nomad di Bali pake WiFi warung. Respek tapi ya... coba FYP dulu deh.'],
@@ -480,7 +631,6 @@ const ROAST_DICT = {
       'surabaya': ['Surabaya, kota pahlawan. Pahlawan yang ping-nya 300ms.'],
       'bandung':  ['Bandung kota kembang. Kembang kembali jadi dial-up ternyata.'],
       'yogyakarta':['Jogja istimewa katanya. Istimewa lemotnya iya.'],
-      'denpasar':  ['Denpasar pride, tapi internet-nya ga ada pride-pride-nya. Lemot bener.', 'Main ke Canggu aja bang, siapa tau dapet WiFi kencengan dikit.'],
       'default':  ['Dimanapun kamu berada, satu hal yang pasti: ISP-mu mengecewakan.', 'Lokasi ga ketemu di database. Tapi internet segini mah udah cukup buat bikin malu.'],
     },
     punchline: [
@@ -496,6 +646,10 @@ const ROAST_DICT = {
     vpnRoast: [
       'VPN detected. Hiding from your ISP, or just from the truth about your speeds?',
       'Nice VPN. Still slow though.',
+      'Browser says one country. IP says another. The VPN is not helping your ping.',
+      'Using a VPN to look more international? Cute. The lag is very local.',
+      'Your browser and your IP are having an argument about where you actually live.',
+      'Pro-tier privacy setup. Zero-tier connection speed.',
     ],
     pingReact: [
       'A ping of {ping}ms. Were you testing from the moon?',
@@ -515,7 +669,7 @@ const ROAST_DICT = {
       'verizon':   ['Verizon Fios: Fi-os as in "finally, os slow."', 'Can you hear me now? Verizon can. Your packets? Not so much.'],
       'cox':       ['Cox Communications. The name says it all, really.'],
       'virgin':    ['Virgin Media: still virgin to the concept of consistent speeds.'],
-      'bt ':       ['BT Broadband: British Throttling, as per tradition.'],
+      'bt':        ['BT Broadband: British Throttling, as per tradition.'],
       'default':   ['"{isp}" — never heard of them, but based on these results, I\'m not surprised.', 'Unknown ISP. Unknown why you\'re still with them after this.'],
     },
     locationRoast: {
@@ -551,8 +705,8 @@ function generateRoast(networkData) {
   const dict   = ROAST_DICT[locale] || ROAST_DICT['en-US'];
   const parts  = [];
 
-  const speed = STATE.speed;
-  const ping  = STATE.ping;
+  const speed = STATE.speedMbps;
+  const ping  = STATE.pingMs;
 
   // 1. VPN override prefix
   if (STATE.isVpn) {
@@ -571,7 +725,6 @@ function generateRoast(networkData) {
 
   // 3. ISP roast — fuzzy match against dict keys
   const ispLower = (networkData.isp || '').toLowerCase();
-  const city     = networkData.city || (STATE.locale === 'id-ID' ? 'wilayah entah mana' : 'nowhere');
   let ispLine = null;
   for (const [key, lines] of Object.entries(dict.ispRoast)) {
     if (key !== 'default' && ispLower.includes(key)) {
@@ -580,14 +733,12 @@ function generateRoast(networkData) {
     }
   }
   if (!ispLine) {
-    ispLine = pick(dict.ispRoast.default)
-      .replace('{isp}',  networkData.isp || '???')
-      .replace('{city}', city);
+    ispLine = pick(dict.ispRoast.default).replace('{isp}', networkData.isp || '???');
   }
   parts.push(ispLine);
 
   // 4. Location roast — fuzzy match on city
-  const cityLower = city.toLowerCase();
+  const cityLower = (networkData.city || '').toLowerCase();
   let locLine = null;
   for (const [key, lines] of Object.entries(dict.locationRoast)) {
     if (key !== 'default' && cityLower.includes(key)) {
@@ -601,7 +752,7 @@ function generateRoast(networkData) {
   // 5. Punchline
   parts.push(pick(dict.punchline));
 
-  STATE.roastText = parts.filter(Boolean).join(' ');
+  STATE.roastText = parts.join(' ');
   return STATE.roastText;
 }
 
@@ -639,7 +790,7 @@ function calculateGrade(speedMbps, pingMs) {
   if (speedMbps > 50 && pingMs < 30)  return 'A';
   if (speedMbps > 20 && pingMs < 60)  return 'B';
   if (speedMbps > 10 && pingMs < 100) return 'C';
-  if (speedMbps > 5  || pingMs < 200) return 'D';
+  if (speedMbps > 5  && pingMs < 200) return 'D';
   return 'F';
 }
 
@@ -649,8 +800,8 @@ function calculateGrade(speedMbps, pingMs) {
  * Also updates the live meta bar in the header.
  */
 function injectReceiptData(networkData, roastText) {
-  const speed = STATE.speed;
-  const ping  = STATE.ping;
+  const speed = STATE.speedMbps;
+  const ping  = STATE.pingMs;
   const grade = calculateGrade(speed, ping);
   const location = [networkData.city, networkData.country].filter(Boolean).join(', ') || '—';
 
@@ -712,21 +863,6 @@ function injectReceiptData(networkData, roastText) {
 /* ============================================================
    SCAN AGAIN / RESET
    ============================================================ */
-function injectScanAgainButton() {
-  if (document.getElementById('scan-again-btn')) return;
-
-  const btn = document.createElement('button');
-  btn.id        = 'scan-again-btn';
-  btn.className = 'scan-again-btn';
-  btn.innerHTML = '↺ &nbsp;Scan Again';
-  btn.addEventListener('click', resetScan);
-
-  // Append after the receipt footer
-  const footer = DOM.receiptStage.querySelector('.receipt-footer');
-  if (footer) footer.after(btn);
-  else DOM.receiptStage.querySelector('.cyber-receipt').appendChild(btn);
-}
-
 function resetScan() {
   // Hide on-screen results
   DOM.resultsRow.setAttribute('aria-hidden', 'true');
@@ -746,10 +882,10 @@ function resetScan() {
   // Reset gauge fill
   setGaugeFill(0);
 
-  // Reset gauge broken state
+  // Reset gauge broken state — only remove the class; the CSS rule disappears
+  // and the SVG attribute stroke="url(#trackGradient)" takes back over.
+  // Do NOT setAttribute('stroke','') here — that would blank the track.
   DOM.speedometerWrap.classList.remove('gauge--broken');
-  DOM.speedometerWrap.querySelector('.gauge-track')
-    ?.setAttribute('stroke', '');
 
   // Reset speed / ping readouts
   DOM.speedValue.textContent = '--';
@@ -758,6 +894,7 @@ function resetScan() {
 
   // Reset status
   updateStatus('Ready to profile your connection.', 'Hit GO and brace yourself.');
+  updateConnectionPill('Network Active', 'idle');
 
   // Re-enable GO button
   STATE.isScanning = false;
@@ -776,6 +913,20 @@ function updateStatus(primary, secondary = '') {
     secondary.replace('GO', '<strong>GO</strong>');
 }
 
+/** Update the header connection pill label and dot colour */
+function updateConnectionPill(label, state) {
+  const pill = document.getElementById('connection-pill');
+  if (!pill) return;
+  const dot   = pill.querySelector('.pulse-dot');
+  const text  = pill.querySelector('.pill-label');
+  if (text) text.textContent = label;
+  if (dot) {
+    dot.style.background = state === 'scanning' ? 'var(--accent-warm)'
+                         : state === 'done'     ? 'var(--accent-cyan)'
+                         : 'var(--accent-green)'; // idle
+  }
+}
+
 
 /* ============================================================
    ENTRY POINT
@@ -784,66 +935,43 @@ async function startScan() {
   // Guard: prevent double-clicks
   if (STATE.isScanning) return;
 
-  STATE.isScanning = true;
+  STATE.isScanning  = true;
   STATE.scanCount++;
+  STATE.pingMs      = 999;   // reset so stale values from previous scan don't bleed in
+  STATE.speedMbps   = 0.1;
+  STATE.networkData = null;
+  STATE.isVpn       = false;
+  try { localStorage.setItem('spidtes_scan_count', STATE.scanCount); } catch (_) {}
 
   // Clear any leftover timers from previous run
   clearAllTimers();
 
   // Reset visuals cleanly before starting
-  if (DOM.needleGroup) {
-    DOM.needleGroup.classList.remove('needle--revving', 'needle--stutter', 'needle--crash');
-    DOM.needleGroup.style.transform = `rotate(${NEEDLE.start}deg)`;
-  }
-  if (DOM.speedometerWrap) {
-    DOM.speedometerWrap.classList.remove('gauge--broken');
-  }
-  if (DOM.speedValue) {
-    DOM.speedValue.classList.remove('is-glitching');
-    DOM.speedValue.textContent = '0';
-  }
-  if (DOM.pingValue) {
-    DOM.pingValue.textContent = '-- ms';
-  }
+  DOM.needleGroup.classList.remove('needle--revving', 'needle--stutter', 'needle--crash');
+  DOM.speedometerWrap.classList.remove('gauge--broken');
+  DOM.speedValue.classList.remove('is-glitching');
+  setNeedle(NEEDLE.start);
   setGaugeFill(0);
 
   // Lock GO button & inject loading dots
   DOM.body.classList.add('is-scanning');
   injectScanningDots();
+  updateConnectionPill('Scanning...', 'scanning');
 
-  // Un-mock speeds: realistic random or navigator.connection data
-  try {
-    STATE.speed = (navigator.connection && navigator.connection.downlink)
-      ? parseFloat(navigator.connection.downlink).toFixed(1) 
-      : (Math.random() * 10).toFixed(1);
-  } catch (e) {
-    STATE.speed = (Math.random() * 10).toFixed(1);
-  }
-  STATE.ping  = Math.floor(Math.random() * (300 - 15 + 1)) + 15;
-
-  // ── Sprint 3: Fire network fetch CONCURRENTLY with the animation ──
-  // fetchNetworkData is non-blocking; animation runs regardless of result.
-  // By the time phase5_reveal fires at t=4000ms, the 3s fetch is done.
+  // Fire all network measurements CONCURRENTLY with the 4-second animation.
+  // By the time phase5_reveal fires at t=4000ms all of these will be done.
   fetchNetworkData().then((data) => {
     STATE.networkData = data;
-    
-    // Force id-ID locale if country is Indonesia, regardless of browser settings
-    if (data && (data.countryCode === 'ID' || data.country === 'Indonesia')) {
-      STATE.locale = 'id-ID';
-    }
-    
     detectVpnMismatch(data);
-  }).catch((err) => {
-    console.error('Fetch error in startScan:', err);
+  }).catch(() => {
     STATE.networkData = getFallbackData('error');
   });
 
-  // Kick off the 4-second fake-out sequence with a tiny delay to ensure DOM paint
-  setTimeout(() => {
-    if (STATE.isScanning) {
-      runFakeOutSequence();
-    }
-  }, 50);
+  measurePing().then((ms)   => { STATE.pingMs    = ms;    }).catch(() => {});
+  measureSpeed().then((mbps) => { STATE.speedMbps = mbps; }).catch(() => {});
+
+  // Kick off the 4-second fake-out sequence
+  runFakeOutSequence();
 }
 
 
@@ -853,6 +981,12 @@ async function startScan() {
 document.addEventListener('DOMContentLoaded', () => {
   // Detect locale immediately on load
   detectLocale();
+
+  // Restore scan count from previous sessions (escalating roast intensity)
+  try {
+    const saved = parseInt(localStorage.getItem('spidtes_scan_count') || '0', 10);
+    if (!isNaN(saved)) STATE.scanCount = saved;
+  } catch (_) {}
 
   // Ensure needle starts at correct position
   setNeedle(NEEDLE.start);
@@ -978,6 +1112,12 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.shareNativeBtn.addEventListener('click', () => {
       if (DOM.shareReceiptBtn) DOM.shareReceiptBtn.click();
     });
+  }
+
+  // Scan Again button (injected into the on-screen results section)
+  const scanAgainTrigger = document.getElementById('scan-again-trigger');
+  if (scanAgainTrigger) {
+    scanAgainTrigger.addEventListener('click', resetScan);
   }
 
 });
