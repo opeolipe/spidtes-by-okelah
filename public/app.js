@@ -567,6 +567,23 @@ const LOCALE_COUNTRY_MAP = {
 };
 
 /**
+ * detectLocaleFromNetwork(networkData)
+ * Overrides the browser-language locale with one derived from the IP's country
+ * code, so users who browse in English but are physically in Indonesia (etc.)
+ * still receive localised roasts.
+ */
+const COUNTRY_LOCALE_MAP = {
+  'ID': 'id-ID',
+  'MY': 'id-ID', 'BN': 'id-ID',
+};
+
+function detectLocaleFromNetwork(networkData) {
+  if (!networkData || networkData._fallback || !networkData.countryCode) return;
+  const mapped = COUNTRY_LOCALE_MAP[networkData.countryCode];
+  if (mapped) STATE.locale = mapped;
+}
+
+/**
  * detectVpnMismatch(networkData)
  * Globally compares the browser's language prefix against the API-returned
  * countryCode. If the IP's country isn't in the expected set for that language,
@@ -670,7 +687,7 @@ const ROAST_DICT = {
       'cox':       ['Cox Communications. The name says it all, really.'],
       'virgin':    ['Virgin Media: still virgin to the concept of consistent speeds.'],
       'bt':        ['BT Broadband: British Throttling, as per tradition.'],
-      'default':   ['"{isp}" — never heard of them, but based on these results, I\'m not surprised.', 'Unknown ISP. Unknown why you\'re still with them after this.'],
+      'default':   ['"{isp}" — never heard of them, but based on these results, I\'m not surprised.', '"{isp}" — obscure ISP, iconic disappointment.'],
     },
     locationRoast: {
       'california':['Silicon Valley adjacent, but your speeds are still in the valley — the bad valley.'],
@@ -808,13 +825,13 @@ function injectReceiptData(networkData, roastText) {
   // ── Meta bar (live header) ── textContent only
   if (DOM.ispDisplay)      DOM.ispDisplay.textContent      = networkData.isp      || '—';
   if (DOM.locationDisplay) DOM.locationDisplay.textContent = location;
-  // Zero Trust UI: display fully masked IP by default
-  if (DOM.ipDisplay)       DOM.ipDisplay.textContent       = '***.***.***.***';
+  // Partial mask: first 2 octets visible, last 2 redacted — more readable than full *** mask
+  if (DOM.ipDisplay)       DOM.ipDisplay.textContent       = maskIp(networkData.ip);
 
   // ── On-Screen Results (Desktop UI) ──
   if (DOM.resultDlVal)     DOM.resultDlVal.textContent     = speed;
   if (DOM.resultPingVal)   DOM.resultPingVal.textContent   = ping;
-  if (DOM.resultGradeVal)  DOM.resultGradeVal.textContent  = grade;
+  if (DOM.resultGradeVal)  DOM.resultGradeVal.textContent  = ''; // grade shown in icon only (see below)
 
   const roastTextEl = document.getElementById('roast-text');
   if (roastTextEl) roastTextEl.textContent = roastText;
@@ -957,11 +974,13 @@ async function startScan() {
   DOM.body.classList.add('is-scanning');
   injectScanningDots();
   updateConnectionPill('Scanning...', 'scanning');
+  if (DOM.ipDisplay) DOM.ipDisplay.textContent = '***.***.***.***';
 
   // Fire all network measurements CONCURRENTLY with the 4-second animation.
   // By the time phase5_reveal fires at t=4000ms all of these will be done.
   fetchNetworkData().then((data) => {
     STATE.networkData = data;
+    detectLocaleFromNetwork(data);
     detectVpnMismatch(data);
   }).catch(() => {
     STATE.networkData = getFallbackData('error');
@@ -1008,25 +1027,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === DOM.receiptStage) resetScan();
   });
 
-  // ── Phase 1: Zero Trust UI (Tap-to-Reveal IP) ──
+  // ── Zero Trust UI (Click to toggle full/partial IP) ──
   if (DOM.ipRevealBtn && DOM.ipDisplay) {
-    const revealIp = () => {
-      if (STATE.networkData && STATE.networkData.ip) {
-        DOM.ipDisplay.textContent = STATE.networkData.ip;
-        DOM.ipDisplay.style.color = 'var(--text-primary)';
-      }
-    };
-    const hideIp = () => {
-      DOM.ipDisplay.textContent = '***.***.***.***';
-      DOM.ipDisplay.style.color = '';
-    };
-
-    DOM.ipRevealBtn.addEventListener('mousedown', revealIp);
-    DOM.ipRevealBtn.addEventListener('touchstart', revealIp, { passive: true });
-
-    DOM.ipRevealBtn.addEventListener('mouseup', hideIp);
-    DOM.ipRevealBtn.addEventListener('mouseleave', hideIp);
-    DOM.ipRevealBtn.addEventListener('touchend', hideIp, { passive: true });
+    let ipRevealed = false;
+    DOM.ipRevealBtn.addEventListener('click', () => {
+      if (!STATE.networkData || !STATE.networkData.ip) return;
+      ipRevealed = !ipRevealed;
+      DOM.ipDisplay.textContent = ipRevealed
+        ? STATE.networkData.ip
+        : maskIp(STATE.networkData.ip);
+      DOM.ipDisplay.style.color = ipRevealed ? 'var(--text-primary)' : '';
+    });
+    // Reset revealed state when a new scan starts
+    DOM.goBtn.addEventListener('click', () => { ipRevealed = false; });
   }
 
   // ── Phase 3: Viral Share Engine (Export to Image) ──
