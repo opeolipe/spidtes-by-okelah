@@ -297,7 +297,8 @@ async function fetchNetworkData() {
 
   } catch (err) {
     clearTimeout(timeoutId);
-    const reason = (err.name === 'AbortError') ? 'timeout' : 'adblocker';
+    console.warn('Network fetch failed, using fallback data:', err);
+    const reason = (err.name === 'AbortError') ? 'timeout' : 'error';
     return getFallbackData(reason);
   }
 }
@@ -478,6 +479,7 @@ const ROAST_DICT = {
       'surabaya': ['Surabaya, kota pahlawan. Pahlawan yang ping-nya 300ms.'],
       'bandung':  ['Bandung kota kembang. Kembang kembali jadi dial-up ternyata.'],
       'yogyakarta':['Jogja istimewa katanya. Istimewa lemotnya iya.'],
+      'denpasar':  ['Denpasar pride, tapi internet-nya ga ada pride-pride-nya. Lemot bener.', 'Main ke Canggu aja bang, siapa tau dapet WiFi kencengan dikit.'],
       'default':  ['Dimanapun kamu berada, satu hal yang pasti: ISP-mu mengecewakan.', 'Lokasi ga ketemu di database. Tapi internet segini mah udah cukup buat bikin malu.'],
     },
     punchline: [
@@ -800,8 +802,15 @@ async function startScan() {
   // By the time phase5_reveal fires at t=4000ms, the 3s fetch is done.
   fetchNetworkData().then((data) => {
     STATE.networkData = data;
+    
+    // Force id-ID locale if country is Indonesia, regardless of browser settings
+    if (data && data.countryCode === 'ID') {
+      STATE.locale = 'id-ID';
+    }
+    
     detectVpnMismatch(data);
-  }).catch(() => {
+  }).catch((err) => {
+    console.error('Fetch error in startScan:', err);
     STATE.networkData = getFallbackData('error');
   });
 
