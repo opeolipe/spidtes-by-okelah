@@ -334,33 +334,42 @@ async function measurePing() {
  * measureSpeed()
  * Returns download speed in Mbps.
  * 1st: reads navigator.connection.downlink (instant, no request).
- * 2nd: downloads a ~200 KB payload from Cloudflare's speed-test CDN
- *      and computes throughput from elapsed time.
+ * 2nd: downloads the self-hosted /speedtest.bin (200 KB, xorshift-random,
+ *      incompressible — won't be gzip'd by the server).
+ * 3rd: falls back to Cloudflare's speed-test endpoint if the hosted file
+ *      isn't reachable (e.g., running locally without the asset served).
  * Returns a number ≥ 0.1 so the roast engine always has a real value.
  */
 async function measureSpeed() {
-  // Fast path: Network Information API
+  // Fast path: Network Information API (Chrome/Android, no request needed)
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   if (conn && conn.downlink > 0) {
     return Math.round(conn.downlink * 10) / 10;
   }
 
-  // Fallback: timed download of a 200 KB payload
-  try {
+  // Helper: time a fetch and compute Mbps from bytes received
+  async function timedDownload(url, timeoutMs) {
     const ctrl  = new AbortController();
-    const tid   = setTimeout(() => ctrl.abort(), 12000);
+    const tid   = setTimeout(() => ctrl.abort(), timeoutMs);
     const start = performance.now();
-    const resp  = await fetch(
-      'https://speed.cloudflare.com/__down?bytes=200000',
-      { cache: 'no-store', signal: ctrl.signal }
-    );
-    const buf     = await resp.arrayBuffer();
+    const resp  = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+    const buf   = await resp.arrayBuffer();
     clearTimeout(tid);
-    const elapsed = (performance.now() - start) / 1000; // seconds
+    const elapsed = (performance.now() - start) / 1000;
     const mbps    = (buf.byteLength * 8) / (elapsed * 1_000_000);
     return Math.max(0.1, Math.round(mbps * 10) / 10);
+  }
+
+  // Primary: self-hosted file (same origin, stable, no CORS, no rate limits)
+  try {
+    return await timedDownload('./speedtest.bin', 12000);
+  } catch { /* fall through */ }
+
+  // Secondary: Cloudflare speed-test CDN (undocumented but reliable)
+  try {
+    return await timedDownload('https://speed.cloudflare.com/__down?bytes=200000', 10000);
   } catch {
-    return 0.5; // conservative fallback — still a real-ish value
+    return 0.5; // conservative fallback when all fetches fail
   }
 }
 
@@ -493,18 +502,92 @@ function phase5_reveal() {
 
 
 /* ============================================================
-   PHASE C — VPN MISMATCH DETECTION
+   PHASE C — VPN MISMATCH DETECTION (global)
    ============================================================ */
 
 /**
+ * Maps a browser language prefix to the expected ISO-3166-1 alpha-2
+ * country code(s) for that language's primary region(s).
+ * A mismatch between browser language and the IP's country code
+ * strongly suggests a VPN or proxy is active.
+ */
+const LOCALE_COUNTRY_MAP = {
+  'id':  ['ID'],
+  'ms':  ['MY', 'BN', 'SG'],
+  'fil': ['PH'],
+  'th':  ['TH'],
+  'vi':  ['VN'],
+  'km':  ['KH'],
+  'my':  ['MM'],
+  'lo':  ['LA'],
+  'ja':  ['JP'],
+  'ko':  ['KR'],
+  'zh':  ['CN', 'TW', 'HK', 'MO', 'SG'],
+  'de':  ['DE', 'AT', 'CH'],
+  'fr':  ['FR', 'BE', 'CH', 'CA', 'LU'],
+  'es':  ['ES', 'MX', 'AR', 'CL', 'CO', 'PE', 'VE', 'EC', 'BO', 'PY', 'UY', 'CR', 'GT', 'HN', 'SV', 'NI', 'PA', 'DO', 'CU'],
+  'pt':  ['PT', 'BR', 'AO', 'MZ'],
+  'ru':  ['RU', 'BY', 'KZ'],
+  'uk':  ['UA'],
+  'pl':  ['PL'],
+  'cs':  ['CZ'],
+  'sk':  ['SK'],
+  'hu':  ['HU'],
+  'ro':  ['RO'],
+  'bg':  ['BG'],
+  'hr':  ['HR'],
+  'sr':  ['RS'],
+  'sl':  ['SI'],
+  'nl':  ['NL', 'BE'],
+  'sv':  ['SE'],
+  'da':  ['DK'],
+  'fi':  ['FI'],
+  'nb':  ['NO'],
+  'nn':  ['NO'],
+  'tr':  ['TR'],
+  'ar':  ['SA', 'AE', 'EG', 'IQ', 'MA', 'DZ', 'TN', 'LY', 'JO', 'LB', 'SY', 'YE', 'OM', 'KW', 'QA', 'BH'],
+  'fa':  ['IR', 'AF'],
+  'he':  ['IL'],
+  'hi':  ['IN'],
+  'bn':  ['BD', 'IN'],
+  'ta':  ['IN', 'LK'],
+  'te':  ['IN'],
+  'mr':  ['IN'],
+  'ur':  ['PK', 'IN'],
+  'el':  ['GR', 'CY'],
+  'it':  ['IT', 'CH'],
+  'lt':  ['LT'],
+  'lv':  ['LV'],
+  'et':  ['EE'],
+  'ka':  ['GE'],
+  'hy':  ['AM'],
+  'az':  ['AZ'],
+  'uz':  ['UZ'],
+  'kk':  ['KZ'],
+};
+
+/**
  * detectVpnMismatch(networkData)
- * Compares browser locale language against the API-returned countryCode.
- * Indonesian browser + non-ID IP = VPN detected.
+ * Globally compares the browser's language prefix against the API-returned
+ * countryCode. If the IP's country isn't in the expected set for that language,
+ * it's flagged as a likely VPN / proxy.
+ *
+ * English (en) is intentionally excluded — it is used as a global lingua
+ * franca and would produce too many false positives.
  */
 function detectVpnMismatch(networkData) {
-  const browserIsId  = navigator.language.toLowerCase().startsWith('id');
-  const ipIsId       = networkData.countryCode === 'ID';
-  STATE.isVpn        = browserIsId && !ipIsId;
+  const lang    = navigator.language.toLowerCase();
+  const prefix  = lang.split('-')[0];
+  const ipCode  = networkData.countryCode;
+
+  // Only flag if we have a specific country mapping for this language
+  const expected = LOCALE_COUNTRY_MAP[prefix];
+  if (!expected || !ipCode) {
+    STATE.isVpn = false;
+    return false;
+  }
+
+  STATE.isVpn = !expected.includes(ipCode);
   return STATE.isVpn;
 }
 
@@ -518,6 +601,8 @@ const ROAST_DICT = {
     vpnRoast: [
       'Browser-mu Indo, IP-mu Amerika. Pake VPN gratisan ya bang? Kirain pro.',
       'Detected VPN. Sok internasional, padahal koneksinya tetep lemot.',
+      'IP-mu abroad tapi ping-mu tetap nangis. VPN-nya gratisan atau yang bayar juga sama aja?',
+      'Pake VPN biar kelihatan keren. Speed-nya tetap bikin malu.',
     ],
     pingReact: [
       'Ping-mu lebih tinggi dari harapan hidupmu.',
@@ -561,6 +646,10 @@ const ROAST_DICT = {
     vpnRoast: [
       'VPN detected. Hiding from your ISP, or just from the truth about your speeds?',
       'Nice VPN. Still slow though.',
+      'Browser says one country. IP says another. The VPN is not helping your ping.',
+      'Using a VPN to look more international? Cute. The lag is very local.',
+      'Your browser and your IP are having an argument about where you actually live.',
+      'Pro-tier privacy setup. Zero-tier connection speed.',
     ],
     pingReact: [
       'A ping of {ping}ms. Were you testing from the moon?',
