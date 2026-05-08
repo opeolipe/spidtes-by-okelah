@@ -617,38 +617,203 @@ const ROAST_DICT = {
     vpnRoast: [
       'Browser-mu Indo, IP-mu Amerika. Pake VPN gratisan ya bang? Kirain pro.',
       'Detected VPN. Sok internasional, padahal koneksinya tetep lemot.',
-      'IP-mu abroad tapi ping-mu tetap nangis. VPN-nya gratisan atau yang bayar juga sama aja?',
+      'IP-mu abroad tapi ping-mu tetap nangis. VPN gratisan atau berbayar juga sama aja hasilnya.',
       'Pake VPN biar kelihatan keren. Speed-nya tetap bikin malu.',
+      'VPN aktif, bandwidth tetap pingsan. Tunneling ke mana, bang?',
+      'IP-mu keluar negeri tapi jiwa koneksinya masih di warnet pinggir jalan.',
+      'Nyamar jadi bule di internet, tapi speed-nya masih ala kosan Rp800rb sebulan.',
+      'VPN-nya bisa nyembunyiin lokasi. Nggak bisa nyembunyiin kenyataan ini.',
+      'Encrypt traffic boleh. Tapi kekecewaan ini nggak bisa dienkripsi.',
+      'Pakai VPN biar "aman". Aman dari siapa? Speed-mu tetap ketangkap basah.',
     ],
     pingReact: [
       'Ping-mu lebih tinggi dari harapan hidupmu.',
       'Dengan ping segitu, kamu udah kalah sebelum mulai.',
-      'Ping {ping}ms? Paket Internet-mu kayak kirim surat lewat kantor pos.',
+      'Ping {ping}ms? Paket internet-mu kayak kirim surat lewat kantor pos.',
+      '{ping}ms. Itu bukan latency, itu penantian eksistensial.',
+      'Ping {ping}ms bikin game online jadi catur pos.',
+      'Dengan ping {ping}ms, musuh udah respawn sebelum peluru-mu nyampe.',
+      'CS:GO, Valorant, PUBG — semua akan menolakmu dengan ping {ping}ms ini.',
+      'Ping {ping}ms. HTTP request-mu udah pensiun sebelum nyampe server.',
+      '{ping}ms latency. Live streaming? Lebih pas disebut delayed broadcast.',
+      'Ping segitu bikin video call jadi pertunjukan seni patung.',
     ],
     speedReact: [
       'Speedmu {speed} Mbps. Siput pun ngakak.',
       '{speed} Mbps? Kamu mau streaming atau meditasi?',
-      'Bahkan IndiHome promo pun malu sama angka ini.',
+      'Bahkan IndiHome promo pun malu liat angka ini.',
+      '{speed} Mbps. WhatsApp voice note aja nge-buffer.',
+      'Kecepatan {speed} Mbps. Kenangan masa lalu load lebih cepet.',
+      'Netflix minimum 3 Mbps buat 720p. Kamu di {speed} Mbps. Selamat nonton slideshow.',
+      'Zoom meeting dengan {speed} Mbps? Wajahmu bakal jadi karya seni piksel.',
+      '{speed} Mbps di 2025. Warnet tahun 2005 lebih kenceng dari ini.',
+      'Download file 100MB dengan {speed} Mbps? Siapkan bekal makan siang.',
+      'Angka {speed} Mbps ini bikin tetangga yang pake HP hotspot ikut kasihan.',
     ],
     ispRoast: {
-      'indihome':   ['IndiHome, raja throttling nusantara. Mahal, lambat, tapi tetep dipake karena ga ada pilihan.', 'IndiHome: karena monopoli itu nyata.'],
-      'telkomsel':  ['Telkomsel Orbit katanya solusi rumahan. Solusi apa, bro? Solusi bikin emosi?', 'Orbit by Telkomsel: mahal dan tetap kecewa.'],
-      'biznet':     ['Biznet harusnya kenceng. Harusnya. Kenyataannya? Ya gini deh.', 'Biznet di kertasnya 100Mbps. Di realitanya... tanya tetangga.'],
-      'xl':         ['XL Axiata. X-nya buat X-tras lambat.', 'XL: Xtra Lemot.'],
-      'myrepublic': ['MyRepublic katanya gaming ISP. Gaming ISP buat gamer yang suka DC.'],
-      'smartfren':  ['Smartfren. Smart dari mana? Dari namanya doang.', 'Smartfren: sinyal 4G, kecepatan 2G.'],
-      'first media':['First Media: first dalam harga, last dalam performa.'],
-      'default':    ['ISP "{isp}"? Baru denger. Kayaknya RT/RW Net patungan se-kosan ya?', 'Provider "{isp}" ini nggak masuk radar, tapi koneksinya udah cukup buat ngomong sendiri.'],
+      'indihome':   [
+        'IndiHome, raja throttling nusantara. Mahal, lambat, tapi tetep dipake karena ga ada pilihan.',
+        'IndiHome: karena monopoli itu nyata, dan kamu yang bayar ongkosnya.',
+        'IndiHome FUP-nya kejam. Tanggal 20 speed langsung nyungsep ke dasar laut.',
+        'Tagihan IndiHome naik tiap tahun. Speed-nya setia di angka yang sama.',
+        'IndiHome: satu-satunya tempat di mana "gangguan jaringan" adalah fitur, bukan bug.',
+      ],
+      'telkomsel':  [
+        'Telkomsel Orbit katanya solusi rumahan. Solusi apa, bro? Solusi bikin emosi.',
+        'Orbit by Telkomsel: harga langit, speed tanah.',
+        'Telkomsel: provider terbesar Indonesia, dengan keluhan terbesar juga.',
+        'Orbit sudah orbit ke mana-mana, tapi signal-nya masih di bumi bawah.',
+      ],
+      'biznet':     [
+        'Biznet harusnya kenceng. Harusnya. Kenyataannya? Ya gini deh.',
+        'Biznet di kertasnya 100Mbps. Di realitanya tanya tetangga yang sama kecewanya.',
+        'Biznet Metro: metronya macet juga rupanya.',
+        'Biznet fiber optik katanya. Fiber-nya mungkin masih digulung di gudang.',
+      ],
+      'xl':         [
+        'XL Axiata. X-nya buat X-tras lambat.',
+        'XL: Xtra Lemot, eXtra kecewa.',
+        'XL Satu Home — satu paket, satu kekecewaan terpadu.',
+        'XL fiber sudah ada. Kamu pake XL yang mana, bang? Yang lemot juga?',
+      ],
+      'myrepublic': [
+        'MyRepublic katanya gaming ISP. Gaming ISP buat gamer yang hobi DC.',
+        'MyRepublic: republiknya mana? Yang ini kayak monarki disconnect.',
+        'MyRepublic fiber gaming — gaming paling mulus adalah saat server down.',
+      ],
+      'smartfren':  [
+        'Smartfren. Smart dari mana? Dari namanya doang.',
+        'Smartfren: sinyal 4G, kecepatan nostalgia 2G.',
+        'Smartfren WMS home broadband. W-nya untuk Waiting.',
+        'Smartfren: satu-satunya provider yang bikin pengguna merasa lebih pintar setelah berhenti langganan.',
+      ],
+      'first media':['First Media: first dalam harga, last dalam performa.', 'First Media fiber — first kali konek kenceng, abis itu silakan bersabar.'],
+      'iconnet':    ['IconNet by PLN. Listrik bisa, internet... ya masih sesuai anggaran PLN.', 'IconNet: icon-nya bisa, net-nya masih loading.', 'PLN masuk bisnis internet. Mati lampu masuk bundel gratis.'],
+      'mnc':        ['MNC Play. Main streaming di platform sendiri aja buffering, gimana yang lain.', 'MNC Play — media terbesar, bandwidth terkecil.'],
+      'tri':        ['Tri/3 Hutchison. Nomor tiga dalam nama, nomor tiga dari bawah dalam kecepatan.', '3 Indonesia: unlimited data, unlimited kekecewaan.'],
+      'axis':       ['Axis Telekom. Udah merger sama XL, speed-nya pun ikut merge jadi satu: lambat.', 'Axis: dulu murah meriah, sekarang... tetap saja.'],
+      'isat':       ['Indosat Ooredoo Hutchison. Tiga perusahaan bergabung, speed-nya tetap satu: biasa aja.', 'IM3 Ooredoo: rebranding keren, kecepatan original tetap terjaga.'],
+      'telkom':     ['Telkom Indonesia, BUMN kebanggaan bangsa. Bangga-banggain yang lain aja deh.', 'Astinet Telkom: harganya enterprise, feeling-nya warnet.'],
+      'orbit':      ['Telkomsel Orbit: bayar premium, dapat koneksi yang bikin melow.', 'Orbit Home: harga bintang lima, speed bintang satu.'],
+      'default':    [
+        'ISP "{isp}"? Baru denger. Kayaknya RT/RW Net patungan se-kosan ya?',
+        'Provider "{isp}" ini nggak masuk radar, tapi koneksinya udah cukup buat ngomong sendiri.',
+        '"{isp}" — nama baru, kekecewaan klasik.',
+        'Belum pernah denger "{isp}", tapi dari hasil ini, udah bisa ditebak ceritanya.',
+        '"{isp}" ini apa singkatannya? Internet Sangat Tidak Enak?',
+      ],
     },
     locationRoast: {
-      'denpasar': ['Denpasar, ibu kota Bali. Kota seni dan budaya. Internet-nya? Beda cerita.', 'Digital nomad masuk Denpasar pake WiFi kosan Rp150rb. Vibes bagus, koneksi nangis.'],
-      'bali':     ['Work From Bali tapi WiFi kosan Rp150rb sebulan. Vibes bagus, koneksi ngenes.', 'Digital nomad di Bali pake WiFi warung. Respek tapi ya... coba FYP dulu deh.'],
-      'dalung':   ['Dalung, Bali. Kosan WiFi patungan 6 orang. Speed dibagi rata: nol koma nol.'],
-      'jakarta':  ['Jakarta, ibu kota, tapi koneksinya masih kalah sama warnet 2008.', 'DKI Jakarta: macetnya di jalan, macetnya di internet.'],
-      'surabaya': ['Surabaya, kota pahlawan. Pahlawan yang ping-nya 300ms.'],
-      'bandung':  ['Bandung kota kembang. Kembang kembali jadi dial-up ternyata.'],
-      'yogyakarta':['Jogja istimewa katanya. Istimewa lemotnya iya.'],
-      'default':  ['Dimanapun kamu berada, satu hal yang pasti: ISP-mu mengecewakan.', 'Kota-mu nggak ada di daftar, tapi internet segini mah bikin tetangga kasihan.'],
+      'denpasar': [
+        'Denpasar, ibu kota Bali. Kota seni dan budaya. Internet-nya? Beda cerita.',
+        'Digital nomad masuk Denpasar pake WiFi kosan Rp150rb. Vibes bagus, koneksi nangis.',
+        'Denpasar — turis datang buat sunset. Kamu duduk nungguin halaman web yang load.',
+      ],
+      'bali':     [
+        'Work From Bali tapi WiFi kosan Rp150rb sebulan. Vibes bagus, koneksi ngenes.',
+        'Digital nomad di Bali pake WiFi warung. Respek tapi ya... upload foto aja pake jalur darat.',
+        'Bali surganya dunia. WiFi-nya surganya disconnected.',
+        'Semua orang WFB — Work From Bali. Tapi yang "B" itu Buffer, bukan Beach.',
+      ],
+      'dalung':   [
+        'Dalung, Bali. Kosan WiFi patungan 6 orang. Speed dibagi rata: nol koma nol.',
+        'Dalung: harga kosan naik, speed WiFi tetap di titik yang sama sejak 2017.',
+      ],
+      'kuta':     ['Kuta, pantai paling rame di Bali. WiFi paling rame buffering-nya juga.', 'Kuta — turis ribuan, bandwidth ratusan kilobyte.'],
+      'seminyak': ['Seminyak, area bule sultan. Internet-nya masih ala Bali pada umumnya: bisa nunggu.'],
+      'ubud':     ['Ubud, pusat seni dan spiritualitas. Internet-nya menguji kesabaran spiritual kamu.', 'Ubud: cocok buat healing, cocok juga buat detoks digital — karena internet-nya bikin kapok.'],
+      'jakarta':  [
+        'Jakarta, ibu kota, tapi koneksinya masih kalah sama warnet 2008.',
+        'DKI Jakarta: macetnya di jalan, macetnya di internet.',
+        'Jakarta pusat ekonomi Indonesia. Ekonomi internet-mu? Jauh dari pusat.',
+        'Tinggal di kota yang tidak pernah tidur, internet-mu yang malah tidur duluan.',
+      ],
+      'surabaya': [
+        'Surabaya, kota pahlawan. Pahlawan yang ping-nya 300ms.',
+        'Surabaya kota terbesar kedua. Internet-nya? Juga nomor dua. Dari bawah.',
+        'Arek Suroboyo biasanya keras kepala. Internet-nya lebih keras: keras susah konek.',
+      ],
+      'bandung':  [
+        'Bandung kota kembang. Kembang kembali jadi dial-up ternyata.',
+        'Silicon Valley-nya Indonesia katanya. Silicon iya, Valley speed-nya iya juga — turun terus.',
+        'Bandung: startup-nya kenceng, internet rumahnya masih mengejar.',
+      ],
+      'yogyakarta': [
+        'Jogja istimewa katanya. Istimewa lemotnya iya.',
+        'Kota pelajar, tapi internet-nya bikin ilmu susah masuk.',
+        'Malioboro ramai wisatawan. Router-mu juga ramai — ramai error.',
+      ],
+      'semarang': [
+        'Semarang, kota lumpia. Internet-nya pun selembek lumpia basah.',
+        'Semarang: Rob air laut naik tiap tahun. Kecepatan internet turun tiap bulan.',
+        'Kota atlas ini bisa ngangkat banyak hal. Internet kenceng belum termasuk.',
+      ],
+      'medan':    [
+        'Medan, kota terbesar di Sumatra. Internet-nya masih kalah sama warung kopi di Jawa.',
+        'Orang Medan terkenal keras dan tegas. Coba tegas ke ISP-mu juga dong.',
+        'Medan: kota sejuta durian, satu internet yang mengecewakan.',
+      ],
+      'makassar': [
+        'Makassar, gerbang timur Indonesia. Gerbangnya buka, internet-nya masih tutup.',
+        'Kota Daeng ini terkenal pemberani. Berani juga ya pake internet segini.',
+        'Makassar punya bandara baru megah. Terminal internet-nya masih dalam renovasi.',
+      ],
+      'malang':   [
+        'Malang kota dingin dan sejuk. Koneksi internet-nya pun bikin hati dingin.',
+        'Malang: kota apel dan pendidikan. Internet-nya bikin studi kasus sendiri.',
+        'Kota Malang — nama kotanya tepat buat kondisi koneksi internet-mu.',
+      ],
+      'bogor':    [
+        'Bogor, kota hujan. Yang jelas bukan hujan bandwidth.',
+        'Istana Bogor ada di sini. Istana ISP-mu? Sudah lama ambruk.',
+        'Bogor satu jam dari Jakarta. Speed internet-nya satu dekade dari normal.',
+      ],
+      'depok':    [
+        'Depok. UI dan Gunadarma ada di sini. Ironi internet-nya sangat nyata.',
+        'Kota satelit Jakarta ini punya banyak mahasiswa IT. Mereka semua ngerasain pedihnya internet-mu.',
+        'Depok: smart city in progress. Progress-nya lagi istirahat rupanya.',
+      ],
+      'tangerang': [
+        'Tangerang, kota industri di pintu masuk Jakarta. Industri apa? Industri lemot.',
+        'BSD City ada di Tangerang. Kota baru, internet lama.',
+        'Tangerang Selatan: kawasan elite, internet masih demokratis — lambat merata.',
+      ],
+      'bekasi':   [
+        'Bekasi. Udah jauh dari Jakarta, jauh juga dari kecepatan internet yang manusiawi.',
+        'Orang Bekasi sering diledekin. Sekarang internet-nya ikut nimbrung.',
+        'Bekasi: kemacetan kelas dunia, internet kelas RT/RW.',
+      ],
+      'palembang': [
+        'Palembang, kota pempek. Internet-nya pun sama ngembangnya — penuh harapan, kurang eksekusi.',
+        'Jembatan Ampera ikonik banget. Koneksi internet-mu juga ikonik: ikonik lemotnya.',
+      ],
+      'pekanbaru': [
+        'Pekanbaru, kota minyak. Minyak banyak, bandwidth nggak ikut.',
+        'Pekanbaru: SDA melimpah, SDM berkualitas. Internet-nya masih dalam pengembangan.',
+      ],
+      'balikpapan': [
+        'Balikpapan, gerbang IKN. Ibukota baru mau dibangun, internet lama masih di sana.',
+        'Kota minyak Kaltim ini siap masa depan. Internet-nya masih di masa lalu.',
+      ],
+      'pontianak': [
+        'Pontianak, tepat di garis khatulistiwa. Sinyal-nya bingung mau ke utara atau selatan.',
+        'Kota khatulistiwa ini punya posisi unik di peta. Internet-nya punya posisi unik juga: di bawah ekspektasi.',
+      ],
+      'manado':   [
+        'Manado, ujung utara Sulawesi. Signal-nya juga nyungsep ke arah utara.',
+        'Bunaken terdekat dari sini. Sayangnya bandwidth-mu udah tenggelam lebih dalam.',
+      ],
+      'lombok':   [
+        'Lombok, surga wisata. Wisatawan datang, internet kabur ke gunung Rinjani.',
+        'Pantai-pantai Lombok menakjubkan. WiFi-nya bikin takjub juga — takjub betapa lemotnya.',
+      ],
+      'default':  [
+        'Dimanapun kamu berada, satu hal yang pasti: ISP-mu mengecewakan.',
+        'Kota-mu nggak ada di daftar, tapi internet segini mah bikin tetangga kasihan.',
+        'Lokasi nggak dikenal, tapi kualitas internet-nya sangat dikenali: mengecewakan.',
+        'Entah di mana kamu berada, ISP-mu sudah menemukan cara untuk kecewain kamu di sana.',
+        'Nama kota-mu nggak ada, tapi rekam jejaknya ada: lambat.',
+      ],
     },
     punchline: [
       'Semoga ISP-mu segera sadar diri.',
@@ -656,6 +821,16 @@ const ROAST_DICT = {
       'Ganti ISP atau ganti harapan. Dua-duanya valid.',
       'Coba restart router. Ga bakal ngaruh, tapi setidaknya ada usaha.',
       'Screenshot ini dan kirimin ke CS ISP-mu. Tanda kenangan.',
+      'Upgrade paket internet-mu. Atau upgrade kesabaran-mu. Pilih salah satu.',
+      'ISP-mu kayak mantan: janji manis, realitanya menghancurkan.',
+      'Pro tip: matiin WiFi, pake data. Hasilnya? Tetap sama. Selamat.',
+      'Kirim hasil ini ke grup keluarga. Biar ada yang sibuk ngurus internet kamu.',
+      'Grafik speed-mu kayak grafik semangat hari Senin pagi: langsung turun.',
+      'Buka tiket keluhan ke ISP-mu. Mereka akan bilang "sedang diperbaiki" seperti biasa.',
+      'Sebenernya, warnet terdekat mungkin lebih kenceng. Pertimbangkan opsi itu.',
+      'Ping-mu lebih tinggi dari ekspektasi, speed-mu lebih rendah dari harga paket.',
+      'Coba ganti posisi router. Tetap nggak akan ngaruh, tapi lumayan buat olahraga.',
+      'Lapor ke BRTI kalau mau. Antrinya lebih lama dari loading halaman web-mu.',
     ],
   },
 
@@ -667,35 +842,289 @@ const ROAST_DICT = {
       'Using a VPN to look more international? Cute. The lag is very local.',
       'Your browser and your IP are having an argument about where you actually live.',
       'Pro-tier privacy setup. Zero-tier connection speed.',
+      'Encrypted traffic, unencrypted disappointment.',
+      'You tunneled through a VPN to arrive at the same slow destination.',
+      'The VPN hides your location. Nothing hides these speeds.',
+      'VPN on. Ping through the roof. At least your data is secure — it\'s just not going anywhere fast.',
+      'Privacy mode: enabled. Speed: also private, apparently hidden from everyone.',
+      'Routing through three countries to arrive at dial-up territory.',
     ],
     pingReact: [
       'A ping of {ping}ms. Were you testing from the moon?',
       '{ping}ms latency. Online gaming? More like online suffering.',
       'Your ping is so high it needs its own postcode.',
+      '{ping}ms. Your packets are scenic-routing through the past.',
+      'Ping {ping}ms — that\'s not a number, that\'s a cry for help.',
+      'With {ping}ms, your "real-time" connection is more of a "remember when" situation.',
+      'Somewhere, a dial-up modem is feeling smug about your {ping}ms ping.',
+      '{ping}ms latency. Video calls must look like interpretive mime performances.',
+      'At {ping}ms you\'re not playing online games. You\'re submitting predictions.',
+      'Ping {ping}ms. The internet received your request and is thinking about whether to respond.',
+      'Your ISP charged you for speed and delivered archaeology. {ping}ms is a timestamp, not a ping.',
     ],
     speedReact: [
       '{speed} Mbps. My grandmother streams faster on carrier pigeon.',
       'Congrats on {speed} Mbps. That\'s... technically a number.',
       'At {speed} Mbps, a YouTube thumbnail takes a lunch break to load.',
+      '{speed} Mbps is not a speed test result. That\'s a hostage note.',
+      'At {speed} Mbps you\'re not browsing the web. You\'re petitioning it.',
+      'NASA communicates with the Voyager probe at the edge of the solar system faster than {speed} Mbps.',
+      'Your {speed} Mbps connection speed is what engineers technically classify as "nothing."',
+      'A smart toaster running {speed} Mbps would file a complaint.',
+      '{speed} Mbps. Even your browser\'s loading spinner is confused.',
+      'With {speed} Mbps, streaming 4K would require a time machine.',
+      'The fax machine your ISP is clearly using could explain the {speed} Mbps you\'re seeing.',
+      '{speed} Mbps. You could out-download this by waving two tin cans on a string.',
     ],
     ispRoast: {
-      'comcast':   ['Comcast: because you deserve to pay premium prices for mediocre service.', 'Comcast Xfinity: infinity waits, finite speed.'],
-      'at&t':      ['AT&T: Attempted Terrible Throughput.', 'AT&T fiber? More like AT&T fi-blur.'],
-      'starlink':  ['Starlink — technology from space, latency still from Earth.', 'Elon sent satellites to orbit. Your ping is still in geostationary.'],
-      'spectrum':  ['Spectrum: the full spectrum of disappointment.', 'Spectrum promises fast internet. Must be a different spectrum.'],
-      'verizon':   ['Verizon Fios: Fi-os as in "finally, os slow."', 'Can you hear me now? Verizon can. Your packets? Not so much.'],
-      'cox':       ['Cox Communications. The name says it all, really.'],
-      'virgin':    ['Virgin Media: still virgin to the concept of consistent speeds.'],
-      'bt':        ['BT Broadband: British Throttling, as per tradition.'],
-      'default':   ['"{isp}" — never heard of them, but based on these results, I\'m not surprised.', '"{isp}" — obscure ISP, iconic disappointment.'],
+      'comcast':   [
+        'Comcast: because you deserve to pay premium prices for mediocre service.',
+        'Comcast Xfinity: infinity waits, finite speed.',
+        'Comcast has been America\'s most hated company multiple years running. This result explains why.',
+        'Xfinity: X marks the spot where your bandwidth went missing.',
+      ],
+      'at&t':      [
+        'AT&T: Attempted Terrible Throughput.',
+        'AT&T fiber? More like AT&T fi-blur.',
+        'AT&T FirstNet: first in name, last in delivery.',
+        'AT&T has been building fiber for 20 years. The truck never came to your street.',
+      ],
+      'starlink':  [
+        'Starlink — technology from space, latency still from Earth.',
+        'Elon sent satellites to orbit. Your ping is still in geostationary.',
+        'Starlink: revolutionary concept, weather-dependent execution.',
+        'You paid for a satellite dish and got satellite speeds from 2003.',
+      ],
+      'spectrum':  [
+        'Spectrum: the full spectrum of disappointment.',
+        'Spectrum promises fast internet. Must be a different spectrum.',
+        'Charter Spectrum — monopoly pricing, municipal pool speeds.',
+        'Spectrum has no data caps, which is generous since there\'s barely any data to cap.',
+      ],
+      'verizon':   [
+        'Verizon Fios: Fi-os as in "finally, oh slow."',
+        'Can you hear me now? Verizon can. Your packets? Not so much.',
+        'Verizon 5G Home: 5G in the name, 3G in the delivery.',
+        'Verizon\'s marketing budget is larger than your actual connection speed.',
+      ],
+      'cox':       [
+        'Cox Communications. The name says it all, really.',
+        'Cox: gigabit available in select areas. Your area selected "no."',
+        'Cox Panoramic WiFi — panoramic view of all the buffering.',
+      ],
+      'virgin':    [
+        'Virgin Media: still virgin to the concept of consistent speeds.',
+        'Virgin Media — Richard Branson went to space. Your connection never left the ground floor.',
+        'Virgin Media\'s speeds are measured in "up to." You got the "down from."',
+      ],
+      'bt':        [
+        'BT Broadband: British Throttling, as per tradition.',
+        'BT Openreach — open to disappointment, closed to improvement.',
+        'BT Full Fibre? Full of something, certainly.',
+        'BT has been the UK\'s internet backbone since the 80s. It shows.',
+      ],
+      'sky':       [
+        'Sky Broadband — blue sky thinking, grey sky delivering.',
+        'Sky: limitless above you, limited bandwidth below.',
+        'Sky Ultrafast. Ultra is doing a lot of work in that name.',
+      ],
+      'talktalk':  [
+        'TalkTalk. At least you can still talk. The internet\'s done.',
+        'TalkTalk: they got hacked so badly they had to rebrand twice. The speeds stayed the same.',
+        'TalkTalk — Britain\'s most famous budget ISP. Budget quality included.',
+      ],
+      'ee':        [
+        'EE — everything\'s expensive, everything\'s eventually slow.',
+        'EE Full Fibre. Full of something. Not bandwidth.',
+        'EE acquired by BT. British tradition of underdelivering: maintained.',
+      ],
+      'vodafone':  [
+        'Vodafone — connecting people. Eventually. Maybe.',
+        'Vodafone broadband: they do it better in some countries. This isn\'t one of them.',
+        'Vodafone: global presence, local letdown.',
+      ],
+      'plusnet':   [
+        'Plusnet — Yorkshire\'s finest disappointment, delivered with a friendly voice.',
+        'Plusnet: "doing you proud" is aspirational, apparently.',
+        'Plusnet: budget tier. You got the budget experience.',
+      ],
+      'telstra':   [
+        'Telstra — Australia\'s biggest ISP with Australia\'s biggest audacity.',
+        'Telstra charges the most and delivers the least. Australian tradition.',
+        'Telstra HFC: the H stands for Hoping it works.',
+      ],
+      'optus':     [
+        'Optus. Even their outages have outages.',
+        'Optus had a national outage that left 10 million offline. Your connection is its own private tribute.',
+        'Optus: second place in the Australian duopoly, first place in apologies.',
+      ],
+      'rogers':    [
+        'Rogers Canada — monopoly pricing, municipal pool speeds.',
+        'Rogers, Bell, or Telus. Doesn\'t matter which — same cartel, same sadness.',
+        'Rogers: Canada\'s most complained-about ISP. Consistent at something, at least.',
+      ],
+      'bell':      [
+        'Bell Canada — ring ring, still buffering.',
+        'Bell Fibe: the "e" stands for "eventually."',
+        'Bell has been Canada\'s backbone since 1880. Still operating on original infrastructure, it seems.',
+      ],
+      'bsnl':      [
+        'BSNL — government-owned, government-paced.',
+        'BSNL Bharat Fiber: the bharat is fast, the fiber is theoretical.',
+        'BSNL: where technology goes to retire.',
+      ],
+      'jio':       [
+        'Jio disrupted the Indian market. Now the market is disrupted, and so is your connection.',
+        'Jio: unlimited data, limited usefulness.',
+        'Jio True 5G — 5G towers visible, 5G speed optional.',
+      ],
+      'pldt':      [
+        'PLDT — Philippines\' finest exercise in managed expectations.',
+        'PLDT: monopoly of a different kind. The kind where you pay more and get less.',
+        'PLDT Fibr: the "r" replaced the "e" in "fiber." The speed replaced nothing.',
+      ],
+      'globe':     [
+        'Globe Telecom — the world is waiting. Apparently so is your data.',
+        'Globe At Home: at home with buffering.',
+        'Globe and PLDT. One ISP or two? Doesn\'t matter — same result.',
+      ],
+      'singtel':   [
+        'Singtel in Singapore should be the gold standard. How did you end up with tin?',
+        'Singapore has some of the fastest internet on Earth. You found the one dead zone.',
+      ],
+      'tmobile':   [
+        'T-Mobile Home Internet: magenta packaging, beige performance.',
+        'T-Mobile merged with Sprint to become one. Unfortunately one disappointment.',
+        'Un-carrier? More like un-fast.',
+      ],
+      'xfinity':   [
+        'Xfinity — infinite potential, finite delivery.',
+        'Xfinity Gigabit: the gigabit is theoretical. This result is very real.',
+        'Comcast rebranded to Xfinity to escape its reputation. The speeds came along anyway.',
+      ],
+      'mediacom':  ['Mediacom: serving rural America with urban prices and rural speeds.', 'Mediacom — monopoly ISP for areas that deserve better.'],
+      'frontier':  ['Frontier Communications: on the frontier of slow.', 'Frontier fiber — frontier as in the lawless past where speeds roamed free and low.'],
+      'centurylink':['CenturyLink, now Lumen. New name. Century-old speeds.', 'Lumen Technologies: illuminating how bad your internet can be.'],
+      'optimum':   ['Optimum — optimistic name, pessimistic outcome.', 'Altice Optimum: they bought the company. Didn\'t buy faster infrastructure.'],
+      'default':   [
+        '"{isp}" — never heard of them, but based on these results, I\'m not surprised.',
+        '"{isp}" — obscure ISP, iconic disappointment.',
+        '"{isp}" — they exist. That\'s the nicest thing we can say right now.',
+        'Never heard of "{isp}," but the speed test results are a thorough introduction.',
+        '"{isp}" sounds made up. The speeds confirm it.',
+      ],
     },
     locationRoast: {
-      'california':['Silicon Valley adjacent, but your speeds are still in the valley — the bad valley.'],
-      'new york':  ['New York City. Fastest city in the world. Slowest Wi-Fi in the building.'],
-      'london':    ['London: world-class city, Victorian-era broadband.'],
-      'sydney':    ['Australia: beautiful country, geographically cursed internet infrastructure.'],
-      'singapore': ['Singapore has some of the best internet in Asia. You are the exception.'],
-      'default':   ['Wherever you are, your ISP has clearly never been there.', 'Location unknown, disappointment universal.'],
+      'california': [
+        'Silicon Valley adjacent, but your speeds are still in the valley — the bad one.',
+        'California, home of every major tech company on Earth. Their offices have better WiFi than you.',
+        'LA traffic is legendary. So is your latency, apparently.',
+        'San Francisco: $4,000/month rent, ISP still can\'t deliver gigabit to your door.',
+      ],
+      'new york':  [
+        'New York City. Fastest city in the world. Slowest Wi-Fi in the building.',
+        'New York: everyone\'s in a rush. Your packets are not.',
+        'Times Square has more bandwidth per square meter than your entire apartment.',
+        'NYC — the city that never sleeps. Your connection already is.',
+      ],
+      'london':    [
+        'London: world-class city, Victorian-era broadband.',
+        'London has Openreach on every street. Still somehow ended up with this.',
+        'City of London moves trillions a day. Your connection moves kilobytes.',
+        'London calling. Nobody answered — the bandwidth was too low.',
+      ],
+      'sydney':    [
+        'Australia: beautiful country, geographically cursed internet infrastructure.',
+        'Sydney is a global financial hub. The NBN has not received the memo.',
+        'Bondi Beach is stunning. Your download speeds are not.',
+        'Australia spent billions on the NBN to deliver this. Impressive, in a way.',
+      ],
+      'melbourne': [
+        'Melbourne: world\'s most livable city, four years running. Internet livability: pending.',
+        'Melbourne\'s coffee is world class. The NBN speeds are decidedly not.',
+        'AFL fans stream matches all weekend. Must be on a different ISP than you.',
+      ],
+      'singapore': [
+        'Singapore has some of the best internet in Asia. You are the exception.',
+        'Singapore ranks top 5 globally for internet speed. Top 5 from the bottom, in your case.',
+        'Changi Airport has better free WiFi than what you\'re paying for.',
+      ],
+      'tokyo':     [
+        'Tokyo has gigabit fiber on every corner. You found the one exception.',
+        'Japan invented the bullet train. Your data is taking the scenic local route.',
+        'Tokyo: anime streams at 8K nationwide. You\'re buffering at 480p.',
+      ],
+      'seoul':     [
+        'South Korea averages some of the fastest internet on the planet. This is not that.',
+        'Seoul: 10Gbps fiber is practically standard. You\'re experiencing the other standard.',
+        'K-dramas are made in Seoul and stream flawlessly everywhere except here, apparently.',
+      ],
+      'mumbai':    [
+        'Mumbai: financial capital of India, Bollywood HQ, internet of a 90s cyber cafe.',
+        'Mumbai doesn\'t sleep. Your connection apparently does.',
+        'Dharavi is one of the most connected communities in Asia. Check your router.',
+      ],
+      'dubai':     [
+        'Dubai built artificial islands in the ocean. They still can\'t build stable internet for you.',
+        'Dubai: Burj Khalifa pierces the clouds. Your speeds are firmly underground.',
+        'Everything in Dubai is luxury. Your ISP missed the memo.',
+      ],
+      'toronto':   [
+        'Toronto: world-class city, Rogers-Bell duopoly, cartel-tier pricing for these speeds.',
+        'Canada has some of the most expensive internet in the developed world. You\'re experiencing why.',
+        'Toronto Film Festival, Raptors, maple syrup. Great city. Terrible ISP market.',
+      ],
+      'berlin':    [
+        'Berlin: capital of countercultural freedom. Imprisoned by Deutsche Telekom.',
+        'Berlin\'s start-up scene is one of Europe\'s best. They all have better WiFi than this.',
+        'Berliners survived a lot. This connection is a new test of endurance.',
+      ],
+      'paris':     [
+        'Paris: city of light. Your latency is illuminating something different.',
+        'Paris has some of Europe\'s best fiber infrastructure. Someone forgot to connect your building.',
+        'Café WiFi in Paris is better than this. And it\'s free with a coffee.',
+      ],
+      'amsterdam': [
+        'Amsterdam: best internet infrastructure in Europe. You got the canal houseboat exception.',
+        'AMS-IX is one of the world\'s largest internet exchanges and it\'s literally there. Somehow.',
+        'Amsterdam: liberal, progressive, fast on everything except your connection.',
+      ],
+      'manila':    [
+        'Manila: PLDT and Globe in a race to the bottom. Congrats, you\'re at the finish line.',
+        'Philippines consistently ranks among the slowest internet in Asia. You\'re leading the statistic.',
+        'Manila: 14 million people, 2 ISPs, somehow not enough bandwidth for either.',
+      ],
+      'bangkok':   [
+        'Bangkok: tech hub of Southeast Asia. Today is not a tech day for you.',
+        'Thailand has invested heavily in digital infrastructure. The return on investment hasn\'t reached you.',
+        'Bangkok traffic is legendary. Your packets are stuck in it too, apparently.',
+      ],
+      'kuala lumpur': [
+        'KL: Smart City initiative, Vision 2030, MSC Malaysia. Your ISP: vision 2003.',
+        'KLCC towers are icons of modernity. Your connection is an icon of the past.',
+        'Kuala Lumpur: everything going up. Bandwidth going nowhere.',
+      ],
+      'auckland':  [
+        'Auckland: technically in the future time zone. Internet still stuck in the past.',
+        'New Zealand has beautiful landscapes and challenging internet geography. You\'re experiencing both.',
+        'Hobbiton is nearby. Your bandwidth belongs in the Shire.',
+      ],
+      'nairobi':   [
+        'Nairobi: M-Pesa invented mobile banking here. Mobile internet still catching up.',
+        'Silicon Savannah is in Nairobi. The savannah part applies to your speeds too.',
+      ],
+      'lagos':     [
+        'Lagos: 20 million people, entrepreneurial capital of Africa, bandwidth still an aspiration.',
+        'Lagos doesn\'t stop. Your packets have stopped for a rest.',
+      ],
+      'cairo':     ['Cairo: built the pyramids, invented writing. ISP still figuring out fiber.', 'Nile river has flowed for millennia. Your data flow is considerably less impressive.'],
+      'default':   [
+        'Wherever you are, your ISP has clearly never been there.',
+        'Location unknown, disappointment universal.',
+        'We couldn\'t find your city. Your ISP couldn\'t find adequate bandwidth either.',
+        'Unknown location, known outcome: your ISP let you down regardless.',
+        'Geography is a mystery. The low speeds are not.',
+      ],
     },
     punchline: [
       'Have you tried turning your ISP off and not turning it back on?',
@@ -703,6 +1132,16 @@ const ROAST_DICT = {
       'Consider a career in interpretive dance. Your data packets already are.',
       'Restart your router. It won\'t help. But hope is free.',
       'Screenshot this. Frame it. A monument to your ISP\'s audacity.',
+      'Your ISP\'s SLA says "up to" X Mbps. You\'re experiencing "as low as."',
+      'Call your ISP. Hold music included at no extra charge. You\'ll be there a while.',
+      'On the bright side, slow internet builds character. You must be very characterful by now.',
+      'Your router is innocent. Your ISP is guilty. The router has suffered enough.',
+      'At these speeds, buffering is just the algorithm asking you to go touch grass.',
+      'Remember dial-up? This is approaching it. Take a moment with that.',
+      'This speed test qualifies as modern art. Hang it up. Put it in a gallery.',
+      'Your ISP promised the world. They delivered a small, slow part of it.',
+      'Cancel your subscription. Re-subscribe as a new customer for the promo rate. It\'s the only winning move.',
+      'Lodge a complaint with your telecom regulator. It won\'t help, but the data point matters.',
     ],
   },
 };
@@ -724,21 +1163,30 @@ function generateRoast(networkData) {
 
   const speed = STATE.speedMbps;
   const ping  = STATE.pingMs;
+  const grade = calculateGrade(speed, ping);
 
   // 1. VPN override prefix
   if (STATE.isVpn) {
     parts.push(pick(dict.vpnRoast));
   }
 
-  // 2. Ping/speed reaction (alternate based on scan count for variety)
-  const reactLine = STATE.scanCount % 2 === 0
-    ? pick(dict.pingReact)
-    : pick(dict.speedReact);
-  parts.push(
-    reactLine
-      .replace('{ping}',  ping)
-      .replace('{speed}', speed)
-  );
+  // 2. React to the worst metric; for grade F always roast both ping AND speed
+  const speedBad = speed < 10;
+  const pingBad  = ping  > 100;
+  const sub = (line) => line.replace('{ping}', ping).replace('{speed}', speed);
+
+  if (grade === 'F') {
+    // Both are terrible — hit them with both barrels
+    parts.push(sub(pick(dict.speedReact)));
+    parts.push(sub(pick(dict.pingReact)));
+  } else if (speedBad && !pingBad) {
+    parts.push(sub(pick(dict.speedReact)));
+  } else if (pingBad && !speedBad) {
+    parts.push(sub(pick(dict.pingReact)));
+  } else {
+    // Pick whichever makes for a better roast (alternate for variety)
+    parts.push(sub(pick(STATE.scanCount % 2 === 0 ? dict.pingReact : dict.speedReact)));
+  }
 
   // 3. ISP roast — fuzzy match against dict keys
   const ispLower = (networkData.isp || '').toLowerCase();
