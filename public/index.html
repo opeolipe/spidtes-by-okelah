@@ -22,6 +22,7 @@
 
   <!-- Favicon (SVG emoji, supported by all modern browsers) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕷️</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
 
   <title>Spidtes by Okelah™ — Network Roast Profiler</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -274,12 +275,13 @@
         <span class="result-label">Ping</span>
       </div>
 
-      <div class="result-card" id="result-grade">
+      <div class="result-card result-card--tooltip" id="result-grade"
+           data-tooltip="A ≥50 Mbps &lt;30ms · B ≥20 Mbps &lt;60ms · C ≥10 Mbps &lt;100ms · D ≥5 Mbps &lt;200ms · F everything else">
         <div class="result-icon result-icon--grade" aria-hidden="true">F</div>
         <div class="result-data">
           <span class="result-value result-value--grade" id="result-grade-val">--</span>
         </div>
-        <span class="result-label">Network Grade</span>
+        <span class="result-label">Network Grade <span class="grade-info-icon" aria-hidden="true">ⓘ</span></span>
       </div>
 
     </div>
@@ -436,11 +438,7 @@
       </div>
 
       <div class="footer-links" role="navigation" aria-label="Footer navigation">
-        <a class="footer-link" href="#" id="footer-privacy-link">Privacy Policy</a>
-        <span class="footer-dot" aria-hidden="true">·</span>
-        <a class="footer-link" href="#" id="footer-about-link">About</a>
-        <span class="footer-dot" aria-hidden="true">·</span>
-        <a class="footer-link" href="#" id="footer-github-link">GitHub</a>
+        <a class="footer-link" href="https://github.com/opeolipe/spidtes-by-okelah" target="_blank" rel="noopener noreferrer" id="footer-github-link">GitHub</a>
       </div>
 
       <p class="footer-legal">
@@ -450,7 +448,6 @@
     </div>
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

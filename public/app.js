@@ -179,6 +179,22 @@ function removeScanningDots() {
 }
 
 
+/**
+ * loadHtml2Canvas()
+ * Lazily injects the html2canvas script only when the share button is clicked.
+ * Avoids loading 220 KB on page load for users who never share.
+ */
+function loadHtml2Canvas() {
+  if (window.html2canvas) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload  = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
 /** Flash a full-screen red overlay element */
 function flashCrashOverlay() {
   const el = document.createElement('div');
@@ -340,11 +356,9 @@ async function measurePing() {
  * Returns a number ≥ 0.1 so the roast engine always has a real value.
  */
 async function measureSpeed() {
-  // Fast path: Network Information API (Chrome/Android, no request needed)
-  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  if (conn && conn.downlink > 0) {
-    return Math.round(conn.downlink * 10) / 10;
-  }
+  // navigator.connection.downlink is silently capped at 10 Mbps in Chrome
+  // regardless of actual speed, making it useless for fast connections.
+  // Always use a real timed download for an honest measurement.
 
   // Helper: time a fetch and compute Mbps from bytes received
   async function timedDownload(url, timeoutMs) {
@@ -1493,8 +1507,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Phase 3: Viral Share Engine (Export to Image) ──
   if (DOM.shareReceiptBtn) {
     DOM.shareReceiptBtn.addEventListener('click', async () => {
-      if (!window.html2canvas) {
-        alert('Export library is still loading. Please wait a moment and try again.');
+      try {
+        await loadHtml2Canvas();
+      } catch {
+        alert('Could not load the image library. Check your connection and try again.');
         return;
       }
 
