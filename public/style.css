@@ -1594,3 +1594,91 @@ body.is-scanning .go-scanning-dots {
   opacity: 0.88;
   transform: translateY(-1px);
 }
+
+/* ── Scan history panel ── */
+.history-panel {
+  width: 100%;
+  max-width: 620px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  backdrop-filter: blur(12px);
+  animation: fade-in 0.3s ease;
+}
+.history-panel[aria-hidden="true"] { display: none; }
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.history-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+.history-clear-btn {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.history-clear-btn:hover {
+  color: var(--accent-warm);
+  border-color: var(--accent-warm);
+}
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.025);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  transition: border-color var(--transition-fast);
+}
+.history-item:hover { border-color: var(--border-bright); }
+
+.history-grade {
+  font-size: 1.3rem;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  min-width: 28px;
+  text-align: center;
+}
+.grade--good { color: var(--accent-green); }
+.grade--mid  { color: var(--accent-cyan);  }
+.grade--fail { color: var(--accent-warm);  }
+
+.history-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.history-speeds {
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.history-time {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+.history-time em { font-style: normal; color: var(--accent-cyan); }

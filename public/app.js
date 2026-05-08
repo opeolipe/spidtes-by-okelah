@@ -563,6 +563,18 @@ function phase5_reveal() {
 
     // Write shareable URL hash with this scan's results
     encodeResultsToHash(STATE.networkData);
+
+    // Save to local history and refresh the history panel
+    const gradeNow = calculateGrade(STATE.speedMbps, STATE.pingMs);
+    saveToHistory(STATE.networkData, gradeNow);
+    renderHistoryPanel();
+
+    // Privacy-respecting analytics beacon (grade + country only, no PII)
+    sendAnalyticsEvent('scan_complete', {
+      grade:   gradeNow,
+      country: STATE.networkData?.countryCode || 'XX',
+      locale:  STATE.locale,
+    });
   }, 480);
 }
 
@@ -1503,6 +1515,103 @@ function updateConnectionPill(label, state) {
 
 
 /* ============================================================
+   ANALYTICS — privacy-respecting scan counter via navigator.sendBeacon
+   Sends only: grade, country code, locale. Zero PII.
+   ============================================================ */
+
+const ANALYTICS_ENDPOINT = 'https://plausible.io/api/event'; // swap for own endpoint if desired
+
+function sendAnalyticsEvent(eventName, props) {
+  try {
+    const payload = JSON.stringify({
+      n: eventName,
+      u: location.href.split('#')[0], // strip hash to avoid encoding user data
+      d: location.hostname,
+      r: document.referrer || '',
+      p: props,
+    });
+    // sendBeacon is fire-and-forget; never blocks the page; ignored silently if offline
+    navigator.sendBeacon && navigator.sendBeacon(ANALYTICS_ENDPOINT, new Blob([payload], { type: 'application/json' }));
+  } catch (_) {}
+}
+
+
+/* ============================================================
+   SCAN HISTORY — last 5 scans persisted in localStorage
+   ============================================================ */
+
+const HISTORY_KEY = 'spidtes_history';
+const HISTORY_MAX = 5;
+
+function saveToHistory(networkData, grade) {
+  try {
+    const entry = {
+      ts:     Date.now(),
+      dl:     STATE.speedMbps,
+      ul:     STATE.uploadMbps,
+      ping:   STATE.pingMs,
+      jitter: STATE.jitterMs,
+      grade,
+      isp:    networkData?.isp  || '—',
+      city:   networkData?.city || '—',
+    };
+    const raw     = localStorage.getItem(HISTORY_KEY);
+    const history = raw ? JSON.parse(raw) : [];
+    history.unshift(entry);
+    if (history.length > HISTORY_MAX) history.length = HISTORY_MAX;
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch (_) {}
+}
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function renderHistoryPanel() {
+  const history = loadHistory();
+  const panel   = document.getElementById('history-panel');
+  if (!panel) return;
+
+  if (history.length === 0) {
+    panel.setAttribute('aria-hidden', 'true');
+    return;
+  }
+
+  const list = panel.querySelector('.history-list');
+  if (!list) return;
+
+  list.innerHTML = '';
+  history.forEach((entry, i) => {
+    const date = new Date(entry.ts);
+    const hh   = String(date.getHours()).padStart(2, '0');
+    const mm   = String(date.getMinutes()).padStart(2, '0');
+    const dd   = String(date.getDate()).padStart(2, '0');
+    const mon  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][date.getMonth()];
+    const gradeClass = ['A','B'].includes(entry.grade) ? 'grade--good'
+                     : entry.grade === 'F'              ? 'grade--fail'
+                     :                                    'grade--mid';
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML = `
+      <span class="history-grade ${gradeClass}">${entry.grade}</span>
+      <div class="history-meta">
+        <span class="history-speeds">${entry.dl} ↓&thinsp;/&thinsp;${entry.ul ?? 'N/A'} ↑ Mbps &nbsp;·&nbsp; ${entry.ping}ms ping</span>
+        <span class="history-time">${hh}:${mm} · ${dd} ${mon}${i === 0 ? ' <em>(latest)</em>' : ''}</span>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+
+  panel.setAttribute('aria-hidden', 'false');
+}
+
+
+/* ============================================================
    SHAREABLE URL — encode/decode results in URL hash
    Format: #r=<base64url(JSON)>
    ============================================================ */
@@ -1807,10 +1916,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Scan Again button (injected into the on-screen results section)
+  // Scan Again button
   const scanAgainTrigger = document.getElementById('scan-again-trigger');
   if (scanAgainTrigger) {
     scanAgainTrigger.addEventListener('click', resetScan);
   }
+
+  // History clear button
+  const historyClearBtn = document.getElementById('history-clear-btn');
+  if (historyClearBtn) {
+    historyClearBtn.addEventListener('click', () => {
+      try { localStorage.removeItem(HISTORY_KEY); } catch (_) {}
+      renderHistoryPanel();
+    });
+  }
+
+  // Render history on first load (shows past scans from localStorage)
+  renderHistoryPanel();
 
 });
