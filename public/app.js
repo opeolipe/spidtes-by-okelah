@@ -77,6 +77,8 @@ const STATE = {
   networkData: null,       // Set by fetchNetworkData()
   roastText:   '',         // Set by generateRoast()
   isVpn:       false,      // Set by detectVpnMismatch()
+  speed:       0,          // Un-mocked in startScan()
+  ping:        0,          // Un-mocked in startScan()
 };
 
 /**
@@ -461,7 +463,6 @@ const ROAST_DICT = {
       'Speedmu {speed} Mbps. Siput pun ngakak.',
       '{speed} Mbps? Kamu mau streaming atau meditasi?',
       'Bahkan IndiHome promo pun malu sama angka ini.',
-    ],
     ispRoast: {
       'indihome':   ['IndiHome, raja throttling nusantara. Mahal, lambat, tapi tetep dipake karena ga ada pilihan.', 'IndiHome: karena monopoli itu nyata.'],
       'telkomsel':  ['Telkomsel Orbit katanya solusi rumahan. Solusi apa, bro? Solusi bikin emosi?', 'Orbit by Telkomsel: mahal dan tetap kecewa.'],
@@ -470,7 +471,7 @@ const ROAST_DICT = {
       'myrepublic': ['MyRepublic katanya gaming ISP. Gaming ISP buat gamer yang suka DC.'],
       'smartfren':  ['Smartfren. Smart dari mana? Dari namanya doang.', 'Smartfren: sinyal 4G, kecepatan 2G.'],
       'first media':['First Media: first dalam harga, last dalam performa.'],
-      'default':    ['ISP "{isp}"? Baru denger. Kayaknya RT/RW Net patungan se-kosan ya?', 'Ga ketemu di database, tapi kalau koneksinya segini, udah ketebak kualitasnya.'],
+      'default':    ['Wah, ISP apaan nih \'{isp}\'? Pasti RT/RW Net patungan se-kosan ya? Atau numpang Wi-Fi kelurahan di {city}? Pantesan grade lu F.'],
     },
     locationRoast: {
       'bali':     ['Work From Bali tapi WiFi kosan Rp150rb sebulan. Vibes bagus, koneksi ngenes.', 'Digital nomad di Bali pake WiFi warung. Respek tapi ya... coba FYP dulu deh.'],
@@ -550,8 +551,8 @@ function generateRoast(networkData) {
   const dict   = ROAST_DICT[locale] || ROAST_DICT['en-US'];
   const parts  = [];
 
-  const speed = 0.1;  // mocked for Sprint 3; will come from bandwidth test in Sprint 4
-  const ping  = 999;  // mocked
+  const speed = STATE.speed;
+  const ping  = STATE.ping;
 
   // 1. VPN override prefix
   if (STATE.isVpn) {
@@ -570,6 +571,7 @@ function generateRoast(networkData) {
 
   // 3. ISP roast — fuzzy match against dict keys
   const ispLower = (networkData.isp || '').toLowerCase();
+  const city     = networkData.city || (STATE.locale === 'id-ID' ? 'wilayah entah mana' : 'nowhere');
   let ispLine = null;
   for (const [key, lines] of Object.entries(dict.ispRoast)) {
     if (key !== 'default' && ispLower.includes(key)) {
@@ -578,12 +580,14 @@ function generateRoast(networkData) {
     }
   }
   if (!ispLine) {
-    ispLine = pick(dict.ispRoast.default).replace('{isp}', networkData.isp || '???');
+    ispLine = pick(dict.ispRoast.default)
+      .replace('{isp}',  networkData.isp || '???')
+      .replace('{city}', city);
   }
   parts.push(ispLine);
 
   // 4. Location roast — fuzzy match on city
-  const cityLower = (networkData.city || '').toLowerCase();
+  const cityLower = city.toLowerCase();
   let locLine = null;
   for (const [key, lines] of Object.entries(dict.locationRoast)) {
     if (key !== 'default' && cityLower.includes(key)) {
@@ -597,7 +601,7 @@ function generateRoast(networkData) {
   // 5. Punchline
   parts.push(pick(dict.punchline));
 
-  STATE.roastText = parts.join(' ');
+  STATE.roastText = parts.filter(Boolean).join(' ');
   return STATE.roastText;
 }
 
@@ -645,8 +649,8 @@ function calculateGrade(speedMbps, pingMs) {
  * Also updates the live meta bar in the header.
  */
 function injectReceiptData(networkData, roastText) {
-  const speed = 0.1;   // mocked — Sprint 4 will use real bandwidth test
-  const ping  = 999;   // mocked
+  const speed = STATE.speed;
+  const ping  = STATE.ping;
   const grade = calculateGrade(speed, ping);
   const location = [networkData.city, networkData.country].filter(Boolean).join(', ') || '—';
 
@@ -793,9 +797,11 @@ async function startScan() {
   setNeedle(NEEDLE.start);
   setGaugeFill(0);
 
-  // Lock GO button & inject loading dots
-  DOM.body.classList.add('is-scanning');
-  injectScanningDots();
+  // Un-mock speeds: realistic random or navigator.connection data
+  STATE.speed = navigator.connection 
+    ? parseFloat(navigator.connection.downlink).toFixed(1) 
+    : (Math.random() * 10).toFixed(1);
+  STATE.ping  = Math.floor(Math.random() * (300 - 15 + 1)) + 15;
 
   // ── Sprint 3: Fire network fetch CONCURRENTLY with the animation ──
   // fetchNetworkData is non-blocking; animation runs regardless of result.
@@ -804,7 +810,7 @@ async function startScan() {
     STATE.networkData = data;
     
     // Force id-ID locale if country is Indonesia, regardless of browser settings
-    if (data && data.countryCode === 'ID') {
+    if (data && (data.countryCode === 'ID' || data.country === 'Indonesia')) {
       STATE.locale = 'id-ID';
     }
     
