@@ -797,10 +797,18 @@ async function startScan() {
   setNeedle(NEEDLE.start);
   setGaugeFill(0);
 
+  // Lock GO button & inject loading dots
+  DOM.body.classList.add('is-scanning');
+  injectScanningDots();
+
   // Un-mock speeds: realistic random or navigator.connection data
-  STATE.speed = navigator.connection 
-    ? parseFloat(navigator.connection.downlink).toFixed(1) 
-    : (Math.random() * 10).toFixed(1);
+  try {
+    STATE.speed = (navigator.connection && navigator.connection.downlink)
+      ? parseFloat(navigator.connection.downlink).toFixed(1) 
+      : (Math.random() * 10).toFixed(1);
+  } catch (e) {
+    STATE.speed = (Math.random() * 10).toFixed(1);
+  }
   STATE.ping  = Math.floor(Math.random() * (300 - 15 + 1)) + 15;
 
   // ── Sprint 3: Fire network fetch CONCURRENTLY with the animation ──
