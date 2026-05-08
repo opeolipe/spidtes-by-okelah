@@ -266,6 +266,15 @@
         <span class="result-label">Download</span>
       </div>
 
+      <div class="result-card" id="result-upload">
+        <div class="result-icon result-icon--upload" aria-hidden="true">↑</div>
+        <div class="result-data">
+          <span class="result-value" id="result-upload-val">--</span>
+          <span class="result-unit">Mbps</span>
+        </div>
+        <span class="result-label">Upload</span>
+      </div>
+
       <div class="result-card" id="result-ping">
         <div class="result-icon" aria-hidden="true">◎</div>
         <div class="result-data">
@@ -273,6 +282,15 @@
           <span class="result-unit">ms</span>
         </div>
         <span class="result-label">Ping</span>
+      </div>
+
+      <div class="result-card" id="result-jitter">
+        <div class="result-icon result-icon--jitter" aria-hidden="true">≈</div>
+        <div class="result-data">
+          <span class="result-value" id="result-jitter-val">--</span>
+          <span class="result-unit">ms</span>
+        </div>
+        <span class="result-label">Jitter</span>
       </div>
 
       <div class="result-card result-card--tooltip" id="result-grade"
@@ -369,8 +387,16 @@
           <span class="receipt-val receipt-val--mono" id="receipt-ip">***.***.***.***</span>
         </div>
         <div class="receipt-row">
+          <span class="receipt-key">Upload</span>
+          <span class="receipt-val" id="receipt-upload">— Mbps</span>
+        </div>
+        <div class="receipt-row">
           <span class="receipt-key">Latency</span>
           <span class="receipt-val" id="receipt-latency">— ms</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-key">Jitter</span>
+          <span class="receipt-val" id="receipt-jitter">± — ms</span>
         </div>
         <div class="receipt-row">
           <span class="receipt-key">Connection</span>

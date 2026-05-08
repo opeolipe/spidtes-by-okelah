@@ -43,7 +43,9 @@ const DOM = {
   // Results row
   resultsRow:      document.getElementById('results-row'),
   resultDlVal:     document.getElementById('result-download-val'),
+  resultUploadVal: document.getElementById('result-upload-val'),
   resultPingVal:   document.getElementById('result-ping-val'),
+  resultJitterVal: document.getElementById('result-jitter-val'),
   resultGradeVal:  document.getElementById('result-grade-val'),
 
   // Roast container
@@ -58,7 +60,9 @@ const DOM = {
   receiptIsp:      document.getElementById('receipt-isp'),
   receiptLocation: document.getElementById('receipt-location'),
   receiptIp:       document.getElementById('receipt-ip'),
+  receiptUpload:   document.getElementById('receipt-upload'),
   receiptLatency:  document.getElementById('receipt-latency'),
+  receiptJitter:   document.getElementById('receipt-jitter'),
   receiptConn:     document.getElementById('receipt-connection'),
   receiptVpn:      document.getElementById('receipt-vpn'),
   receiptRoast:    document.getElementById('receipt-roast-text'),
@@ -77,7 +81,9 @@ const STATE = {
   roastText:   '',         // Set by generateRoast()
   isVpn:       false,      // Set by detectVpnMismatch()
   pingMs:      999,        // Set by measurePing()
+  jitterMs:    0,          // Set by measureJitter()
   speedMbps:   0.1,        // Set by measureSpeed()
+  uploadMbps:  null,       // Set by measureUpload() — null means not yet measured
 };
 
 /**
@@ -386,6 +392,50 @@ async function measureSpeed() {
   }
 }
 
+/**
+ * measureJitter()
+ * Runs measurePing() three times with short gaps and returns the standard
+ * deviation — a better indicator of connection stability than raw ping alone.
+ * Low jitter (<10ms) = smooth; high jitter (>40ms) = choppy calls / gaming.
+ */
+async function measureJitter() {
+  const samples = [];
+  for (let i = 0; i < 3; i++) {
+    samples.push(await measurePing());
+    if (i < 2) await new Promise(r => setTimeout(r, 60));
+  }
+  const mean   = samples.reduce((a, b) => a + b, 0) / samples.length;
+  const stdDev = Math.sqrt(samples.reduce((s, p) => s + (p - mean) ** 2, 0) / samples.length);
+  return Math.round(stdDev);
+}
+
+/**
+ * measureUpload()
+ * POSTs 100KB of crypto-random (incompressible) data to Cloudflare's speed
+ * endpoint and times the transfer. Falls back to null if both attempts fail
+ * (so the UI can show "N/A" honestly rather than a made-up number).
+ */
+async function measureUpload() {
+  const bytes = 100_000;
+  const data  = new Uint8Array(bytes);
+  crypto.getRandomValues(data);
+  const blob = new Blob([data]);
+
+  async function timedUpload(url, timeoutMs) {
+    const ctrl  = new AbortController();
+    const tid   = setTimeout(() => ctrl.abort(), timeoutMs);
+    const start = performance.now();
+    await fetch(url, { method: 'POST', body: blob, cache: 'no-store', signal: ctrl.signal });
+    clearTimeout(tid);
+    const elapsed = (performance.now() - start) / 1000;
+    return Math.max(0.1, Math.round((bytes * 8) / (elapsed * 1_000_000) * 10) / 10);
+  }
+
+  try { return await timedUpload('https://speed.cloudflare.com/__up', 8000); } catch {}
+  try { return await timedUpload('https://httpbin.org/post', 8000);           } catch {}
+  return null;
+}
+
 
 /* ============================================================
    t=0      phase1_rev()      — needle revs to ~80 Mbps
@@ -628,6 +678,20 @@ function detectVpnMismatch(networkData) {
 
 const ROAST_DICT = {
   'id-ID': {
+    uploadReact: [
+      'Upload {upload} Mbps. Kirim foto ke gebetan aja perlu doa dulu.',
+      'Upload {upload} Mbps — Google Drive-mu minta maaf duluan.',
+      'Dengan upload {upload} Mbps, video call-mu bakal jadi pertunjukan piksel bergerak.',
+      'Upload {upload} Mbps. Story Instagram-mu loading lebih lama dari kesabaranmu.',
+      'Backup ke cloud dengan {upload} Mbps? Duduk dulu, ini bakalan lama.',
+    ],
+    jitterReact: [
+      'Jitter ±{jitter}ms — koneksimu kayak jemuran kena angin kencang.',
+      'Jitter ±{jitter}ms. Suaramu di Zoom pasti putus-putus kayak sinyal tahun 2000.',
+      '±{jitter}ms jitter itu artinya internet-mu nggak stabil. Kayak mood mantan.',
+      'Jitter-mu ±{jitter}ms. Main game online? Dijamin kena rubber band.',
+      'Dengan jitter ±{jitter}ms, meeting online-mu pasti sering "halo? halo? masih ada?"',
+    ],
     vpnRoast: [
       'Browser-mu Indo, IP-mu Amerika. Pake VPN gratisan ya bang? Kirain pro.',
       'Detected VPN. Sok internasional, padahal koneksinya tetep lemot.',
@@ -849,6 +913,20 @@ const ROAST_DICT = {
   },
 
   'en-US': {
+    uploadReact: [
+      'Upload speed: {upload} Mbps. Sending a file is now a spiritual exercise in patience.',
+      '{upload} Mbps upload. Your cloud backup is going to be a very long relationship.',
+      'At {upload} Mbps upload, your video call face is a work of abstract impressionism.',
+      'Upload {upload} Mbps. Google Drive is already writing you a sympathy card.',
+      '{upload} Mbps upload speed. Your ISP calls this "asymmetric." We call it a problem.',
+    ],
+    jitterReact: [
+      'Jitter of ±{jitter}ms. Your connection has the stability of a shopping cart with a broken wheel.',
+      '±{jitter}ms jitter — every packet arrives at a surprise time. Gaming is a lottery.',
+      'Jitter ±{jitter}ms. Your voice calls sound like a radio scanning for a station.',
+      '±{jitter}ms jitter makes your latency graph look like a seismograph in an earthquake zone.',
+      'With ±{jitter}ms jitter, "stable connection" is pure fiction for you.',
+    ],
     vpnRoast: [
       'VPN detected. Hiding from your ISP, or just from the truth about your speeds?',
       'Nice VPN. Still slow though.',
@@ -1202,7 +1280,17 @@ function generateRoast(networkData) {
     parts.push(sub(pick(STATE.scanCount % 2 === 0 ? dict.pingReact : dict.speedReact)));
   }
 
-  // 3. ISP roast — fuzzy match against dict keys
+  // 3. Upload roast — if upload is measurably bad
+  if (STATE.uploadMbps !== null && STATE.uploadMbps < 5 && dict.uploadReact) {
+    parts.push(pick(dict.uploadReact).replace('{upload}', STATE.uploadMbps));
+  }
+
+  // 3b. Jitter roast — if jitter is high (choppy connection)
+  if (STATE.jitterMs > 20 && dict.jitterReact) {
+    parts.push(pick(dict.jitterReact).replace('{jitter}', STATE.jitterMs));
+  }
+
+  // ISP roast — fuzzy match against dict keys
   const ispLower = (networkData.isp || '').toLowerCase();
   let ispLine = null;
   for (const [key, lines] of Object.entries(dict.ispRoast)) {
@@ -1216,7 +1304,7 @@ function generateRoast(networkData) {
   }
   parts.push(ispLine);
 
-  // 4. Location roast — fuzzy match on city
+  // Location roast — fuzzy match on city
   const cityLower = (networkData.city || '').toLowerCase();
   let locLine = null;
   for (const [key, lines] of Object.entries(dict.locationRoast)) {
@@ -1228,7 +1316,7 @@ function generateRoast(networkData) {
   if (!locLine) locLine = pick(dict.locationRoast.default);
   parts.push(locLine);
 
-  // 5. Punchline
+  // Punchline
   parts.push(pick(dict.punchline));
 
   STATE.roastText = parts.join(' ');
@@ -1292,7 +1380,9 @@ function injectReceiptData(networkData, roastText) {
 
   // ── On-Screen Results (Desktop UI) ──
   if (DOM.resultDlVal)     DOM.resultDlVal.textContent     = speed;
+  if (DOM.resultUploadVal) DOM.resultUploadVal.textContent = STATE.uploadMbps !== null ? STATE.uploadMbps : 'N/A';
   if (DOM.resultPingVal)   DOM.resultPingVal.textContent   = ping;
+  if (DOM.resultJitterVal) DOM.resultJitterVal.textContent = STATE.jitterMs > 0 ? `±${STATE.jitterMs}` : '--';
   if (DOM.resultGradeVal)  DOM.resultGradeVal.textContent  = ''; // grade shown in icon only (see below)
 
   const roastTextEl = document.getElementById('roast-text');
@@ -1320,7 +1410,9 @@ function injectReceiptData(networkData, roastText) {
   DOM.receiptIsp.textContent       = networkData.isp      || '—';
   DOM.receiptLocation.textContent  = location;
   DOM.receiptIp.textContent        = maskIp(networkData.ip);
+  if (DOM.receiptUpload)  DOM.receiptUpload.textContent  = STATE.uploadMbps !== null ? `${STATE.uploadMbps} Mbps` : 'N/A';
   DOM.receiptLatency.textContent   = `${ping} ms`;
+  if (DOM.receiptJitter)  DOM.receiptJitter.textContent  = STATE.jitterMs > 0 ? `±${STATE.jitterMs} ms` : '—';
   DOM.receiptConn.textContent      = networkData._fallback
     ? `Fallback (${networkData._reason})`
     : (networkData.org || networkData.isp || '—');
@@ -1416,8 +1508,10 @@ async function startScan() {
 
   STATE.isScanning  = true;
   STATE.scanCount++;
-  STATE.pingMs      = 999;   // reset so stale values from previous scan don't bleed in
+  STATE.pingMs      = 999;
+  STATE.jitterMs    = 0;
   STATE.speedMbps   = 0.1;
+  STATE.uploadMbps  = null;
   STATE.networkData = null;
   STATE.isVpn       = false;
   try { localStorage.setItem('spidtes_scan_count', STATE.scanCount); } catch (_) {}
@@ -1448,8 +1542,10 @@ async function startScan() {
     STATE.networkData = getFallbackData('error');
   });
 
-  measurePing().then((ms)   => { STATE.pingMs    = ms;    }).catch(() => {});
-  measureSpeed().then((mbps) => { STATE.speedMbps = mbps; }).catch(() => {});
+  measurePing().then((ms)    => { STATE.pingMs    = ms;    }).catch(() => {});
+  measureJitter().then((ms)  => { STATE.jitterMs  = ms;    }).catch(() => {});
+  measureSpeed().then((mbps) => { STATE.speedMbps = mbps;  }).catch(() => {});
+  measureUpload().then((mbps)=> { STATE.uploadMbps = mbps; }).catch(() => {});
 
   // Kick off the 4-second fake-out sequence
   runFakeOutSequence();
