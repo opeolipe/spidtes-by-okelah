@@ -29,7 +29,6 @@ const DOM = {
 
   // Share buttons
   shareReceiptBtn: document.getElementById('share-receipt-btn'),
-  shareNativeBtn:  document.getElementById('share-native-btn'),
 
   // Speedometer
   goBtn:           document.getElementById('go-btn'),
@@ -1117,13 +1116,6 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM.receiptStage.style.opacity = originalOpacity;
         DOM.receiptStage.style.pointerEvents = originalPointer;
       }
-    });
-  }
-
-  // Optional: Share native button (just triggers the same export for now, or text share)
-  if (DOM.shareNativeBtn) {
-    DOM.shareNativeBtn.addEventListener('click', () => {
-      if (DOM.shareReceiptBtn) DOM.shareReceiptBtn.click();
     });
   }
 
