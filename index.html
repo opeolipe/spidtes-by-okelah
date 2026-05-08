@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Spidtes by Okelah — The world's most passive-aggressive network speed profiler. Find out exactly how bad your internet really is." />
+  <meta property="og:title" content="Spidtes by Okelah — Network Roast Profiler" />
+  <meta property="og:description" content="Your ISP deserves to be roasted. Let us do it for you." />
+  <title>Spidtes by Okelah™ — Network Roast Profiler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  HEADER                                  -->
+  <!-- ═══════════════════════════════════════ -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+
+      <div class="logo" aria-label="Spidtes by Okelah">
+        <div class="logo-icon" aria-hidden="true">🕷️</div>
+        <div class="logo-wordmark">
+          <span class="logo-name">SPIDTES</span>
+          <span class="logo-byline">by Okelah™</span>
+        </div>
+      </div>
+
+      <div class="connection-pill" id="connection-pill" aria-live="polite">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span class="pill-label">Network Active</span>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  MAIN APP                                -->
+  <!-- ═══════════════════════════════════════ -->
+  <main class="app-main" id="main-content">
+
+    <!-- Network Meta Bar -->
+    <div class="meta-bar" id="meta-bar" role="region" aria-label="Network information">
+      <div class="meta-item">
+        <span class="meta-label">ISP</span>
+        <span class="meta-value" id="isp-display">Scanning...</span>
+      </div>
+      <div class="meta-divider" aria-hidden="true"></div>
+      <div class="meta-item">
+        <span class="meta-label">Location</span>
+        <span class="meta-value" id="location-display">Detecting...</span>
+      </div>
+      <div class="meta-divider" aria-hidden="true"></div>
+      <div class="meta-item meta-item--ip">
+        <span class="meta-label">IP Address</span>
+        <span class="meta-value meta-value--ip" id="ip-display">***.***.***.***</span>
+        <button class="ip-reveal-btn" id="ip-reveal-btn" aria-label="Tap and hold to reveal IP address" title="Tap and hold to reveal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── Speedometer Section ─── -->
+    <section class="speedometer-section" aria-label="Speed test interface">
+
+      <div class="speedometer-wrap">
+
+        <!-- Decorative ambient glow layers -->
+        <div class="glow-orb glow-orb--left"  aria-hidden="true"></div>
+        <div class="glow-orb glow-orb--right" aria-hidden="true"></div>
+
+        <!-- SVG Gauge -->
+        <svg class="gauge-svg" viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <defs>
+
+            <!-- Gauge gradient: cyan → purple -->
+            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#00d4ff" />
+              <stop offset="50%"  stop-color="#7b5fff" />
+              <stop offset="100%" stop-color="#c85bff" />
+            </linearGradient>
+
+            <!-- Subtle track gradient -->
+            <linearGradient id="trackGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="rgba(255,255,255,0.04)" />
+              <stop offset="50%"  stop-color="rgba(255,255,255,0.07)" />
+              <stop offset="100%" stop-color="rgba(255,255,255,0.04)" />
+            </linearGradient>
+
+            <!-- Glow filter for the fill arc -->
+            <filter id="arcGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+
+            <!-- Needle glow -->
+            <filter id="needleGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+
+            <!-- Clip for center hole -->
+            <clipPath id="centerClip">
+              <circle cx="160" cy="160" r="78" />
+            </clipPath>
+
+          </defs>
+
+          <!-- ── Outer decorative rings ── -->
+          <circle cx="160" cy="160" r="152" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
+          <circle cx="160" cy="160" r="144" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" />
+
+          <!-- ── Background track arc ──
+               From 150° to 30° (East), clockwise through top.
+               Start: (52, 222)  End: (268, 222)
+               large-arc=1, sweep=1 (clockwise) -->
+          <path
+            class="gauge-track"
+            d="M 52 222 A 125 125 0 1 1 268 222"
+            fill="none"
+            stroke="url(#trackGradient)"
+            stroke-width="10"
+            stroke-linecap="round"
+          />
+
+          <!-- ── Active fill arc (JS-driven in Sprint 2, placeholder 0) ── -->
+          <path
+            id="gauge-fill"
+            class="gauge-fill"
+            d="M 52 222 A 125 125 0 1 1 268 222"
+            fill="none"
+            stroke="url(#gaugeGradient)"
+            stroke-width="10"
+            stroke-linecap="round"
+            stroke-dasharray="0 524"
+            filter="url(#arcGlow)"
+          />
+
+          <!-- ── Tick marks (major every 60° = 25 Mbps) ── -->
+          <!-- 0 Mbps  @ 150° from East -->
+          <line class="gauge-tick gauge-tick--major" x1="52"  y1="222" x2="67"  y2="214" />
+          <!-- 25 Mbps @ 210° from East -->
+          <line class="gauge-tick gauge-tick--major" x1="41"  y1="91"  x2="57"  y2="99"  />
+          <!-- 50 Mbps @ 270° from East (top) -->
+          <line class="gauge-tick gauge-tick--major" x1="160" y1="22"  x2="160" y2="40"  />
+          <!-- 75 Mbps @ 330° from East -->
+          <line class="gauge-tick gauge-tick--major" x1="279" y1="91"  x2="263" y2="99"  />
+          <!-- 100 Mbps @ 30° from East -->
+          <line class="gauge-tick gauge-tick--major" x1="268" y1="222" x2="253" y2="214" />
+
+          <!-- Minor ticks (every 30°) -->
+          <line class="gauge-tick" x1="28"  y1="157" x2="40"  y2="157" />
+          <line class="gauge-tick" x1="77"  y1="51"  x2="85"  y2="62"  />
+          <line class="gauge-tick" x1="243" y1="51"  x2="235" y2="62"  />
+          <line class="gauge-tick" x1="292" y1="157" x2="280" y2="157" />
+
+          <!-- ── Speed labels ── -->
+          <text class="gauge-label" x="35"  y="248">0</text>
+          <text class="gauge-label" x="20"  y="82">25</text>
+          <text class="gauge-label" x="148" y="15">50</text>
+          <text class="gauge-label" x="278" y="82">75</text>
+          <text class="gauge-label" x="270" y="248">100</text>
+
+          <!-- ── Needle (points at 0 Mbps = 240° from North = lower-left) ── -->
+          <g id="gauge-needle-group" style="transform-origin: 160px 160px; transform: rotate(240deg);" class="gauge-needle-group">
+            <!-- Needle body -->
+            <line
+              id="gauge-needle"
+              class="gauge-needle"
+              x1="160" y1="160"
+              x2="160" y2="50"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              filter="url(#needleGlow)"
+            />
+            <!-- Counter weight -->
+            <line
+              class="gauge-needle-tail"
+              x1="160" y1="160"
+              x2="160" y2="178"
+              stroke="rgba(255,255,255,0.3)"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+          </g>
+
+          <!-- ── Center pivot circle ── -->
+          <circle cx="160" cy="160" r="8"  fill="#1a1a2e" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+          <circle cx="160" cy="160" r="3"  fill="rgba(0,212,255,0.8)" />
+
+        </svg>
+        <!-- /gauge-svg -->
+
+        <!-- Center overlay: Speed readout + GO button -->
+        <div class="gauge-center" id="gauge-center">
+
+          <div class="speed-readout" aria-live="polite" aria-label="Current speed reading">
+            <span class="speed-value" id="speed-value">--</span>
+            <span class="speed-unit">Mbps</span>
+          </div>
+
+          <button class="go-button" id="go-btn" aria-label="Start network scan">
+            <span class="go-btn-ring" aria-hidden="true"></span>
+            <span class="go-btn-text">GO</span>
+          </button>
+
+          <div class="ping-readout" aria-live="polite">
+            <span class="ping-label">PING</span>
+            <span class="ping-value" id="ping-value">-- ms</span>
+          </div>
+
+        </div>
+        <!-- /gauge-center -->
+
+      </div>
+      <!-- /speedometer-wrap -->
+
+      <!-- Status message beneath gauge -->
+      <div class="status-block" id="status-block" role="status" aria-live="polite">
+        <p class="status-primary">Ready to profile your connection.</p>
+        <p class="status-secondary">Hit <strong>GO</strong> and brace yourself.</p>
+      </div>
+
+    </section>
+    <!-- /speedometer-section -->
+
+    <!-- ─── Results Row (hidden until scan complete) ─── -->
+    <div class="results-row" id="results-row" aria-hidden="true">
+
+      <div class="result-card" id="result-download">
+        <div class="result-icon" aria-hidden="true">↓</div>
+        <div class="result-data">
+          <span class="result-value" id="result-download-val">--</span>
+          <span class="result-unit">Mbps</span>
+        </div>
+        <span class="result-label">Download</span>
+      </div>
+
+      <div class="result-card" id="result-ping">
+        <div class="result-icon" aria-hidden="true">◎</div>
+        <div class="result-data">
+          <span class="result-value" id="result-ping-val">--</span>
+          <span class="result-unit">ms</span>
+        </div>
+        <span class="result-label">Ping</span>
+      </div>
+
+      <div class="result-card" id="result-grade">
+        <div class="result-icon result-icon--grade" aria-hidden="true">F</div>
+        <div class="result-data">
+          <span class="result-value result-value--grade" id="result-grade-val">--</span>
+        </div>
+        <span class="result-label">Network Grade</span>
+      </div>
+
+    </div>
+    <!-- /results-row -->
+
+    <!-- ─── Roast Output (hidden until scan complete) ─── -->
+    <div class="roast-container" id="roast-container" aria-hidden="true">
+      <div class="roast-card">
+        <div class="roast-header">
+          <span class="roast-badge">🔥 ROAST RESULT</span>
+        </div>
+        <blockquote class="roast-text" id="roast-text">
+          Diagnose your network to receive your personalised roast.
+        </blockquote>
+      </div>
+      <div class="share-actions" id="share-actions">
+        <button class="share-btn share-btn--primary" id="share-receipt-btn" aria-label="Export receipt for social media">
+          <span aria-hidden="true">📋</span> Export Cyber Receipt
+        </button>
+        <button class="share-btn share-btn--ghost" id="share-native-btn" aria-label="Share results">
+          <span aria-hidden="true">↗</span> Share
+        </button>
+      </div>
+    </div>
+
+  </main>
+  <!-- /app-main -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--  CYBER RECEIPT — Off-screen canvas element for html2canvas          -->
+  <!--  Strictly bounded to 1080x1920px (9:16). ARIA hidden.              -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="receipt-stage" aria-hidden="true" id="receipt-stage">
+    <div class="cyber-receipt" id="cyber-receipt">
+
+      <!-- Receipt Header -->
+      <div class="receipt-header">
+        <div class="receipt-logo">
+          <span class="receipt-logo-icon">🕷️</span>
+          <div class="receipt-logo-text">
+            <span class="receipt-logo-main">SPIDTES</span>
+            <span class="receipt-logo-sub">by Okelah™ — Network Roast Profiler</span>
+          </div>
+        </div>
+        <div class="receipt-timestamp" id="receipt-timestamp">00:00 · DD MMM YYYY</div>
+      </div>
+
+      <!-- Receipt Divider -->
+      <div class="receipt-divider receipt-divider--dashed" aria-hidden="true"></div>
+
+      <!-- Receipt Speed Hero -->
+      <div class="receipt-speed-hero">
+        <div class="receipt-speed-circle">
+          <span class="receipt-speed-value" id="receipt-speed-val">--</span>
+          <span class="receipt-speed-unit">Mbps</span>
+        </div>
+        <div class="receipt-ping-badge">
+          <span class="receipt-ping-label">PING</span>
+          <span class="receipt-ping-value" id="receipt-ping-val">-- ms</span>
+        </div>
+      </div>
+
+      <!-- Network Grade -->
+      <div class="receipt-grade-banner" id="receipt-grade-banner">
+        <span class="receipt-grade-label">Network Grade</span>
+        <span class="receipt-grade-value" id="receipt-grade-val">--</span>
+      </div>
+
+      <!-- Receipt Divider -->
+      <div class="receipt-divider" aria-hidden="true"></div>
+
+      <!-- Receipt Meta Table -->
+      <div class="receipt-meta">
+        <div class="receipt-row">
+          <span class="receipt-key">ISP</span>
+          <span class="receipt-val" id="receipt-isp">—</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-key">Location</span>
+          <span class="receipt-val" id="receipt-location">—</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-key">IP Address</span>
+          <span class="receipt-val receipt-val--mono" id="receipt-ip">***.***.***. ***</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-key">Latency</span>
+          <span class="receipt-val" id="receipt-latency">— ms</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-key">Connection</span>
+          <span class="receipt-val" id="receipt-connection">—</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-key">VPN Detected</span>
+          <span class="receipt-val" id="receipt-vpn">No</span>
+        </div>
+      </div>
+
+      <!-- Receipt Divider -->
+      <div class="receipt-divider receipt-divider--dashed" aria-hidden="true"></div>
+
+      <!-- Roast Section -->
+      <div class="receipt-roast">
+        <div class="receipt-roast-header">🔥 OFFICIAL ROAST</div>
+        <p class="receipt-roast-text" id="receipt-roast-text">
+          Your internet speed has been assessed. The results are... illuminating.
+        </p>
+      </div>
+
+      <!-- Receipt Divider -->
+      <div class="receipt-divider" aria-hidden="true"></div>
+
+      <!-- Security / Privacy Block -->
+      <div class="receipt-privacy">
+        <div class="receipt-privacy-row">
+          <span class="receipt-privacy-icon">🛡️</span>
+          <span class="receipt-privacy-text">Zero-Log. Computed locally. Not stored.</span>
+        </div>
+        <div class="receipt-privacy-row">
+          <span class="receipt-privacy-icon">🔒</span>
+          <span class="receipt-privacy-text">XSS-Safe · PII Redacted · HTTPS Only</span>
+        </div>
+      </div>
+
+      <!-- Receipt Footer / Watermark -->
+      <div class="receipt-footer">
+        <div class="receipt-watermark">spidtes.my.id</div>
+        <div class="receipt-powered">Powered by the Sarcasm Engine v1.0</div>
+        <div class="receipt-barcode" aria-hidden="true">
+          <div class="barcode-lines"></div>
+        </div>
+      </div>
+
+    </div>
+    <!-- /cyber-receipt -->
+  </div>
+  <!-- /receipt-stage -->
+
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  PRIVACY FOOTER                          -->
+  <!-- ═══════════════════════════════════════ -->
+  <footer class="privacy-footer" role="contentinfo">
+    <div class="footer-inner">
+
+      <div class="footer-privacy-block">
+        <span class="footer-shield" aria-hidden="true">🛡️</span>
+        <p class="footer-privacy-text">
+          <strong>Zero-Log Policy:</strong> Your network data is computed locally and in real-time.
+          We do not track, store, or transmit your IP address or any personally identifiable information.
+        </p>
+      </div>
+
+      <div class="footer-links" role="navigation" aria-label="Footer navigation">
+        <a class="footer-link" href="#" id="footer-privacy-link">Privacy Policy</a>
+        <span class="footer-dot" aria-hidden="true">·</span>
+        <a class="footer-link" href="#" id="footer-about-link">About</a>
+        <span class="footer-dot" aria-hidden="true">·</span>
+        <a class="footer-link" href="#" id="footer-github-link">GitHub</a>
+      </div>
+
+      <p class="footer-legal">
+        © 2026 Spidtes by Okelah™ · For entertainment purposes. Not affiliated with Ookla.
+      </p>
+
+    </div>
+  </footer>
+
+</body>
+</html>
