@@ -25,6 +25,11 @@ const DOM = {
   ispDisplay:      document.getElementById('isp-display'),
   locationDisplay: document.getElementById('location-display'),
   ipDisplay:       document.getElementById('ip-display'),
+  ipRevealBtn:     document.getElementById('ip-reveal-btn'),
+
+  // Share buttons
+  shareReceiptBtn: document.getElementById('share-receipt-btn'),
+  shareNativeBtn:  document.getElementById('share-native-btn'),
 
   // Speedometer
   goBtn:           document.getElementById('go-btn'),
@@ -298,7 +303,7 @@ async function fetchNetworkData() {
 }
 
 
-   ============================================================
+/* ============================================================
    t=0      phase1_rev()      — needle revs to ~80 Mbps
    t=1400   phase2_stutter()  — needle shakes/stutters
    t=2200   phase3_crash()    — needle slams to 0, flash red
@@ -397,23 +402,21 @@ function phase5_reveal() {
   const networkData = STATE.networkData || getFallbackData('not_fetched');
   const roastText   = generateRoast(networkData);
 
-  // Inject all real data into the receipt (XSS-safe via textContent)
+  // Inject all real data into both the on-screen UI and the hidden Cyber Receipt
   injectReceiptData(networkData, roastText);
 
   // Exit the speedometer section
   DOM.speedometerSect.classList.add('section--exit');
 
-  // After exit animation completes, hide it and show receipt
+  // After exit animation completes, hide it and show on-screen results
   setTimeout(() => {
     DOM.speedometerSect.style.display = 'none';
 
-    // Inject "Scan Again" button into receipt if not already there
-    injectScanAgainButton();
+    // Show on-screen results
+    DOM.resultsRow.setAttribute('aria-hidden', 'false');
+    DOM.roastContainer.setAttribute('aria-hidden', 'false');
 
-    // Activate receipt
-    DOM.receiptStage.classList.add('receipt--active');
-
-    // Restore state (receipt shown, scanning done)
+    // Restore state (scanning done)
     STATE.isScanning = false;
     removeScanningDots();
     DOM.body.classList.remove('is-scanning');
@@ -648,9 +651,32 @@ function injectReceiptData(networkData, roastText) {
   // ── Meta bar (live header) ── textContent only
   if (DOM.ispDisplay)      DOM.ispDisplay.textContent      = networkData.isp      || '—';
   if (DOM.locationDisplay) DOM.locationDisplay.textContent = location;
-  if (DOM.ipDisplay)       DOM.ipDisplay.textContent       = maskIp(networkData.ip);
+  // Zero Trust UI: display fully masked IP by default
+  if (DOM.ipDisplay)       DOM.ipDisplay.textContent       = '***.***.***.***';
 
-  // ── Receipt fields ── all textContent
+  // ── On-Screen Results (Desktop UI) ──
+  if (DOM.resultDlVal)     DOM.resultDlVal.textContent     = speed;
+  if (DOM.resultPingVal)   DOM.resultPingVal.textContent   = ping;
+  if (DOM.resultGradeVal)  DOM.resultGradeVal.textContent  = grade;
+
+  const roastTextEl = document.getElementById('roast-text');
+  if (roastTextEl) roastTextEl.textContent = roastText;
+
+  // Update on-screen grade colour if failing
+  if (DOM.resultGradeVal) {
+    const isBad = grade === 'F' || grade === 'D';
+    const color = isBad ? 'var(--accent-warm)' : 'var(--accent-green)';
+    DOM.resultGradeVal.style.color = color;
+    
+    // The grade icon is outside result-data, it's the previous sibling of result-data
+    const resultDataEl = DOM.resultGradeVal.parentElement;
+    if (resultDataEl && resultDataEl.previousElementSibling) {
+      resultDataEl.previousElementSibling.style.color = color;
+      resultDataEl.previousElementSibling.textContent = grade;
+    }
+  }
+
+  // ── Cyber Receipt fields (Hidden overlay for export) ──
   DOM.receiptTimestamp.textContent = formatTimestamp();
   DOM.receiptSpeedVal.textContent  = speed;
   DOM.receiptPingVal.textContent   = `${ping} ms`;
@@ -665,7 +691,7 @@ function injectReceiptData(networkData, roastText) {
   DOM.receiptVpn.textContent       = STATE.isVpn ? 'Yes 🔒' : 'No';
   DOM.receiptRoast.textContent     = roastText;
 
-  // Grade banner colour
+  // Grade banner colour on receipt
   const gradeBanner = document.getElementById('receipt-grade-banner');
   if (gradeBanner) {
     const isBad = grade === 'F' || grade === 'D';
@@ -696,7 +722,11 @@ function injectScanAgainButton() {
 }
 
 function resetScan() {
-  // Hide receipt
+  // Hide on-screen results
+  DOM.resultsRow.setAttribute('aria-hidden', 'true');
+  DOM.roastContainer.setAttribute('aria-hidden', 'true');
+
+  // Hide receipt (if active)
   DOM.receiptStage.classList.remove('receipt--active');
 
   // Restore speedometer section
@@ -806,4 +836,111 @@ document.addEventListener('DOMContentLoaded', () => {
   DOM.receiptStage.addEventListener('click', (e) => {
     if (e.target === DOM.receiptStage) resetScan();
   });
+
+  // ── Phase 1: Zero Trust UI (Tap-to-Reveal IP) ──
+  if (DOM.ipRevealBtn && DOM.ipDisplay) {
+    const revealIp = () => {
+      if (STATE.networkData && STATE.networkData.ip) {
+        DOM.ipDisplay.textContent = STATE.networkData.ip;
+        DOM.ipDisplay.style.color = 'var(--text-primary)';
+      }
+    };
+    const hideIp = () => {
+      DOM.ipDisplay.textContent = '***.***.***.***';
+      DOM.ipDisplay.style.color = '';
+    };
+
+    DOM.ipRevealBtn.addEventListener('mousedown', revealIp);
+    DOM.ipRevealBtn.addEventListener('touchstart', revealIp, { passive: true });
+
+    DOM.ipRevealBtn.addEventListener('mouseup', hideIp);
+    DOM.ipRevealBtn.addEventListener('mouseleave', hideIp);
+    DOM.ipRevealBtn.addEventListener('touchend', hideIp, { passive: true });
+  }
+
+  // ── Phase 3: Viral Share Engine (Export to Image) ──
+  if (DOM.shareReceiptBtn) {
+    DOM.shareReceiptBtn.addEventListener('click', async () => {
+      if (!window.html2canvas) {
+        alert('Export library is still loading. Please try again in a moment.');
+        return;
+      }
+
+      const receiptEl = document.getElementById('cyber-receipt');
+      if (!receiptEl) return;
+
+      // Ensure the stage is temporarily fully visible so html2canvas can render it properly
+      const originalDisplay = DOM.receiptStage.style.display;
+      const originalOpacity = DOM.receiptStage.style.opacity;
+      const originalPointer = DOM.receiptStage.style.pointerEvents;
+      
+      DOM.receiptStage.style.display = 'flex';
+      DOM.receiptStage.style.opacity = '1';
+      DOM.receiptStage.style.pointerEvents = 'auto';
+
+      // Slight delay to allow DOM to settle before painting
+      await new Promise(r => setTimeout(r, 50));
+
+      try {
+        const canvas = await window.html2canvas(receiptEl, {
+          scale: 2,               // 1080x1920 @ 2x scaling for crisp social sharing
+          backgroundColor: '#08080f',
+          logging: false,
+          useCORS: true           // Just in case we add external images later
+        });
+
+        // Restore original stage visibility
+        DOM.receiptStage.style.display = originalDisplay;
+        DOM.receiptStage.style.opacity = originalOpacity;
+        DOM.receiptStage.style.pointerEvents = originalPointer;
+
+        canvas.toBlob(async (blob) => {
+          if (!blob) throw new Error('Canvas to Blob conversion failed');
+
+          const file = new File([blob], 'spidtes-cyber-receipt.png', { type: 'image/png' });
+
+          // Try native Web Share API first
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: 'My Network Roast by Spidtes',
+                text: 'My internet was just absolutely roasted by Spidtes. Check out my Cyber Receipt.',
+                files: [file]
+              });
+              return;
+            } catch (err) {
+              // User likely cancelled the share dialog, which is fine
+              if (err.name !== 'AbortError') console.error('Share failed:', err);
+            }
+          } else {
+            // Fallback for Desktop/Unsupported Browsers: Download the image directly
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'spidtes-cyber-receipt.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+        }, 'image/png');
+
+      } catch (error) {
+        console.error('Failed to generate Cyber Receipt image:', error);
+        alert('Failed to generate image. Please try again.');
+        // Restore on error
+        DOM.receiptStage.style.display = originalDisplay;
+        DOM.receiptStage.style.opacity = originalOpacity;
+        DOM.receiptStage.style.pointerEvents = originalPointer;
+      }
+    });
+  }
+
+  // Optional: Share native button (just triggers the same export for now, or text share)
+  if (DOM.shareNativeBtn) {
+    DOM.shareNativeBtn.addEventListener('click', () => {
+      if (DOM.shareReceiptBtn) DOM.shareReceiptBtn.click();
+    });
+  }
+
 });

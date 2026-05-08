@@ -543,6 +543,10 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   max-width: 540px;
 }
 
+.results-row[aria-hidden="true"] {
+  display: none !important;
+}
+
 .result-card {
   display: flex;
   flex-direction: column;
@@ -616,6 +620,10 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.roast-container[aria-hidden="true"] {
+  display: none !important;
 }
 
 .roast-card {
