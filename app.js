@@ -71,12 +71,14 @@ const DOM = {
    ============================================================ */
 const STATE = {
   isScanning:  false,
-  scanCount:   0,          // Escalating roast intensity
+  scanCount:   0,          // Escalating roast intensity (persisted via localStorage)
   timers:      [],         // Held for potential cleanup
   locale:      'en-US',    // Set by detectLocale()
   networkData: null,       // Set by fetchNetworkData()
   roastText:   '',         // Set by generateRoast()
   isVpn:       false,      // Set by detectVpnMismatch()
+  pingMs:      999,        // Set by measurePing()
+  speedMbps:   0.1,        // Set by measureSpeed()
 };
 
 /**
@@ -304,6 +306,66 @@ async function fetchNetworkData() {
 
 
 /* ============================================================
+   PHASE B2 — REAL PING & BANDWIDTH MEASUREMENT
+   ============================================================ */
+
+/**
+ * measurePing()
+ * Times a HEAD request to Cloudflare's lightweight trace endpoint.
+ * Returns round-trip latency in ms, or 999 on failure.
+ */
+async function measurePing() {
+  const start = performance.now();
+  try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 5000);
+    await fetch('https://www.cloudflare.com/cdn-cgi/trace', {
+      cache:  'no-store',
+      signal: ctrl.signal,
+    });
+    clearTimeout(tid);
+    return Math.round(performance.now() - start);
+  } catch {
+    return 999;
+  }
+}
+
+/**
+ * measureSpeed()
+ * Returns download speed in Mbps.
+ * 1st: reads navigator.connection.downlink (instant, no request).
+ * 2nd: downloads a ~200 KB payload from Cloudflare's speed-test CDN
+ *      and computes throughput from elapsed time.
+ * Returns a number ≥ 0.1 so the roast engine always has a real value.
+ */
+async function measureSpeed() {
+  // Fast path: Network Information API
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn && conn.downlink > 0) {
+    return Math.round(conn.downlink * 10) / 10;
+  }
+
+  // Fallback: timed download of a 200 KB payload
+  try {
+    const ctrl  = new AbortController();
+    const tid   = setTimeout(() => ctrl.abort(), 12000);
+    const start = performance.now();
+    const resp  = await fetch(
+      'https://speed.cloudflare.com/__down?bytes=200000',
+      { cache: 'no-store', signal: ctrl.signal }
+    );
+    const buf     = await resp.arrayBuffer();
+    clearTimeout(tid);
+    const elapsed = (performance.now() - start) / 1000; // seconds
+    const mbps    = (buf.byteLength * 8) / (elapsed * 1_000_000);
+    return Math.max(0.1, Math.round(mbps * 10) / 10);
+  } catch {
+    return 0.5; // conservative fallback — still a real-ish value
+  }
+}
+
+
+/* ============================================================
    t=0      phase1_rev()      — needle revs to ~80 Mbps
    t=1400   phase2_stutter()  — needle shakes/stutters
    t=2200   phase3_crash()    — needle slams to 0, flash red
@@ -324,8 +386,11 @@ function phase1_rev() {
   const TARGET_MBPS = 82;
   const TARGET_ROT  = NEEDLE.mbpsToRot(TARGET_MBPS); // ≈ 437 deg
 
-  // Add revving class (smooth transition), then set rotation
+  // Add revving class first, force reflow so the new transition timing is
+  // committed before the property change, otherwise the browser batches both
+  // and skips the animation entirely.
   DOM.needleGroup.classList.add('needle--revving');
+  void DOM.needleGroup.getBoundingClientRect(); // reflow
   setNeedle(TARGET_ROT);
   setGaugeFill(TARGET_MBPS);
 
@@ -364,6 +429,7 @@ function phase2_stutter() {
 function phase3_crash() {
   DOM.needleGroup.classList.remove('needle--stutter');
   DOM.needleGroup.classList.add('needle--crash');
+  void DOM.needleGroup.getBoundingClientRect(); // reflow so crash transition is active
 
   // Slam needle to 0
   setNeedle(NEEDLE.start); // 240deg = 0 Mbps
@@ -548,8 +614,8 @@ function generateRoast(networkData) {
   const dict   = ROAST_DICT[locale] || ROAST_DICT['en-US'];
   const parts  = [];
 
-  const speed = 0.1;  // mocked for Sprint 3; will come from bandwidth test in Sprint 4
-  const ping  = 999;  // mocked
+  const speed = STATE.speedMbps;
+  const ping  = STATE.pingMs;
 
   // 1. VPN override prefix
   if (STATE.isVpn) {
@@ -643,8 +709,8 @@ function calculateGrade(speedMbps, pingMs) {
  * Also updates the live meta bar in the header.
  */
 function injectReceiptData(networkData, roastText) {
-  const speed = 0.1;   // mocked — Sprint 4 will use real bandwidth test
-  const ping  = 999;   // mocked
+  const speed = STATE.speedMbps;
+  const ping  = STATE.pingMs;
   const grade = calculateGrade(speed, ping);
   const location = [networkData.city, networkData.country].filter(Boolean).join(', ') || '—';
 
@@ -780,6 +846,7 @@ async function startScan() {
 
   STATE.isScanning = true;
   STATE.scanCount++;
+  try { localStorage.setItem('spidtes_scan_count', STATE.scanCount); } catch (_) {}
 
   // Clear any leftover timers from previous run
   clearAllTimers();
@@ -795,15 +862,17 @@ async function startScan() {
   DOM.body.classList.add('is-scanning');
   injectScanningDots();
 
-  // ── Sprint 3: Fire network fetch CONCURRENTLY with the animation ──
-  // fetchNetworkData is non-blocking; animation runs regardless of result.
-  // By the time phase5_reveal fires at t=4000ms, the 3s fetch is done.
+  // Fire all network measurements CONCURRENTLY with the 4-second animation.
+  // By the time phase5_reveal fires at t=4000ms all of these will be done.
   fetchNetworkData().then((data) => {
     STATE.networkData = data;
     detectVpnMismatch(data);
   }).catch(() => {
     STATE.networkData = getFallbackData('error');
   });
+
+  measurePing().then((ms)   => { STATE.pingMs    = ms;    }).catch(() => {});
+  measureSpeed().then((mbps) => { STATE.speedMbps = mbps; }).catch(() => {});
 
   // Kick off the 4-second fake-out sequence
   runFakeOutSequence();
@@ -816,6 +885,12 @@ async function startScan() {
 document.addEventListener('DOMContentLoaded', () => {
   // Detect locale immediately on load
   detectLocale();
+
+  // Restore scan count from previous sessions (escalating roast intensity)
+  try {
+    const saved = parseInt(localStorage.getItem('spidtes_scan_count') || '0', 10);
+    if (!isNaN(saved)) STATE.scanCount = saved;
+  } catch (_) {}
 
   // Ensure needle starts at correct position
   setNeedle(NEEDLE.start);
@@ -941,6 +1016,12 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.shareNativeBtn.addEventListener('click', () => {
       if (DOM.shareReceiptBtn) DOM.shareReceiptBtn.click();
     });
+  }
+
+  // Scan Again button (injected into the on-screen results section)
+  const scanAgainTrigger = document.getElementById('scan-again-trigger');
+  if (scanAgainTrigger) {
+    scanAgainTrigger.addEventListener('click', resetScan);
   }
 
 });

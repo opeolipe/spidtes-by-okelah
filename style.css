@@ -383,6 +383,8 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
 /* Needle */
 .gauge-needle-group {
+  transform-box: view-box;           /* makes px origin values map to SVG user units */
+  transform-origin: 160px 160px;     /* pivot = gauge centre in viewBox coordinates */
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .gauge-needle {
@@ -1267,15 +1269,15 @@ body.is-scanning .go-btn-ring {
 }
 
 @keyframes needle-stutter {
-  0%   { transform: rotate(var(--needle-stutter-pos, 120deg)); }
-  10%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) + 18deg)); }
-  20%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) - 22deg)); }
-  30%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) + 14deg)); }
-  40%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) - 10deg)); }
-  55%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) + 8deg)); }
-  70%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) - 6deg)); }
-  85%  { transform: rotate(calc(var(--needle-stutter-pos, 120deg) + 4deg)); }
-  100% { transform: rotate(var(--needle-stutter-pos, 120deg)); }
+  0%   { transform: rotate(var(--needle-stutter-pos, 437deg)); }
+  10%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) + 18deg)); }
+  20%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) - 22deg)); }
+  30%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) + 14deg)); }
+  40%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) - 10deg)); }
+  55%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) + 8deg)); }
+  70%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) - 6deg)); }
+  85%  { transform: rotate(calc(var(--needle-stutter-pos, 437deg) + 4deg)); }
+  100% { transform: rotate(var(--needle-stutter-pos, 437deg)); }
 }
 
 /* ── Phase 3: Crash — needle slams to 0 ── */

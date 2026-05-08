@@ -173,7 +173,7 @@
           <text class="gauge-label" x="270" y="248">100</text>
 
           <!-- ── Needle (points at 0 Mbps = 240° from North = lower-left) ── -->
-          <g id="gauge-needle-group" style="transform-origin: 160px 160px; transform: rotate(240deg);" class="gauge-needle-group">
+          <g id="gauge-needle-group" style="transform: rotate(240deg);" class="gauge-needle-group">
             <!-- Needle body -->
             <line
               id="gauge-needle"
@@ -284,6 +284,9 @@
         </button>
         <button class="share-btn share-btn--ghost" id="share-native-btn" aria-label="Share results">
           <span aria-hidden="true">↗</span> Share
+        </button>
+        <button class="share-btn share-btn--ghost scan-again-btn" id="scan-again-trigger" aria-label="Run scan again">
+          <span aria-hidden="true">↺</span> Scan Again
         </button>
       </div>
     </div>
