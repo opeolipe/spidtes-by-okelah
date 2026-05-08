@@ -791,10 +791,20 @@ async function startScan() {
   clearAllTimers();
 
   // Reset visuals cleanly before starting
-  DOM.needleGroup.classList.remove('needle--revving', 'needle--stutter', 'needle--crash');
-  DOM.speedometerWrap.classList.remove('gauge--broken');
-  DOM.speedValue.classList.remove('is-glitching');
-  setNeedle(NEEDLE.start);
+  if (DOM.needleGroup) {
+    DOM.needleGroup.classList.remove('needle--revving', 'needle--stutter', 'needle--crash');
+    DOM.needleGroup.style.transform = `rotate(${NEEDLE.start}deg)`;
+  }
+  if (DOM.speedometerWrap) {
+    DOM.speedometerWrap.classList.remove('gauge--broken');
+  }
+  if (DOM.speedValue) {
+    DOM.speedValue.classList.remove('is-glitching');
+    DOM.speedValue.textContent = '0';
+  }
+  if (DOM.pingValue) {
+    DOM.pingValue.textContent = '-- ms';
+  }
   setGaugeFill(0);
 
   // Lock GO button & inject loading dots
@@ -828,8 +838,12 @@ async function startScan() {
     STATE.networkData = getFallbackData('error');
   });
 
-  // Kick off the 4-second fake-out sequence
-  runFakeOutSequence();
+  // Kick off the 4-second fake-out sequence with a tiny delay to ensure DOM paint
+  setTimeout(() => {
+    if (STATE.isScanning) {
+      runFakeOutSequence();
+    }
+  }, 50);
 }
 
 
