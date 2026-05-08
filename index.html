@@ -4,8 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Spidtes by Okelah — The world's most passive-aggressive network speed profiler. Find out exactly how bad your internet really is." />
-  <meta property="og:title" content="Spidtes by Okelah — Network Roast Profiler" />
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://spidtes.my.id/" />
+  <meta property="og:title"       content="Spidtes by Okelah — Network Roast Profiler" />
   <meta property="og:description" content="Your ISP deserves to be roasted. Let us do it for you." />
+  <meta property="og:image"       content="https://spidtes.my.id/og-preview.png" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Spidtes by Okelah — Network Roast Profiler" />
+  <meta name="twitter:description" content="Your ISP deserves to be roasted. Let us do it for you." />
+  <meta name="twitter:image"       content="https://spidtes.my.id/og-preview.png" />
+
+  <!-- Favicon (SVG emoji, supported by all modern browsers) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕷️</text></svg>" />
+
   <title>Spidtes by Okelah™ — Network Roast Profiler</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -285,7 +302,7 @@
         <button class="share-btn share-btn--ghost" id="share-native-btn" aria-label="Share results">
           <span aria-hidden="true">↗</span> Share
         </button>
-        <button class="share-btn share-btn--ghost scan-again-btn" id="scan-again-trigger" aria-label="Run scan again">
+        <button class="share-btn share-btn--rescan" id="scan-again-trigger" aria-label="Run scan again">
           <span aria-hidden="true">↺</span> Scan Again
         </button>
       </div>
@@ -350,7 +367,7 @@
         </div>
         <div class="receipt-row">
           <span class="receipt-key">IP Address</span>
-          <span class="receipt-val receipt-val--mono" id="receipt-ip">***.***.***. ***</span>
+          <span class="receipt-val receipt-val--mono" id="receipt-ip">***.***.***.***</span>
         </div>
         <div class="receipt-row">
           <span class="receipt-key">Latency</span>

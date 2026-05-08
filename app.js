@@ -200,7 +200,7 @@ function flashCrashOverlay() {
  *  'en-US' → Judgy SysAdmin (Global default)
  */
 function detectLocale() {
-  const lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  const lang = (navigator.language || 'en').toLowerCase();
   STATE.locale = lang.startsWith('id') ? 'id-ID' : 'en-US';
   return STATE.locale;
 }
@@ -413,7 +413,7 @@ function phase2_stutter() {
   DOM.needleGroup.classList.remove('needle--revving');
   DOM.needleGroup.classList.add('needle--stutter');
 
-  // Flicker the speed number
+  // Flicker the speed number — register the interval so clearAllTimers() can stop it
   let flickerCount = 0;
   const flickerInterval = setInterval(() => {
     const noise = Math.round(Math.random() * 30 - 15);
@@ -421,6 +421,7 @@ function phase2_stutter() {
     flickerCount++;
     if (flickerCount >= 6) clearInterval(flickerInterval);
   }, 100);
+  STATE.timers.push(flickerInterval);
 
   updateStatus('Hmm... something\'s not right.', 'Signal unstable.');
 }
@@ -445,7 +446,7 @@ function phase3_crash() {
 
   // Screen shake on the section
   DOM.speedometerSect.classList.add('screen-shake');
-  setTimeout(() => DOM.speedometerSect.classList.remove('screen-shake'), 600);
+  schedule(() => DOM.speedometerSect.classList.remove('screen-shake'), 600);
 
   updateStatus('💀 Connection collapsed.', 'Your ISP has failed you.');
 }
@@ -475,7 +476,7 @@ function phase5_reveal() {
   DOM.speedometerSect.classList.add('section--exit');
 
   // After exit animation completes, hide it and show on-screen results
-  setTimeout(() => {
+  schedule(() => {
     DOM.speedometerSect.style.display = 'none';
 
     // Show on-screen results
@@ -486,6 +487,7 @@ function phase5_reveal() {
     STATE.isScanning = false;
     removeScanningDots();
     DOM.body.classList.remove('is-scanning');
+    updateConnectionPill('Scan Complete', 'done');
   }, 480);
 }
 
@@ -578,7 +580,7 @@ const ROAST_DICT = {
       'verizon':   ['Verizon Fios: Fi-os as in "finally, os slow."', 'Can you hear me now? Verizon can. Your packets? Not so much.'],
       'cox':       ['Cox Communications. The name says it all, really.'],
       'virgin':    ['Virgin Media: still virgin to the concept of consistent speeds.'],
-      'bt ':       ['BT Broadband: British Throttling, as per tradition.'],
+      'bt':        ['BT Broadband: British Throttling, as per tradition.'],
       'default':   ['"{isp}" — never heard of them, but based on these results, I\'m not surprised.', 'Unknown ISP. Unknown why you\'re still with them after this.'],
     },
     locationRoast: {
@@ -699,7 +701,7 @@ function calculateGrade(speedMbps, pingMs) {
   if (speedMbps > 50 && pingMs < 30)  return 'A';
   if (speedMbps > 20 && pingMs < 60)  return 'B';
   if (speedMbps > 10 && pingMs < 100) return 'C';
-  if (speedMbps > 5  || pingMs < 200) return 'D';
+  if (speedMbps > 5  && pingMs < 200) return 'D';
   return 'F';
 }
 
@@ -772,21 +774,6 @@ function injectReceiptData(networkData, roastText) {
 /* ============================================================
    SCAN AGAIN / RESET
    ============================================================ */
-function injectScanAgainButton() {
-  if (document.getElementById('scan-again-btn')) return;
-
-  const btn = document.createElement('button');
-  btn.id        = 'scan-again-btn';
-  btn.className = 'scan-again-btn';
-  btn.innerHTML = '↺ &nbsp;Scan Again';
-  btn.addEventListener('click', resetScan);
-
-  // Append after the receipt footer
-  const footer = DOM.receiptStage.querySelector('.receipt-footer');
-  if (footer) footer.after(btn);
-  else DOM.receiptStage.querySelector('.cyber-receipt').appendChild(btn);
-}
-
 function resetScan() {
   // Hide on-screen results
   DOM.resultsRow.setAttribute('aria-hidden', 'true');
@@ -806,10 +793,10 @@ function resetScan() {
   // Reset gauge fill
   setGaugeFill(0);
 
-  // Reset gauge broken state
+  // Reset gauge broken state — only remove the class; the CSS rule disappears
+  // and the SVG attribute stroke="url(#trackGradient)" takes back over.
+  // Do NOT setAttribute('stroke','') here — that would blank the track.
   DOM.speedometerWrap.classList.remove('gauge--broken');
-  DOM.speedometerWrap.querySelector('.gauge-track')
-    ?.setAttribute('stroke', '');
 
   // Reset speed / ping readouts
   DOM.speedValue.textContent = '--';
@@ -818,6 +805,7 @@ function resetScan() {
 
   // Reset status
   updateStatus('Ready to profile your connection.', 'Hit GO and brace yourself.');
+  updateConnectionPill('Network Active', 'idle');
 
   // Re-enable GO button
   STATE.isScanning = false;
@@ -836,6 +824,20 @@ function updateStatus(primary, secondary = '') {
     secondary.replace('GO', '<strong>GO</strong>');
 }
 
+/** Update the header connection pill label and dot colour */
+function updateConnectionPill(label, state) {
+  const pill = document.getElementById('connection-pill');
+  if (!pill) return;
+  const dot   = pill.querySelector('.pulse-dot');
+  const text  = pill.querySelector('.pill-label');
+  if (text) text.textContent = label;
+  if (dot) {
+    dot.style.background = state === 'scanning' ? 'var(--accent-warm)'
+                         : state === 'done'     ? 'var(--accent-cyan)'
+                         : 'var(--accent-green)'; // idle
+  }
+}
+
 
 /* ============================================================
    ENTRY POINT
@@ -844,8 +846,12 @@ async function startScan() {
   // Guard: prevent double-clicks
   if (STATE.isScanning) return;
 
-  STATE.isScanning = true;
+  STATE.isScanning  = true;
   STATE.scanCount++;
+  STATE.pingMs      = 999;   // reset so stale values from previous scan don't bleed in
+  STATE.speedMbps   = 0.1;
+  STATE.networkData = null;
+  STATE.isVpn       = false;
   try { localStorage.setItem('spidtes_scan_count', STATE.scanCount); } catch (_) {}
 
   // Clear any leftover timers from previous run
@@ -861,6 +867,7 @@ async function startScan() {
   // Lock GO button & inject loading dots
   DOM.body.classList.add('is-scanning');
   injectScanningDots();
+  updateConnectionPill('Scanning...', 'scanning');
 
   // Fire all network measurements CONCURRENTLY with the 4-second animation.
   // By the time phase5_reveal fires at t=4000ms all of these will be done.
