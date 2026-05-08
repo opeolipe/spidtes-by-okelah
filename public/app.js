@@ -638,16 +638,17 @@ const ROAST_DICT = {
       'myrepublic': ['MyRepublic katanya gaming ISP. Gaming ISP buat gamer yang suka DC.'],
       'smartfren':  ['Smartfren. Smart dari mana? Dari namanya doang.', 'Smartfren: sinyal 4G, kecepatan 2G.'],
       'first media':['First Media: first dalam harga, last dalam performa.'],
-      'default':    ['ISP "{isp}"? Baru denger. Kayaknya RT/RW Net patungan se-kosan ya?', 'Ga ketemu di database, tapi kalau koneksinya segini, udah ketebak kualitasnya.'],
+      'default':    ['ISP "{isp}"? Baru denger. Kayaknya RT/RW Net patungan se-kosan ya?', 'Provider "{isp}" ini nggak masuk radar, tapi koneksinya udah cukup buat ngomong sendiri.'],
     },
     locationRoast: {
+      'denpasar': ['Denpasar, ibu kota Bali. Kota seni dan budaya. Internet-nya? Beda cerita.', 'Digital nomad masuk Denpasar pake WiFi kosan Rp150rb. Vibes bagus, koneksi nangis.'],
       'bali':     ['Work From Bali tapi WiFi kosan Rp150rb sebulan. Vibes bagus, koneksi ngenes.', 'Digital nomad di Bali pake WiFi warung. Respek tapi ya... coba FYP dulu deh.'],
       'dalung':   ['Dalung, Bali. Kosan WiFi patungan 6 orang. Speed dibagi rata: nol koma nol.'],
       'jakarta':  ['Jakarta, ibu kota, tapi koneksinya masih kalah sama warnet 2008.', 'DKI Jakarta: macetnya di jalan, macetnya di internet.'],
       'surabaya': ['Surabaya, kota pahlawan. Pahlawan yang ping-nya 300ms.'],
       'bandung':  ['Bandung kota kembang. Kembang kembali jadi dial-up ternyata.'],
       'yogyakarta':['Jogja istimewa katanya. Istimewa lemotnya iya.'],
-      'default':  ['Dimanapun kamu berada, satu hal yang pasti: ISP-mu mengecewakan.', 'Lokasi ga ketemu di database. Tapi internet segini mah udah cukup buat bikin malu.'],
+      'default':  ['Dimanapun kamu berada, satu hal yang pasti: ISP-mu mengecewakan.', 'Kota-mu nggak ada di daftar, tapi internet segini mah bikin tetangga kasihan.'],
     },
     punchline: [
       'Semoga ISP-mu segera sadar diri.',
@@ -1045,76 +1046,94 @@ document.addEventListener('DOMContentLoaded', () => {
   if (DOM.shareReceiptBtn) {
     DOM.shareReceiptBtn.addEventListener('click', async () => {
       if (!window.html2canvas) {
-        alert('Export library is still loading. Please try again in a moment.');
+        alert('Export library is still loading. Please wait a moment and try again.');
         return;
       }
 
       const receiptEl = document.getElementById('cyber-receipt');
       if (!receiptEl) return;
 
-      // Ensure the stage is temporarily fully visible so html2canvas can render it properly
-      const originalDisplay = DOM.receiptStage.style.display;
-      const originalOpacity = DOM.receiptStage.style.opacity;
-      const originalPointer = DOM.receiptStage.style.pointerEvents;
-      
-      DOM.receiptStage.style.display = 'flex';
-      DOM.receiptStage.style.opacity = '1';
-      DOM.receiptStage.style.pointerEvents = 'auto';
+      // Show loading state
+      const origHTML = DOM.shareReceiptBtn.innerHTML;
+      DOM.shareReceiptBtn.innerHTML = '<span aria-hidden="true">⏳</span> Generating...';
+      DOM.shareReceiptBtn.disabled = true;
 
-      // Slight delay to allow DOM to settle before painting
-      await new Promise(r => setTimeout(r, 50));
+      // html2canvas cannot render an element whose ancestor is at top:-9999px.
+      // Temporarily move the stage to the origin (hidden behind page with z-index:-1
+      // and visibility:hidden so the user never sees it) then restore after capture.
+      const stage = DOM.receiptStage;
+      const savedTop  = stage.style.top;
+      const savedLeft = stage.style.left;
+      const savedZ    = stage.style.zIndex;
+      const savedVis  = stage.style.visibility;
+
+      stage.style.top        = '0px';
+      stage.style.left       = '0px';
+      stage.style.zIndex     = '-1';
+      stage.style.visibility = 'hidden';
+
+      // One frame for the browser to reflow the repositioned element
+      await new Promise(r => setTimeout(r, 80));
+
+      const restore = () => {
+        stage.style.top        = savedTop;
+        stage.style.left       = savedLeft;
+        stage.style.zIndex     = savedZ;
+        stage.style.visibility = savedVis;
+        DOM.shareReceiptBtn.innerHTML = origHTML;
+        DOM.shareReceiptBtn.disabled  = false;
+      };
 
       try {
         const canvas = await window.html2canvas(receiptEl, {
-          scale: 2,               // 1080x1920 @ 2x scaling for crisp social sharing
+          scale:           2,
           backgroundColor: '#08080f',
-          logging: false,
-          useCORS: true           // Just in case we add external images later
+          logging:         false,
+          useCORS:         true,
+          allowTaint:      true,
+          width:           1080,
+          height:          1920,
         });
 
-        // Restore original stage visibility
-        DOM.receiptStage.style.display = originalDisplay;
-        DOM.receiptStage.style.opacity = originalOpacity;
-        DOM.receiptStage.style.pointerEvents = originalPointer;
+        restore();
 
         canvas.toBlob(async (blob) => {
-          if (!blob) throw new Error('Canvas to Blob conversion failed');
+          if (!blob) {
+            alert('Could not generate image. Please try again.');
+            return;
+          }
 
           const file = new File([blob], 'spidtes-cyber-receipt.png', { type: 'image/png' });
 
-          // Try native Web Share API first
+          // Mobile: native share sheet with image file
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
               await navigator.share({
                 title: 'My Network Roast by Spidtes',
-                text: 'My internet was just absolutely roasted by Spidtes. Check out my Cyber Receipt.',
-                files: [file]
+                text:  STATE.roastText || 'My internet just got roasted by Spidtes.',
+                files: [file],
               });
               return;
             } catch (err) {
-              // User likely cancelled the share dialog, which is fine
-              if (err.name !== 'AbortError') console.error('Share failed:', err);
+              if (err.name === 'AbortError') return; // user cancelled — do nothing
             }
-          } else {
-            // Fallback for Desktop/Unsupported Browsers: Download the image directly
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'spidtes-cyber-receipt.png';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
           }
+
+          // Desktop / unsupported: trigger a direct PNG download
+          const url = URL.createObjectURL(blob);
+          const a   = document.createElement('a');
+          a.href     = url;
+          a.download = 'spidtes-cyber-receipt.png';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
         }, 'image/png');
 
-      } catch (error) {
-        console.error('Failed to generate Cyber Receipt image:', error);
+      } catch (err) {
+        console.error('Share failed:', err);
+        restore();
         alert('Failed to generate image. Please try again.');
-        // Restore on error
-        DOM.receiptStage.style.display = originalDisplay;
-        DOM.receiptStage.style.opacity = originalOpacity;
-        DOM.receiptStage.style.pointerEvents = originalPointer;
       }
     });
   }
