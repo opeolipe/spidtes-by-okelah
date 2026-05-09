@@ -22,6 +22,7 @@
 
   <!-- Favicon (SVG emoji, supported by all modern browsers) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕷️</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
 
   <title>Spidtes by Okelah™ — Network Roast Profiler</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -265,6 +266,15 @@
         <span class="result-label">Download</span>
       </div>
 
+      <div class="result-card" id="result-upload">
+        <div class="result-icon result-icon--upload" aria-hidden="true">↑</div>
+        <div class="result-data">
+          <span class="result-value" id="result-upload-val">--</span>
+          <span class="result-unit">Mbps</span>
+        </div>
+        <span class="result-label">Upload</span>
+      </div>
+
       <div class="result-card" id="result-ping">
         <div class="result-icon" aria-hidden="true">◎</div>
         <div class="result-data">
@@ -274,12 +284,22 @@
         <span class="result-label">Ping</span>
       </div>
 
-      <div class="result-card" id="result-grade">
+      <div class="result-card" id="result-jitter">
+        <div class="result-icon result-icon--jitter" aria-hidden="true">≈</div>
+        <div class="result-data">
+          <span class="result-value" id="result-jitter-val">--</span>
+          <span class="result-unit">ms</span>
+        </div>
+        <span class="result-label">Jitter</span>
+      </div>
+
+      <div class="result-card result-card--tooltip" id="result-grade"
+           data-tooltip="A ≥50 Mbps &lt;30ms · B ≥20 Mbps &lt;60ms · C ≥10 Mbps &lt;100ms · D ≥5 Mbps &lt;200ms · F everything else">
         <div class="result-icon result-icon--grade" aria-hidden="true">F</div>
         <div class="result-data">
           <span class="result-value result-value--grade" id="result-grade-val">--</span>
         </div>
-        <span class="result-label">Network Grade</span>
+        <span class="result-label">Network Grade <span class="grade-info-icon" aria-hidden="true">ⓘ</span></span>
       </div>
 
     </div>
@@ -303,6 +323,15 @@
           <span aria-hidden="true">↺</span> Scan Again
         </button>
       </div>
+    </div>
+
+    <!-- ─── Scan History Panel ─── -->
+    <div class="history-panel" id="history-panel" aria-hidden="true" aria-label="Previous scans">
+      <div class="history-header">
+        <span class="history-title">📊 Previous Scans</span>
+        <button class="history-clear-btn" id="history-clear-btn" aria-label="Clear history">Clear</button>
+      </div>
+      <div class="history-list" role="list"></div>
     </div>
 
   </main>
@@ -367,8 +396,16 @@
           <span class="receipt-val receipt-val--mono" id="receipt-ip">***.***.***.***</span>
         </div>
         <div class="receipt-row">
+          <span class="receipt-key">Upload</span>
+          <span class="receipt-val" id="receipt-upload">— Mbps</span>
+        </div>
+        <div class="receipt-row">
           <span class="receipt-key">Latency</span>
           <span class="receipt-val" id="receipt-latency">— ms</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-key">Jitter</span>
+          <span class="receipt-val" id="receipt-jitter">± — ms</span>
         </div>
         <div class="receipt-row">
           <span class="receipt-key">Connection</span>
@@ -436,11 +473,7 @@
       </div>
 
       <div class="footer-links" role="navigation" aria-label="Footer navigation">
-        <a class="footer-link" href="#" id="footer-privacy-link">Privacy Policy</a>
-        <span class="footer-dot" aria-hidden="true">·</span>
-        <a class="footer-link" href="#" id="footer-about-link">About</a>
-        <span class="footer-dot" aria-hidden="true">·</span>
-        <a class="footer-link" href="#" id="footer-github-link">GitHub</a>
+        <a class="footer-link" href="https://github.com/opeolipe/spidtes-by-okelah" target="_blank" rel="noopener noreferrer" id="footer-github-link">GitHub</a>
       </div>
 
       <p class="footer-legal">
@@ -450,7 +483,6 @@
     </div>
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>
