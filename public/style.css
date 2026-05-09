@@ -1521,7 +1521,7 @@ body.is-scanning .go-scanning-dots {
   width: 1080px !important;
   height: auto !important;
   min-height: 1920px !important;
-  padding: 80px 80px !important;
+  padding: 220px 80px 300px !important; /* Safe areas for IG Stories / Social UI */
   display: flex !important;
   flex-direction: column !important;
   background: #08080f !important;
