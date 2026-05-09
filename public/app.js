@@ -50,6 +50,8 @@ const DOM = {
 
   // Roast container
   roastContainer: document.getElementById('roast-container'),
+  roastText: document.getElementById('roast-text'),
+  shareActionsWrap: document.getElementById('share-actions-wrap'),
 
   // Receipt
   receiptStage: document.getElementById('receipt-stage'),
@@ -529,6 +531,7 @@ function phase5_reveal() {
     // Show on-screen results
     DOM.resultsRow.setAttribute('aria-hidden', 'false');
     DOM.roastContainer.setAttribute('aria-hidden', 'false');
+    if (DOM.shareActionsWrap) DOM.shareActionsWrap.setAttribute('aria-hidden', 'false');
 
     // Restore state (scanning done)
     STATE.isScanning = false;
@@ -1470,20 +1473,25 @@ function injectReceiptData(networkData, roastText) {
   if (DOM.resultJitterVal) DOM.resultJitterVal.textContent = STATE.jitterMs > 0 ? `±${STATE.jitterMs}` : '--';
   if (DOM.resultGradeVal) DOM.resultGradeVal.textContent = ''; // grade shown in icon only (see below)
 
+  // Update BOTH dashboard and receipt roasts
+  if (DOM.roastText) DOM.roastText.textContent = roastText;
   if (DOM.receiptRoast) DOM.receiptRoast.textContent = roastText;
 
-  // ── Burn Level Badge (Mobile Hero) ──
-  const burnHeader = document.querySelector('.receipt-roast-header');
-  if (burnHeader) {
-    let level = 'MID';
-    let color = '#ff9f43';
-    if (grade === 'F') { level = 'BRUTAL'; color = '#ff4757'; }
-    else if (grade === 'D') { level = 'PATHETIC'; color = '#ffa502'; }
-    else if (grade === 'C') { level = 'MID'; color = '#2ed573'; }
-    else { level = 'HUMBLE'; color = '#1e90ff'; }
-    
-    burnHeader.innerHTML = `🔥 BURN LEVEL: <span style="color: ${color}; margin-left: 6px;">${level}</span>`;
-  }
+  // ── Burn Level Badge (Sync both Receipt and Dashboard) ──
+  const receiptBurnHeader = document.querySelector('.receipt-roast-header');
+  const dashboardBurnBadge = document.querySelector('.roast-badge');
+  
+  let level = 'MID';
+  let color = '#ff9f43';
+  if (grade === 'F') { level = 'BRUTAL'; color = '#ff4757'; }
+  else if (grade === 'D') { level = 'PATHETIC'; color = '#ffa502'; }
+  else if (grade === 'C') { level = 'MID'; color = '#2ed573'; }
+  else { level = 'HUMBLE'; color = '#1e90ff'; }
+
+  const burnHTML = `🔥 BURN LEVEL: <span style="color: ${color}; margin-left: 6px;">${level}</span>`;
+  
+  if (receiptBurnHeader) receiptBurnHeader.innerHTML = burnHTML;
+  if (dashboardBurnBadge) dashboardBurnBadge.innerHTML = burnHTML;
 
   // Update on-screen grade colour if failing
   if (DOM.resultGradeVal) {
@@ -1535,6 +1543,7 @@ function resetScan() {
   // Hide on-screen results
   DOM.resultsRow.setAttribute('aria-hidden', 'true');
   DOM.roastContainer.setAttribute('aria-hidden', 'true');
+  if (DOM.shareActionsWrap) DOM.shareActionsWrap.setAttribute('aria-hidden', 'true');
 
   // Hide receipt (if active)
   DOM.receiptStage.classList.remove('receipt--active');
@@ -1773,6 +1782,7 @@ function loadSharedResult(payload) {
 
   DOM.resultsRow.setAttribute('aria-hidden', 'false');
   DOM.roastContainer.setAttribute('aria-hidden', 'false');
+  if (DOM.shareActionsWrap) DOM.shareActionsWrap.setAttribute('aria-hidden', 'false');
 
   // Insert the shame CTA banner above results
   const existing = document.getElementById('shared-result-banner');
@@ -1791,6 +1801,7 @@ function loadSharedResult(payload) {
       DOM.speedometerSect.style.display = '';
       DOM.resultsRow.setAttribute('aria-hidden', 'true');
       DOM.roastContainer.setAttribute('aria-hidden', 'true');
+      if (DOM.shareActionsWrap) DOM.shareActionsWrap.setAttribute('aria-hidden', 'true');
       updateStatus('Ready to profile your connection.', 'Hit GO and brace yourself.');
     });
   }

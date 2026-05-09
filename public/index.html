@@ -235,6 +235,7 @@
           </button>
 
           <div class="ping-readout" aria-live="polite">
+        <div class="ping-readout" aria-live="polite">
             <span class="ping-label">PING</span>
             <span class="ping-value" id="ping-value">-- ms</span>
           </div>
@@ -254,7 +255,19 @@
     </section>
     <!-- /speedometer-section -->
 
-    <!-- ─── Results Row (hidden until scan complete) ─── -->
+    <!-- ─── Roast Output (Primary Hero) ─── -->
+    <div class="roast-container" id="roast-container" aria-hidden="true">
+      <div class="roast-card">
+        <div class="roast-header">
+          <span class="roast-badge">🔥 ROAST RESULT</span>
+        </div>
+        <blockquote class="roast-text" id="roast-text">
+          Diagnose your network to receive your personalised roast.
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- ─── Results Row (Secondary Metrics) ─── -->
     <div class="results-row" id="results-row" aria-hidden="true">
 
       <div class="result-card" id="result-download">
@@ -305,16 +318,8 @@
     </div>
     <!-- /results-row -->
 
-    <!-- ─── Roast Output (hidden until scan complete) ─── -->
-    <div class="roast-container" id="roast-container" aria-hidden="true">
-      <div class="roast-card">
-        <div class="roast-header">
-          <span class="roast-badge">🔥 ROAST RESULT</span>
-        </div>
-        <blockquote class="roast-text" id="roast-text">
-          Diagnose your network to receive your personalised roast.
-        </blockquote>
-      </div>
+    <!-- ─── Actions ─── -->
+    <div class="share-actions-wrap" id="share-actions-wrap" aria-hidden="true">
       <div class="share-actions" id="share-actions">
         <button class="share-btn share-btn--primary" id="share-receipt-btn" aria-label="Export receipt for social media">
           <span aria-hidden="true">📋</span> Share My Shame
