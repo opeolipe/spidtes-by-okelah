@@ -432,8 +432,8 @@ async function measureUpload() {
     return Math.max(0.1, Math.round((bytes * 8) / (elapsed * 1_000_000) * 10) / 10);
   }
 
-  try { return await timedUpload('https://speed.cloudflare.com/__up', 8000); } catch { }
-  try { return await timedUpload('https://httpbin.org/post', 8000); } catch { }
+  try { return await timedUpload('https://speed.cloudflare.com/__up', 3000); } catch { }
+  try { return await timedUpload('https://httpbin.org/post', 3000); } catch { }
 
   // Fallback: If real measurement fails, mock it as 30-40% of download
   const dl = STATE.speedMbps > 0.1 ? STATE.speedMbps : 10;
@@ -1605,8 +1605,14 @@ function sendAnalyticsEvent(eventName, props) {
       r: document.referrer || '',
       p: props,
     });
-    // sendBeacon is fire-and-forget; never blocks the page; ignored silently if offline
-    navigator.sendBeacon && navigator.sendBeacon(ANALYTICS_ENDPOINT, new Blob([payload], { type: 'application/json' }));
+    // Use fetch with credentials: omit to avoid CORS preflight issues with Plausible
+    fetch(ANALYTICS_ENDPOINT, {
+      method: 'POST',
+      body: payload,
+      credentials: 'omit',
+      mode: 'no-cors', // Plausible doesn't need response data
+      headers: { 'Content-Type': 'application/json' }
+    }).catch(() => { });
   } catch (_) { }
 }
 
@@ -1974,13 +1980,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       } catch (err) {
         console.error('Share failed:', err);
-        // Fallback cleanup if capture fails
+        alert('Sharing failed. Please try again or take a manual screenshot.');
+      } finally {
+        // Always restore the button and clean up clone
         if (clone && clone.parentNode) {
           document.body.removeChild(clone);
         }
         DOM.shareReceiptBtn.innerHTML = origHTML;
         DOM.shareReceiptBtn.disabled = false;
-        alert('Failed to generate image. Please try again.');
       }
     });
   }
