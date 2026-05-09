@@ -451,9 +451,8 @@ async function measureUpload() {
 
 function runFakeOutSequence() {
   schedule(phase1_rev, 0);
-  schedule(phase2_stutter, 1400);
-  schedule(phase3_crash, 2200);
-  schedule(phase4_broken, 2800);
+  schedule(phase2_settle, 1400);
+  schedule(phase3_finalize, 3200);
   schedule(phase5_reveal, 4000);
 }
 
@@ -476,67 +475,32 @@ function phase1_rev() {
     DOM.pingValue.textContent = `${Math.max(8, Math.round(80 - v * 0.8))} ms`;
   });
 
-  updateStatus('Scanning your connection...', 'Hold tight, running diagnostics.');
+  updateStatus('Profiling your digital shame...', 'Revving the sarcasm engine.');
 }
 
-/* ── Phase 2: Stutter ── */
-function phase2_stutter() {
-  const currentRot = NEEDLE.mbpsToRot(82);
-
-  // Pass current rotation to CSS custom property for the keyframe
-  DOM.needleGroup.style.setProperty('--needle-stutter-pos', `${currentRot}deg`);
-
+/* ── Phase 2: Settle ── */
+function phase2_settle() {
   DOM.needleGroup.classList.remove('needle--revving');
-  DOM.needleGroup.classList.add('needle--stutter');
+  
+  // Transition smoothly from the fake high rev (~82) to the actual measured speed
+  const realSpeed = STATE.speedMbps > 0.1 ? STATE.speedMbps : 10;
+  const targetRot = NEEDLE.mbpsToRot(realSpeed);
+  
+  // Update status to something positive but still satirical
+  updateStatus('Synchronizing pulse...', 'Analyzing your digital lifestyle.');
 
-  // Flicker the speed number — register the interval so clearAllTimers() can stop it
-  let flickerCount = 0;
-  const flickerInterval = setInterval(() => {
-    const noise = Math.round(Math.random() * 30 - 15);
-    DOM.speedValue.textContent = Math.max(0, 82 + noise);
-    flickerCount++;
-    if (flickerCount >= 6) clearInterval(flickerInterval);
-  }, 100);
-  STATE.timers.push(flickerInterval);
+  setNeedle(targetRot);
+  setGaugeFill(realSpeed);
 
-  updateStatus('Hmm... something\'s not right.', 'Signal unstable.');
+  // Animate the counter from the rev peak (82) to the real value
+  animateCounter(82, realSpeed, 1800, (v) => {
+    DOM.speedValue.textContent = v;
+    DOM.pingValue.textContent = `${STATE.pingMs} ms`;
+  });
 }
 
-/* ── Phase 3: Crash ── */
-function phase3_crash() {
-  DOM.needleGroup.classList.remove('needle--stutter');
-  DOM.needleGroup.classList.add('needle--crash');
-  void DOM.needleGroup.getBoundingClientRect(); // reflow so crash transition is active
-
-  // Slam needle to 0
-  setNeedle(NEEDLE.start); // 240deg = 0 Mbps
-  setGaugeFill(0);
-
-  // Glitch the speed value to 0
-  DOM.speedValue.classList.add('is-glitching');
-  DOM.speedValue.textContent = '0';
-  DOM.pingValue.textContent = '999 ms';
-
-  // Full-screen red flash
-  flashCrashOverlay();
-
-  // Screen shake on the section
-  DOM.speedometerSect.classList.add('screen-shake');
-  schedule(() => DOM.speedometerSect.classList.remove('screen-shake'), 600);
-
-  updateStatus('💀 Connection collapsed.', 'Your ISP has failed you.');
-}
-
-/* ── Phase 4: Broken ── */
-function phase4_broken() {
-  DOM.speedValue.classList.remove('is-glitching');
-  DOM.speedValue.textContent = '0';
-
-  // Remove crash transition, add broken state
-  DOM.needleGroup.classList.remove('needle--crash');
-  DOM.speedometerWrap.classList.add('gauge--broken');
-
-  updateStatus('🔴 Network integrity: FAILED', 'Preparing your roast...');
+function phase3_finalize() {
+  updateStatus('Roast Engine ready.', 'Finalizing your cyber profile.');
 }
 
 /* ── Phase 5: Reveal ── */
@@ -734,28 +698,28 @@ const ROAST_DICT = {
       'Pakai VPN biar "aman". Aman dari siapa? Speed-mu tetap ketangkap basah.',
     ],
     pingReact: [
+      "Ping {ping} ms. Ini main game apa nunggu balasan chat dari gebetan?",
+      "Latency {ping} ms? Sinyalnya lagi mampir ngopi dulu ya?",
+      "Ping {ping} ms itu bukan gaming, itu meditasi digital.",
+      "Ping {ping} ms? Koneksi gini mending dipake buat mining batu bata aja.",
       'Ping-mu lebih tinggi dari harapan hidupmu.',
       'Dengan ping segitu, kamu udah kalah sebelum mulai.',
       'Ping {ping}ms? Paket internet-mu kayak kirim surat lewat kantor pos.',
       '{ping}ms. Itu bukan latency, itu penantian eksistensial.',
       'Ping {ping}ms bikin game online jadi catur pos.',
       'Dengan ping {ping}ms, musuh udah respawn sebelum peluru-mu nyampe.',
-      'CS:GO, Valorant, PUBG — semua akan menolakmu dengan ping {ping}ms ini.',
-      'Ping {ping}ms. HTTP request-mu udah pensiun sebelum nyampe server.',
-      '{ping}ms latency. Live streaming? Lebih pas disebut delayed broadcast.',
-      'Ping segitu bikin video call jadi pertunjukan seni patung.',
     ],
     speedReact: [
-      'Speedmu {speed} Mbps. Siput pun ngakak.',
-      '{speed} Mbps? Kamu mau streaming atau meditasi?',
+      "{speed} (siput mager) Mbps di 2025. Warnet tahun 2005 lebih kenceng dari ini.",
+      "{speed} Mbps? Ini internet apa paket hemat kuota keluarga?",
+      "Cuma dapet {speed} Mbps? Kecepatan segini mending buat kirim SMS aja.",
+      "{speed} Mbps itu bukan speed, itu angka harapan hidup ISP-mu.",
+      "Speedmu {speed} Mbps. Siput pun ngakak.",
+      "{speed} Mbps? Kamu mau streaming atau meditasi?",
       'Bahkan IndiHome promo pun malu liat angka ini.',
       '{speed} Mbps. WhatsApp voice note aja nge-buffer.',
       'Kecepatan {speed} Mbps. Kenangan masa lalu load lebih cepet.',
       'Netflix minimum 3 Mbps buat 720p. Kamu di {speed} Mbps. Selamat nonton slideshow.',
-      'Zoom meeting dengan {speed} Mbps? Wajahmu bakal jadi karya seni piksel.',
-      '{speed} Mbps di 2025. Warnet tahun 2005 lebih kenceng dari ini.',
-      'Download file 100MB dengan {speed} Mbps? Siapkan bekal makan siang.',
-      'Angka {speed} Mbps ini bikin tetangga yang pake HP hotspot ikut kasihan.',
     ],
     ispRoast: [
       {
@@ -1404,6 +1368,29 @@ function generateRoast(networkData) {
 
   parts.push(contextLine);
 
+  // 2.5 Device Roast (New!) — Roast the hardware
+  const ua = navigator.userAgent;
+  const isIphone = /iPhone/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  const isMac = /Macintosh/i.test(ua);
+  
+  let devLine = null;
+  if (isIphone) {
+    devLine = locale === 'id-ID' 
+      ? "Beli iPhone sanggup, beli kuota kok nangis?"
+      : "Expensive iPhone, budget internet. Make it make sense.";
+  } else if (isAndroid) {
+    devLine = locale === 'id-ID'
+      ? "Android-nya udah keren, tapi speed-nya masih rasa HP jadul."
+      : "Your Android is ready for 2025, but your connection is stuck in 2010.";
+  } else if (isMac && !isIphone) {
+    devLine = locale === 'id-ID'
+      ? "Pake MacBook biar kelihatan pro, tapi speed-nya nggak pro sama sekali."
+      : "Rocking a MacBook for 'productivity' while your speed is at a standstill.";
+  }
+
+  if (devLine) parts.push(devLine);
+
   // 3. Punchline — Always one
   parts.push(pick(dict.punchline));
 
@@ -1483,8 +1470,20 @@ function injectReceiptData(networkData, roastText) {
   if (DOM.resultJitterVal) DOM.resultJitterVal.textContent = STATE.jitterMs > 0 ? `±${STATE.jitterMs}` : '--';
   if (DOM.resultGradeVal) DOM.resultGradeVal.textContent = ''; // grade shown in icon only (see below)
 
-  const roastTextEl = document.getElementById('roast-text');
-  if (roastTextEl) roastTextEl.textContent = roastText;
+  if (DOM.receiptRoast) DOM.receiptRoast.textContent = roastText;
+
+  // ── Burn Level Badge (Mobile Hero) ──
+  const burnHeader = document.querySelector('.receipt-roast-header');
+  if (burnHeader) {
+    let level = 'MID';
+    let color = '#ff9f43';
+    if (grade === 'F') { level = 'BRUTAL'; color = '#ff4757'; }
+    else if (grade === 'D') { level = 'PATHETIC'; color = '#ffa502'; }
+    else if (grade === 'C') { level = 'MID'; color = '#2ed573'; }
+    else { level = 'HUMBLE'; color = '#1e90ff'; }
+    
+    burnHeader.innerHTML = `🔥 BURN LEVEL: <span style="color: ${color}; margin-left: 6px;">${level}</span>`;
+  }
 
   // Update on-screen grade colour if failing
   if (DOM.resultGradeVal) {

@@ -976,27 +976,42 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
 /* ── Roast Section ── */
 .receipt-roast {
-  padding: 32px 36px;
-  background: rgba(255, 94, 58, 0.05);
-  border: 1px solid rgba(255, 94, 58, 0.15);
-  border-radius: 16px;
+  padding: 40px 32px;
+  background: linear-gradient(135deg, rgba(255, 94, 58, 0.12), rgba(255, 94, 58, 0.05));
+  border: 1px solid rgba(255, 94, 58, 0.3);
+  border-radius: 24px;
+  margin: 16px 0;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  text-align: center; /* Mobile-first center align */
 }
 
 .receipt-roast-header {
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--accent-warm);
-  margin-bottom: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .receipt-roast-text {
-  font-size: 1.25rem;
-  font-weight: 400;
-  line-height: 1.7;
+  font-size: 1.6rem; /* Large, standout roast text */
+  font-weight: 700;
+  line-height: 1.5;
   color: var(--text-primary);
   text-wrap: balance;
+  font-family: var(--font-main);
+  letter-spacing: -0.01em;
+}
+
+/* Mobile UI Fixes */
+@media (max-width: 480px) {
+  .receipt-roast { padding: 32px 20px; }
+  .receipt-roast-text { font-size: 1.35rem; }
 }
 
 /* ── Receipt Privacy ── */
