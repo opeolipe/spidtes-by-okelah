@@ -743,59 +743,88 @@ const ROAST_DICT = {
       'Download file 100MB dengan {speed} Mbps? Siapkan bekal makan siang.',
       'Angka {speed} Mbps ini bikin tetangga yang pake HP hotspot ikut kasihan.',
     ],
-    ispRoast: {
-      'indihome':   [
+    ispRoast: [
+      { match: ['indihome', 'telekomunikasi indonesia indihome'], lines: [
         'IndiHome, raja throttling nusantara. Mahal, lambat, tapi tetep dipake karena ga ada pilihan.',
         'IndiHome: karena monopoli itu nyata, dan kamu yang bayar ongkosnya.',
         'IndiHome FUP-nya kejam. Tanggal 20 speed langsung nyungsep ke dasar laut.',
         'Tagihan IndiHome naik tiap tahun. Speed-nya setia di angka yang sama.',
         'IndiHome: satu-satunya tempat di mana "gangguan jaringan" adalah fitur, bukan bug.',
-      ],
-      'telkomsel':  [
+      ]},
+      { match: ['telkomsel', 'telekomunikasi selular', 'selular'], lines: [
         'Telkomsel Orbit katanya solusi rumahan. Solusi apa, bro? Solusi bikin emosi.',
         'Orbit by Telkomsel: harga langit, speed tanah.',
         'Telkomsel: provider terbesar Indonesia, dengan keluhan terbesar juga.',
         'Orbit sudah orbit ke mana-mana, tapi signal-nya masih di bumi bawah.',
-      ],
-      'biznet':     [
+      ]},
+      { match: ['biznet'], lines: [
         'Biznet harusnya kenceng. Harusnya. Kenyataannya? Ya gini deh.',
         'Biznet di kertasnya 100Mbps. Di realitanya tanya tetangga yang sama kecewanya.',
         'Biznet Metro: metronya macet juga rupanya.',
         'Biznet fiber optik katanya. Fiber-nya mungkin masih digulung di gudang.',
-      ],
-      'xl':         [
+      ]},
+      { match: ['xl axiata', 'xl'], lines: [
         'XL Axiata. X-nya buat X-tras lambat.',
         'XL: Xtra Lemot, eXtra kecewa.',
         'XL Satu Home — satu paket, satu kekecewaan terpadu.',
         'XL fiber sudah ada. Kamu pake XL yang mana, bang? Yang lemot juga?',
-      ],
-      'myrepublic': [
+      ]},
+      { match: ['myrepublic', 'eka mas republik', 'eka mas'], lines: [
         'MyRepublic katanya gaming ISP. Gaming ISP buat gamer yang hobi DC.',
         'MyRepublic: republiknya mana? Yang ini kayak monarki disconnect.',
         'MyRepublic fiber gaming — gaming paling mulus adalah saat server down.',
-      ],
-      'smartfren':  [
+      ]},
+      { match: ['smartfren'], lines: [
         'Smartfren. Smart dari mana? Dari namanya doang.',
         'Smartfren: sinyal 4G, kecepatan nostalgia 2G.',
         'Smartfren WMS home broadband. W-nya untuk Waiting.',
         'Smartfren: satu-satunya provider yang bikin pengguna merasa lebih pintar setelah berhenti langganan.',
-      ],
-      'first media':['First Media: first dalam harga, last dalam performa.', 'First Media fiber — first kali konek kenceng, abis itu silakan bersabar.'],
-      'iconnet':    ['IconNet by PLN. Listrik bisa, internet... ya masih sesuai anggaran PLN.', 'IconNet: icon-nya bisa, net-nya masih loading.', 'PLN masuk bisnis internet. Mati lampu masuk bundel gratis.'],
-      'mnc':        ['MNC Play. Main streaming di platform sendiri aja buffering, gimana yang lain.', 'MNC Play — media terbesar, bandwidth terkecil.'],
-      'tri':        ['Tri/3 Hutchison. Nomor tiga dalam nama, nomor tiga dari bawah dalam kecepatan.', '3 Indonesia: unlimited data, unlimited kekecewaan.'],
-      'axis':       ['Axis Telekom. Udah merger sama XL, speed-nya pun ikut merge jadi satu: lambat.', 'Axis: dulu murah meriah, sekarang... tetap saja.'],
-      'isat':       ['Indosat Ooredoo Hutchison. Tiga perusahaan bergabung, speed-nya tetap satu: biasa aja.', 'IM3 Ooredoo: rebranding keren, kecepatan original tetap terjaga.'],
-      'telkom':     ['Telkom Indonesia, BUMN kebanggaan bangsa. Bangga-banggain yang lain aja deh.', 'Astinet Telkom: harganya enterprise, feeling-nya warnet.'],
-      'orbit':      ['Telkomsel Orbit: bayar premium, dapat koneksi yang bikin melow.', 'Orbit Home: harga bintang lima, speed bintang satu.'],
-      'default':    [
-        'ISP "{isp}"? Baru denger. Kayaknya RT/RW Net patungan se-kosan ya?',
-        'Provider "{isp}" ini nggak masuk radar, tapi koneksinya udah cukup buat ngomong sendiri.',
-        '"{isp}" — nama baru, kekecewaan klasik.',
-        'Belum pernah denger "{isp}", tapi dari hasil ini, udah bisa ditebak ceritanya.',
-        '"{isp}" ini apa singkatannya? Internet Sangat Tidak Enak?',
-      ],
-    },
+      ]},
+      { match: ['first media', 'linknet', 'broadband multimedia'], lines: [
+        'First Media: first dalam harga, last dalam performa.',
+        'First Media fiber — first kali konek kenceng, abis itu silakan bersabar.',
+        'Linknet First Media: link-nya ada, net-nya malu-maluin.',
+      ]},
+      { match: ['iconnet', 'comnets', 'icon plus', 'indonesia comnets'], lines: [
+        'IconNet by PLN. Listrik bisa, internet... ya masih sesuai anggaran PLN.',
+        'IconNet: icon-nya bisa, net-nya masih loading.',
+        'PLN masuk bisnis internet. Mati lampu masuk bundel gratis.',
+      ]},
+      { match: ['mnc'], lines: [
+        'MNC Play. Main streaming di platform sendiri aja buffering, gimana yang lain.',
+        'MNC Play — media terbesar, bandwidth terkecil.',
+      ]},
+      { match: ['hutchison', '3 indonesia', 'tri'], lines: [
+        'Tri/3 Hutchison. Nomor tiga dalam nama, nomor tiga dari bawah dalam kecepatan.',
+        '3 Indonesia: unlimited data, unlimited kekecewaan.',
+        'Hutchison 3 Indonesia: merger besar-besaran, speed tetap kecil-kecilan.',
+      ]},
+      { match: ['axis'], lines: [
+        'Axis Telekom. Udah merger sama XL, speed-nya pun ikut merge jadi satu: lambat.',
+        'Axis: dulu murah meriah, sekarang... tetap saja.',
+      ]},
+      { match: ['indosat', 'ooredoo', 'pt isat'], lines: [
+        'Indosat Ooredoo Hutchison. Tiga perusahaan bergabung, speed-nya tetap satu: biasa aja.',
+        'IM3 Ooredoo: rebranding keren, kecepatan original tetap terjaga.',
+        'Indosat: dari IM3 ke Ooredoo ke IOH — nama berganti, lemot abadi.',
+      ]},
+      { match: ['telekomunikasi indonesia', 'telkom-net', 'telkom indonesia', 'telkom'], lines: [
+        'Telkom Indonesia, BUMN kebanggaan bangsa. Bangga-banggain yang lain aja deh.',
+        'Astinet Telkom: harganya enterprise, feeling-nya warnet.',
+        'Telkom Indonesia: infrastrukturnya milik negara, kecewaannya milik kamu pribadi.',
+      ]},
+      { match: ['orbit'], lines: [
+        'Telkomsel Orbit: bayar premium, dapat koneksi yang bikin melow.',
+        'Orbit Home: harga bintang lima, speed bintang satu.',
+      ]},
+    ],
+    ispRoastDefault: [
+      'ISP "{isp}"? Baru denger. Kayaknya RT/RW Net patungan se-kosan ya?',
+      'Provider "{isp}" ini nggak masuk radar, tapi koneksinya udah cukup buat ngomong sendiri.',
+      '"{isp}" — nama baru, kekecewaan klasik.',
+      'Belum pernah denger "{isp}", tapi dari hasil ini, udah bisa ditebak ceritanya.',
+      '"{isp}" ini apa singkatannya? Internet Sangat Tidak Enak?',
+    ],
     locationRoast: {
       'denpasar': [
         'Denpasar, ibu kota Bali. Kota seni dan budaya. Internet-nya? Beda cerita.',
@@ -983,144 +1012,153 @@ const ROAST_DICT = {
       'The fax machine your ISP is clearly using could explain the {speed} Mbps you\'re seeing.',
       '{speed} Mbps. You could out-download this by waving two tin cans on a string.',
     ],
-    ispRoast: {
-      'comcast':   [
+    ispRoast: [
+      { match: ['comcast', 'xfinity'], lines: [
         'Comcast: because you deserve to pay premium prices for mediocre service.',
         'Comcast Xfinity: infinity waits, finite speed.',
         'Comcast has been America\'s most hated company multiple years running. This result explains why.',
         'Xfinity: X marks the spot where your bandwidth went missing.',
-      ],
-      'at&t':      [
+        'Xfinity — infinite potential, finite delivery.',
+        'Comcast rebranded to Xfinity to escape its reputation. The speeds came along anyway.',
+      ]},
+      { match: ['at&t', 'att', 'american telephone'], lines: [
         'AT&T: Attempted Terrible Throughput.',
         'AT&T fiber? More like AT&T fi-blur.',
         'AT&T FirstNet: first in name, last in delivery.',
         'AT&T has been building fiber for 20 years. The truck never came to your street.',
-      ],
-      'starlink':  [
+      ]},
+      { match: ['starlink', 'spacex'], lines: [
         'Starlink — technology from space, latency still from Earth.',
         'Elon sent satellites to orbit. Your ping is still in geostationary.',
         'Starlink: revolutionary concept, weather-dependent execution.',
         'You paid for a satellite dish and got satellite speeds from 2003.',
-      ],
-      'spectrum':  [
+      ]},
+      { match: ['spectrum', 'charter'], lines: [
         'Spectrum: the full spectrum of disappointment.',
         'Spectrum promises fast internet. Must be a different spectrum.',
         'Charter Spectrum — monopoly pricing, municipal pool speeds.',
         'Spectrum has no data caps, which is generous since there\'s barely any data to cap.',
-      ],
-      'verizon':   [
+      ]},
+      { match: ['verizon'], lines: [
         'Verizon Fios: Fi-os as in "finally, oh slow."',
         'Can you hear me now? Verizon can. Your packets? Not so much.',
         'Verizon 5G Home: 5G in the name, 3G in the delivery.',
         'Verizon\'s marketing budget is larger than your actual connection speed.',
-      ],
-      'cox':       [
+      ]},
+      { match: ['cox communications', 'cox'], lines: [
         'Cox Communications. The name says it all, really.',
         'Cox: gigabit available in select areas. Your area selected "no."',
         'Cox Panoramic WiFi — panoramic view of all the buffering.',
-      ],
-      'virgin':    [
+      ]},
+      { match: ['virgin media', 'virgin'], lines: [
         'Virgin Media: still virgin to the concept of consistent speeds.',
         'Virgin Media — Richard Branson went to space. Your connection never left the ground floor.',
         'Virgin Media\'s speeds are measured in "up to." You got the "down from."',
-      ],
-      'bt':        [
+      ]},
+      { match: ['british telecom', 'bt group', 'bt broadband', 'openreach', ' bt '], lines: [
         'BT Broadband: British Throttling, as per tradition.',
         'BT Openreach — open to disappointment, closed to improvement.',
         'BT Full Fibre? Full of something, certainly.',
         'BT has been the UK\'s internet backbone since the 80s. It shows.',
-      ],
-      'sky':       [
+      ]},
+      { match: ['sky broadband', 'sky uk', 'sky limited'], lines: [
         'Sky Broadband — blue sky thinking, grey sky delivering.',
         'Sky: limitless above you, limited bandwidth below.',
         'Sky Ultrafast. Ultra is doing a lot of work in that name.',
-      ],
-      'talktalk':  [
+      ]},
+      { match: ['talktalk'], lines: [
         'TalkTalk. At least you can still talk. The internet\'s done.',
         'TalkTalk: they got hacked so badly they had to rebrand twice. The speeds stayed the same.',
         'TalkTalk — Britain\'s most famous budget ISP. Budget quality included.',
-      ],
-      'ee':        [
+      ]},
+      { match: ['ee limited', 'everything everywhere', 'ee mobile'], lines: [
         'EE — everything\'s expensive, everything\'s eventually slow.',
         'EE Full Fibre. Full of something. Not bandwidth.',
         'EE acquired by BT. British tradition of underdelivering: maintained.',
-      ],
-      'vodafone':  [
+      ]},
+      { match: ['vodafone'], lines: [
         'Vodafone — connecting people. Eventually. Maybe.',
         'Vodafone broadband: they do it better in some countries. This isn\'t one of them.',
         'Vodafone: global presence, local letdown.',
-      ],
-      'plusnet':   [
+      ]},
+      { match: ['plusnet'], lines: [
         'Plusnet — Yorkshire\'s finest disappointment, delivered with a friendly voice.',
         'Plusnet: "doing you proud" is aspirational, apparently.',
         'Plusnet: budget tier. You got the budget experience.',
-      ],
-      'telstra':   [
+      ]},
+      { match: ['telstra'], lines: [
         'Telstra — Australia\'s biggest ISP with Australia\'s biggest audacity.',
         'Telstra charges the most and delivers the least. Australian tradition.',
         'Telstra HFC: the H stands for Hoping it works.',
-      ],
-      'optus':     [
+      ]},
+      { match: ['optus'], lines: [
         'Optus. Even their outages have outages.',
         'Optus had a national outage that left 10 million offline. Your connection is its own private tribute.',
         'Optus: second place in the Australian duopoly, first place in apologies.',
-      ],
-      'rogers':    [
+      ]},
+      { match: ['rogers'], lines: [
         'Rogers Canada — monopoly pricing, municipal pool speeds.',
         'Rogers, Bell, or Telus. Doesn\'t matter which — same cartel, same sadness.',
         'Rogers: Canada\'s most complained-about ISP. Consistent at something, at least.',
-      ],
-      'bell':      [
+      ]},
+      { match: ['bell canada', 'bell aliant', 'bell mts'], lines: [
         'Bell Canada — ring ring, still buffering.',
         'Bell Fibe: the "e" stands for "eventually."',
         'Bell has been Canada\'s backbone since 1880. Still operating on original infrastructure, it seems.',
-      ],
-      'bsnl':      [
+      ]},
+      { match: ['bsnl', 'bharat sanchar'], lines: [
         'BSNL — government-owned, government-paced.',
         'BSNL Bharat Fiber: the bharat is fast, the fiber is theoretical.',
         'BSNL: where technology goes to retire.',
-      ],
-      'jio':       [
+      ]},
+      { match: ['jio', 'reliance jio'], lines: [
         'Jio disrupted the Indian market. Now the market is disrupted, and so is your connection.',
         'Jio: unlimited data, limited usefulness.',
         'Jio True 5G — 5G towers visible, 5G speed optional.',
-      ],
-      'pldt':      [
+      ]},
+      { match: ['pldt'], lines: [
         'PLDT — Philippines\' finest exercise in managed expectations.',
         'PLDT: monopoly of a different kind. The kind where you pay more and get less.',
         'PLDT Fibr: the "r" replaced the "e" in "fiber." The speed replaced nothing.',
-      ],
-      'globe':     [
+      ]},
+      { match: ['globe telecom', 'globe at home', 'globe'], lines: [
         'Globe Telecom — the world is waiting. Apparently so is your data.',
         'Globe At Home: at home with buffering.',
         'Globe and PLDT. One ISP or two? Doesn\'t matter — same result.',
-      ],
-      'singtel':   [
+      ]},
+      { match: ['singtel', 'singapore telecommunications'], lines: [
         'Singtel in Singapore should be the gold standard. How did you end up with tin?',
         'Singapore has some of the fastest internet on Earth. You found the one dead zone.',
-      ],
-      'tmobile':   [
+      ]},
+      { match: ['t-mobile', 'tmobile', 'deutsche telekom usa'], lines: [
         'T-Mobile Home Internet: magenta packaging, beige performance.',
         'T-Mobile merged with Sprint to become one. Unfortunately one disappointment.',
         'Un-carrier? More like un-fast.',
-      ],
-      'xfinity':   [
-        'Xfinity — infinite potential, finite delivery.',
-        'Xfinity Gigabit: the gigabit is theoretical. This result is very real.',
-        'Comcast rebranded to Xfinity to escape its reputation. The speeds came along anyway.',
-      ],
-      'mediacom':  ['Mediacom: serving rural America with urban prices and rural speeds.', 'Mediacom — monopoly ISP for areas that deserve better.'],
-      'frontier':  ['Frontier Communications: on the frontier of slow.', 'Frontier fiber — frontier as in the lawless past where speeds roamed free and low.'],
-      'centurylink':['CenturyLink, now Lumen. New name. Century-old speeds.', 'Lumen Technologies: illuminating how bad your internet can be.'],
-      'optimum':   ['Optimum — optimistic name, pessimistic outcome.', 'Altice Optimum: they bought the company. Didn\'t buy faster infrastructure.'],
-      'default':   [
-        '"{isp}" — never heard of them, but based on these results, I\'m not surprised.',
-        '"{isp}" — obscure ISP, iconic disappointment.',
-        '"{isp}" — they exist. That\'s the nicest thing we can say right now.',
-        'Never heard of "{isp}," but the speed test results are a thorough introduction.',
-        '"{isp}" sounds made up. The speeds confirm it.',
-      ],
-    },
+      ]},
+      { match: ['mediacom'], lines: [
+        'Mediacom: serving rural America with urban prices and rural speeds.',
+        'Mediacom — monopoly ISP for areas that deserve better.',
+      ]},
+      { match: ['frontier'], lines: [
+        'Frontier Communications: on the frontier of slow.',
+        'Frontier fiber — frontier as in the lawless past where speeds roamed free and low.',
+      ]},
+      { match: ['centurylink', 'lumen technologies', 'lumen'], lines: [
+        'CenturyLink, now Lumen. New name. Century-old speeds.',
+        'Lumen Technologies: illuminating how bad your internet can be.',
+      ]},
+      { match: ['optimum', 'altice'], lines: [
+        'Optimum — optimistic name, pessimistic outcome.',
+        'Altice Optimum: they bought the company. Didn\'t buy faster infrastructure.',
+      ]},
+    ],
+    ispRoastDefault: [
+      '"{isp}" — never heard of them, but based on these results, I\'m not surprised.',
+      '"{isp}" — obscure ISP, iconic disappointment.',
+      '"{isp}" — they exist. That\'s the nicest thing we can say right now.',
+      'Never heard of "{isp}," but the speed test results are a thorough introduction.',
+      '"{isp}" sounds made up. The speeds confirm it.',
+    ],
     locationRoast: {
       'california': [
         'Silicon Valley adjacent, but your speeds are still in the valley — the bad one.',
@@ -1305,17 +1343,17 @@ function generateRoast(networkData) {
     parts.push(pick(dict.jitterReact).replace('{jitter}', STATE.jitterMs));
   }
 
-  // ISP roast — fuzzy match against dict keys
+  // ISP roast — multi-pattern fuzzy match (handles WHOIS org names vs brand names)
   const ispLower = (networkData.isp || '').toLowerCase();
   let ispLine = null;
-  for (const [key, lines] of Object.entries(dict.ispRoast)) {
-    if (key !== 'default' && ispLower.includes(key)) {
-      ispLine = pick(lines).replace('{isp}', networkData.isp);
+  for (const entry of dict.ispRoast) {
+    if (entry.match.some(p => ispLower.includes(p))) {
+      ispLine = pick(entry.lines).replace('{isp}', networkData.isp);
       break;
     }
   }
   if (!ispLine) {
-    ispLine = pick(dict.ispRoast.default).replace('{isp}', networkData.isp || '???');
+    ispLine = pick(dict.ispRoastDefault).replace('{isp}', networkData.isp || '???');
   }
   parts.push(ispLine);
 
