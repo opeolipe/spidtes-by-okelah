@@ -662,7 +662,10 @@ const COUNTRY_LOCALE_MAP = {
 function detectLocaleFromNetwork(networkData) {
   if (!networkData || networkData._fallback || !networkData.countryCode) return;
   const mapped = COUNTRY_LOCALE_MAP[networkData.countryCode];
-  if (mapped) STATE.locale = mapped;
+  if (mapped) {
+    STATE.locale = mapped;
+    console.log(`[Locale] Forced to ${mapped} based on country: ${networkData.countryCode}`);
+  }
 }
 
 /**
@@ -1323,77 +1326,78 @@ function generateRoast(networkData) {
     return '';
   };
 
-  // 1. VPN override prefix (independent of length)
-  if (STATE.isVpn) {
-    parts.push(pick(dict.vpnRoast));
-  }
-
-  // 2. Metric Roast — Pick ONLY ONE worst metric to keep it concise
-  const sub = (line) => line.replace('{ping}', ping).replace('{speed}', `${speed} ${getSpeedAdj(speed)}`);
+  // 1. Metric Roast — Pick ONLY ONE worst metric
+  const sub = (line) => line.replace('{ping}', ping).replace('{speed}', `${speed} ${getSpeedAdj(speed)}`).replace('{jitter}', jitter);
   
   if (grade === 'F' || speed < 10) {
     parts.push(sub(pick(dict.speedReact)));
-  } else if (ping > 100) {
+  } else if (ping > 150) {
     parts.push(sub(pick(dict.pingReact)));
-  } else if (jitter > 30 && dict.jitterReact) {
-    parts.push(pick(dict.jitterReact).replace('{jitter}', jitter));
+  } else if (jitter > 50 && dict.jitterReact) {
+    parts.push(sub(pick(dict.jitterReact)));
   } else {
-    // If everything is okay, just pick speed or ping react randomly
-    parts.push(sub(pick(Math.random() > 0.5 ? dict.speedReact : dict.pingReact)));
+    parts.push(sub(pick(dict.speedReact)));
   }
 
-  // 3. Contextual Roast — Pick ONLY ONE (Irony OR City OR ISP OR Location)
+  // 2. Contextual Roast — Pick ONLY ONE (ISP OR City OR Irony)
   const ispLower = (networkData.isp || '').toLowerCase();
   const cityLower = (networkData.city || '').toLowerCase();
-  
-  // Try Irony first, then City, then ISP/Location
-  const ironyKeywords = ['fiber', 'optic', 'ultra', 'fast', 'turbo', 'express', 'gigabit', 'orbit'];
-  const matchedKey = ironyKeywords.find(k => ispLower.includes(k));
-  
-  if (matchedKey && speed < 30) {
-    if (locale === 'id-ID') parts.push(`Namanya pake '${matchedKey}', tapi speed-nya kayak siput lagi istirahat.`);
-    else parts.push(`They put '${matchedKey}' in the name, but delivered a dial-up experience.`);
-  } else if (['jakarta', 'surabaya', 'singapore', 'london', 'new york', 'tokyo', 'sydney'].includes(cityLower) && speed < 15) {
-    if (locale === 'id-ID') parts.push(`Tinggal di ${networkData.city} tapi speed segini? Malu-maluin warga kota, bang.`);
-    else parts.push(`${networkData.city} is a global hub, and this is the best your ISP can do?`);
-  } else {
-    // Standard ISP roast fallback
-    let ispLine = null;
+  let contextLine = null;
 
+  // A. Irony check
+  const ironyKeywords = ['fiber', 'optic', 'ultra', 'fast', 'turbo', 'express', 'gigabit', 'orbit'];
+  const matchedIrony = ironyKeywords.find(k => ispLower.includes(k));
+  
+  if (matchedIrony && speed < 30) {
+    contextLine = locale === 'id-ID' 
+      ? `Namanya pake '${matchedIrony}', tapi speed-nya kayak siput lagi istirahat.`
+      : `They put '${matchedIrony}' in the name, but delivered a dial-up experience.`;
+  }
+
+  // B. ISP Roast (Alias Engine)
+  if (!contextLine) {
     if (Array.isArray(dict.ispRoast)) {
-      // New Array-of-Objects style (Alias Engine)
       for (const group of dict.ispRoast) {
         if (group.match.some(m => ispLower.includes(m))) {
-          ispLine = pick(group.lines).replace('{isp}', networkData.isp);
+          contextLine = pick(group.lines).replace('{isp}', networkData.isp);
           break;
         }
       }
     } else {
-      // Old Object-style
       for (const [key, lines] of Object.entries(dict.ispRoast)) {
         if (key !== 'default' && ispLower.includes(key)) {
-          ispLine = pick(lines).replace('{isp}', networkData.isp);
+          contextLine = pick(lines).replace('{isp}', networkData.isp);
           break;
         }
       }
     }
-
-    if (!ispLine) {
-      const ispName = networkData.isp || '???';
-      const firstWord = ispName.trim().split(' ')[0];
-      const isAcronym = /^[A-Z]{3,4}$/.test(firstWord);
-      
-      let availableDefaults = Array.isArray(dict.ispRoast) ? dict.ispRoastDefault : dict.ispRoast.default;
-      
-      if (!isAcronym) {
-        availableDefaults = availableDefaults.filter(line => !line.includes('singkatannya?') && !line.includes('acronym'));
-      }
-      ispLine = pick(availableDefaults).replace('{isp}', ispName);
-    }
-    parts.push(ispLine);
   }
 
-  // 4. Punchline — Always one
+  // C. City Shaming (if still no context)
+  if (!contextLine) {
+    const bigCities = ['jakarta', 'surabaya', 'bandung', 'singapore', 'london', 'new york'];
+    if (bigCities.includes(cityLower) && speed < 20) {
+      contextLine = locale === 'id-ID'
+        ? `Tinggal di ${networkData.city} tapi speed segini? Malu-maluin warga kota, bang.`
+        : `${networkData.city} is a global hub, and this is the best your ISP can do?`;
+    }
+  }
+
+  // D. Default ISP Fallback
+  if (!contextLine) {
+    const ispName = networkData.isp || '???';
+    const firstWord = ispName.trim().split(' ')[0];
+    const isAcronym = /^[A-Z]{3,4}$/.test(firstWord);
+    let availableDefaults = Array.isArray(dict.ispRoast) ? dict.ispRoastDefault : dict.ispRoast.default;
+    if (!isAcronym) {
+      availableDefaults = availableDefaults.filter(line => !line.includes('singkatannya?') && !line.includes('acronym'));
+    }
+    contextLine = pick(availableDefaults).replace('{isp}', ispName);
+  }
+
+  parts.push(contextLine);
+
+  // 3. Punchline — Always one
   parts.push(pick(dict.punchline));
 
   STATE.roastText = parts.join(' ');
