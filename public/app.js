@@ -81,6 +81,7 @@ const STATE = {
   locale: 'en-US',    // Set by detectLocale()
   networkData: null,       // Set by fetchNetworkData()
   roastText: '',         // Set by generateRoast()
+  lastRoast: '',         // Used to prevent immediate repetition
   isVpn: false,      // Set by detectVpnMismatch()
   pingMs: 999,        // Set by measurePing()
   jitterMs: 0,          // Set by measureJitter()
@@ -467,9 +468,15 @@ function phase1_rev() {
   // committed before the property change, otherwise the browser batches both
   // and skips the animation entirely.
   DOM.needleGroup.classList.add('needle--revving');
-  void DOM.needleGroup.getBoundingClientRect(); // reflow
-  setNeedle(TARGET_ROT);
-  setGaugeFill(TARGET_MBPS);
+  
+  // Use double requestAnimationFrame to ensure the class and transition are applied
+  // by the browser before we set the target rotation.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      setNeedle(TARGET_ROT);
+      setGaugeFill(TARGET_MBPS);
+    });
+  });
 
   // Count speed value up
   animateCounter(0, TARGET_MBPS, 1200, (v) => {
@@ -732,6 +739,17 @@ function generateRoast(networkData) {
   parts.push(pick(dict.punchline));
 
   STATE.roastText = parts.join(' ');
+  
+  // If we got the exact same roast as last time, and it's not the first scan,
+  // try to spice it up by adding a random suffix or picking one more punchline.
+  if (STATE.roastText === STATE.lastRoast) {
+    const extra = pick(dict.punchline);
+    if (!STATE.roastText.includes(extra)) {
+      STATE.roastText += ' ' + extra;
+    }
+  }
+  
+  STATE.lastRoast = STATE.roastText;
   return STATE.roastText;
 }
 
@@ -831,13 +849,16 @@ function injectReceiptData(networkData, roastText) {
   if (DOM.resultGradeVal) {
     const isBad = grade === 'F' || grade === 'D';
     const color = isBad ? 'var(--accent-warm)' : 'var(--accent-green)';
+    
+    // Set the hidden value
+    DOM.resultGradeVal.textContent = grade;
     DOM.resultGradeVal.style.color = color;
 
-    // The grade icon is outside result-data, it's the previous sibling of result-data
-    const resultDataEl = DOM.resultGradeVal.parentElement;
-    if (resultDataEl && resultDataEl.previousElementSibling) {
-      resultDataEl.previousElementSibling.style.color = color;
-      resultDataEl.previousElementSibling.textContent = grade;
+    // Set the large icon text and color
+    const gradeIcon = document.querySelector('.result-icon--grade');
+    if (gradeIcon) {
+      gradeIcon.style.color = color;
+      gradeIcon.textContent = grade;
     }
   }
 
@@ -1240,11 +1261,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (DOM.ipRevealBtn && DOM.ipDisplay) {
     let ipRevealed = false;
     DOM.ipRevealBtn.addEventListener('click', () => {
-      if (!STATE.networkData || !STATE.networkData.ip) return;
+      // Use either pre-fetched data or current scan data
+      const data = STATE.networkData || JSON.parse(localStorage.getItem('spidtes_network_cache') || 'null');
+      if (!data || !data.ip) return;
+      
       ipRevealed = !ipRevealed;
       DOM.ipDisplay.textContent = ipRevealed
-        ? STATE.networkData.ip
-        : maskIp(STATE.networkData.ip);
+        ? data.ip
+        : maskIp(data.ip);
       DOM.ipDisplay.style.color = ipRevealed ? 'var(--text-primary)' : '';
     });
     // Reset revealed state when a new scan starts
@@ -1362,4 +1386,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Render history on first load (shows past scans from localStorage)
   renderHistoryPanel();
 
+  // ── Pre-fetch Network Data ──
+  // Show "Scanning..." briefly then show masked IP/ISP so the user
+  // feels the app is "already watching them" (Zero Trust vibe).
+  if (DOM.ipDisplay) DOM.ipDisplay.textContent = 'Scanning...';
+  fetchNetworkData().then(data => {
+    if (data) {
+      if (DOM.ispDisplay) DOM.ispDisplay.textContent = data.isp || 'Unknown ISP';
+      if (DOM.locationDisplay) DOM.locationDisplay.textContent = data.city || 'Unknown Location';
+      if (DOM.ipDisplay) DOM.ipDisplay.textContent = maskIp(data.ip);
+      
+      // Also update the hidden IP value if reveal button exists
+      const revealBtn = document.getElementById('ip-reveal-btn');
+      if (revealBtn) revealBtn.style.opacity = '1';
+    }
+  });
 });
