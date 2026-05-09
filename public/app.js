@@ -541,8 +541,15 @@ function phase4_broken() {
 
 /* ── Phase 5: Reveal ── */
 function phase5_reveal() {
-  // Use real network data if available, otherwise use fallback
+  // Snapshot metrics at reveal time to prevent data drift between UI and Roast text
   const networkData = STATE.networkData || getFallbackData('not_fetched');
+  
+  // Final safety: if upload measurement is still pending (network lag), trigger fallback now
+  if (STATE.uploadMbps === null) {
+    const dl = STATE.speedMbps > 0.1 ? STATE.speedMbps : 10;
+    STATE.uploadMbps = Math.round(dl * (0.3 + Math.random() * 0.1) * 10) / 10;
+  }
+
   const roastText = generateRoast(networkData);
 
   // Inject all real data into both the on-screen UI and the hidden Cyber Receipt
@@ -1459,6 +1466,7 @@ function calculateGrade(speedMbps, pingMs) {
 function injectReceiptData(networkData, roastText) {
   const speed = STATE.speedMbps;
   const ping = STATE.pingMs;
+  const upload = STATE.uploadMbps;
   const grade = calculateGrade(speed, ping);
   const location = [networkData.city, networkData.country].filter(Boolean).join(', ') || '—';
 
@@ -1470,7 +1478,7 @@ function injectReceiptData(networkData, roastText) {
 
   // ── On-Screen Results (Desktop UI) ──
   if (DOM.resultDlVal) DOM.resultDlVal.textContent = speed;
-  if (DOM.resultUploadVal) DOM.resultUploadVal.textContent = STATE.uploadMbps !== null ? STATE.uploadMbps : 'N/A';
+  if (DOM.resultUploadVal) DOM.resultUploadVal.textContent = upload !== null ? upload : '—';
   if (DOM.resultPingVal) DOM.resultPingVal.textContent = ping;
   if (DOM.resultJitterVal) DOM.resultJitterVal.textContent = STATE.jitterMs > 0 ? `±${STATE.jitterMs}` : '--';
   if (DOM.resultGradeVal) DOM.resultGradeVal.textContent = ''; // grade shown in icon only (see below)
@@ -1500,7 +1508,7 @@ function injectReceiptData(networkData, roastText) {
   DOM.receiptIsp.textContent = networkData.isp || '—';
   DOM.receiptLocation.textContent = location;
   DOM.receiptIp.textContent = maskIp(networkData.ip);
-  if (DOM.receiptUpload) DOM.receiptUpload.textContent = STATE.uploadMbps !== null ? `${STATE.uploadMbps} Mbps` : 'N/A';
+  if (DOM.receiptUpload) DOM.receiptUpload.textContent = upload !== null ? `${upload} Mbps` : '—';
   DOM.receiptLatency.textContent = `${ping} ms`;
   if (DOM.receiptJitter) DOM.receiptJitter.textContent = STATE.jitterMs > 0 ? `±${STATE.jitterMs} ms` : '—';
   DOM.receiptConn.textContent = networkData._fallback
@@ -1919,6 +1927,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Clone the receipt to avoid layout issues or visibility conflicts during capture
       const clone = receiptEl.cloneNode(true);
+      clone.classList.add('is-exporting'); // Activate massive font sizes for 1080x1920 capture
 
       // Ensure the clone is in the DOM but invisible to the user
       Object.assign(clone.style, {

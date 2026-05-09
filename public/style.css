@@ -1040,6 +1040,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: var(--accent-cyan); /* Fallback */
 }
 
 .receipt-powered {
@@ -1511,6 +1512,64 @@ body.is-scanning .go-scanning-dots {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
   40%           { transform: scale(1);   opacity: 1; }
 }
+
+/* ================================================================
+   EXPORT OVERRIDES (1080x1920 for Social)
+   ================================================================ */
+
+.cyber-receipt.is-exporting {
+  width: 1080px !important;
+  height: 1920px !important;
+  padding: 100px 80px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: #08080f !important;
+  border: none !important;
+}
+
+.cyber-receipt.is-exporting .receipt-logo-icon { font-size: 80px !important; }
+.cyber-receipt.is-exporting .receipt-logo-main { 
+  font-size: 64px !important;
+  background: none !important;
+  -webkit-text-fill-color: var(--accent-cyan) !important;
+  color: var(--accent-cyan) !important;
+}
+.cyber-receipt.is-exporting .receipt-logo-sub { font-size: 24px !important; }
+.cyber-receipt.is-exporting .receipt-timestamp { font-size: 24px !important; }
+
+.cyber-receipt.is-exporting .receipt-speed-circle { width: 420px !important; height: 420px !important; border-width: 12px !important; }
+.cyber-receipt.is-exporting .receipt-speed-value { font-size: 140px !important; }
+.cyber-receipt.is-exporting .receipt-speed-unit { font-size: 32px !important; }
+.cyber-receipt.is-exporting .receipt-ping-value { font-size: 80px !important; }
+.cyber-receipt.is-exporting .receipt-ping-label { font-size: 24px !important; }
+
+.cyber-receipt.is-exporting .receipt-grade-banner { padding: 60px 80px !important; border-radius: 40px !important; }
+.cyber-receipt.is-exporting .receipt-grade-label { font-size: 36px !important; }
+.cyber-receipt.is-exporting .receipt-grade-value { font-size: 140px !important; }
+
+.cyber-receipt.is-exporting .receipt-key { font-size: 28px !important; }
+.cyber-receipt.is-exporting .receipt-val { font-size: 32px !important; }
+.cyber-receipt.is-exporting .receipt-row { padding: 40px 0 !important; }
+.cyber-receipt.is-exporting .receipt-divider { margin: 60px 0 !important; border-width: 4px !important; }
+
+.cyber-receipt.is-exporting .receipt-roast { padding: 60px 80px !important; border-radius: 40px !important; }
+.cyber-receipt.is-exporting .receipt-roast-header { font-size: 32px !important; margin-bottom: 30px !important; }
+.cyber-receipt.is-exporting .receipt-roast-text { 
+  font-size: 52px !important; 
+  line-height: 1.5 !important;
+  font-weight: 500 !important;
+}
+
+.cyber-receipt.is-exporting .receipt-privacy-text { font-size: 24px !important; }
+.cyber-receipt.is-exporting .receipt-privacy-icon { font-size: 32px !important; }
+.cyber-receipt.is-exporting .receipt-watermark { 
+  font-size: 52px !important;
+  background: none !important;
+  -webkit-text-fill-color: var(--accent-purple) !important;
+  color: var(--accent-purple) !important;
+}
+.cyber-receipt.is-exporting .receipt-powered { font-size: 22px !important; }
+.cyber-receipt.is-exporting .barcode-lines { height: 100px !important; width: 400px !important; margin-top: 40px !important; }
 
 /* ── Grade tooltip ── */
 .grade-info-icon {
