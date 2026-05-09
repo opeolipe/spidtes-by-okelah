@@ -1948,7 +1948,6 @@ document.addEventListener('DOMContentLoaded', () => {
           useCORS: true,
           allowTaint: true,
           width: 1080,
-          height: 1920,
         });
 
         // Clean up immediately
