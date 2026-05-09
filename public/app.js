@@ -19,53 +19,53 @@
    ============================================================ */
 const DOM = {
   // Header
-  body:            document.body,
+  body: document.body,
 
   // Meta bar (live data)
-  ispDisplay:      document.getElementById('isp-display'),
+  ispDisplay: document.getElementById('isp-display'),
   locationDisplay: document.getElementById('location-display'),
-  ipDisplay:       document.getElementById('ip-display'),
-  ipRevealBtn:     document.getElementById('ip-reveal-btn'),
+  ipDisplay: document.getElementById('ip-display'),
+  ipRevealBtn: document.getElementById('ip-reveal-btn'),
 
   // Share buttons
   shareReceiptBtn: document.getElementById('share-receipt-btn'),
 
   // Speedometer
-  goBtn:           document.getElementById('go-btn'),
-  needleGroup:     document.getElementById('gauge-needle-group'),
-  gaugeFill:       document.getElementById('gauge-fill'),
-  speedValue:      document.getElementById('speed-value'),
-  pingValue:       document.getElementById('ping-value'),
-  statusBlock:     document.getElementById('status-block'),
+  goBtn: document.getElementById('go-btn'),
+  needleGroup: document.getElementById('gauge-needle-group'),
+  gaugeFill: document.getElementById('gauge-fill'),
+  speedValue: document.getElementById('speed-value'),
+  pingValue: document.getElementById('ping-value'),
+  statusBlock: document.getElementById('status-block'),
   speedometerWrap: document.querySelector('.speedometer-wrap'),
   speedometerSect: document.querySelector('.speedometer-section'),
 
   // Results row
-  resultsRow:      document.getElementById('results-row'),
-  resultDlVal:     document.getElementById('result-download-val'),
+  resultsRow: document.getElementById('results-row'),
+  resultDlVal: document.getElementById('result-download-val'),
   resultUploadVal: document.getElementById('result-upload-val'),
-  resultPingVal:   document.getElementById('result-ping-val'),
+  resultPingVal: document.getElementById('result-ping-val'),
   resultJitterVal: document.getElementById('result-jitter-val'),
-  resultGradeVal:  document.getElementById('result-grade-val'),
+  resultGradeVal: document.getElementById('result-grade-val'),
 
   // Roast container
-  roastContainer:  document.getElementById('roast-container'),
+  roastContainer: document.getElementById('roast-container'),
 
   // Receipt
-  receiptStage:    document.getElementById('receipt-stage'),
+  receiptStage: document.getElementById('receipt-stage'),
   receiptSpeedVal: document.getElementById('receipt-speed-val'),
-  receiptPingVal:  document.getElementById('receipt-ping-val'),
+  receiptPingVal: document.getElementById('receipt-ping-val'),
   receiptGradeVal: document.getElementById('receipt-grade-val'),
-  receiptTimestamp:document.getElementById('receipt-timestamp'),
-  receiptIsp:      document.getElementById('receipt-isp'),
+  receiptTimestamp: document.getElementById('receipt-timestamp'),
+  receiptIsp: document.getElementById('receipt-isp'),
   receiptLocation: document.getElementById('receipt-location'),
-  receiptIp:       document.getElementById('receipt-ip'),
-  receiptUpload:   document.getElementById('receipt-upload'),
-  receiptLatency:  document.getElementById('receipt-latency'),
-  receiptJitter:   document.getElementById('receipt-jitter'),
-  receiptConn:     document.getElementById('receipt-connection'),
-  receiptVpn:      document.getElementById('receipt-vpn'),
-  receiptRoast:    document.getElementById('receipt-roast-text'),
+  receiptIp: document.getElementById('receipt-ip'),
+  receiptUpload: document.getElementById('receipt-upload'),
+  receiptLatency: document.getElementById('receipt-latency'),
+  receiptJitter: document.getElementById('receipt-jitter'),
+  receiptConn: document.getElementById('receipt-connection'),
+  receiptVpn: document.getElementById('receipt-vpn'),
+  receiptRoast: document.getElementById('receipt-roast-text'),
 };
 
 
@@ -73,17 +73,17 @@ const DOM = {
    STATE
    ============================================================ */
 const STATE = {
-  isScanning:  false,
-  scanCount:   0,          // Escalating roast intensity (persisted via localStorage)
-  timers:      [],         // Held for potential cleanup
-  locale:      'en-US',    // Set by detectLocale()
+  isScanning: false,
+  scanCount: 0,          // Escalating roast intensity (persisted via localStorage)
+  timers: [],         // Held for potential cleanup
+  locale: 'en-US',    // Set by detectLocale()
   networkData: null,       // Set by fetchNetworkData()
-  roastText:   '',         // Set by generateRoast()
-  isVpn:       false,      // Set by detectVpnMismatch()
-  pingMs:      999,        // Set by measurePing()
-  jitterMs:    0,          // Set by measureJitter()
-  speedMbps:   0.1,        // Set by measureSpeed()
-  uploadMbps:  null,       // Set by measureUpload() — null means not yet measured
+  roastText: '',         // Set by generateRoast()
+  isVpn: false,      // Set by detectVpnMismatch()
+  pingMs: 999,        // Set by measurePing()
+  jitterMs: 0,          // Set by measureJitter()
+  speedMbps: 0.1,        // Set by measureSpeed()
+  uploadMbps: null,       // Set by measureUpload() — null means not yet measured
 };
 
 /**
@@ -96,9 +96,9 @@ const STATE = {
  *          = 240 + speed * 2.4
  */
 const NEEDLE = {
-  start:  240,  // degrees at 0 Mbps
-  end:    480,  // degrees at 100 Mbps (= 120 + full rotation alias)
-  range:  240,  // total sweep
+  start: 240,  // degrees at 0 Mbps
+  end: 480,  // degrees at 100 Mbps (= 120 + full rotation alias)
+  range: 240,  // total sweep
   mbpsToRot: (mbps) => 240 + (mbps / 100) * 240,
 };
 
@@ -160,8 +160,8 @@ function formatTimestamp() {
   const now = new Date();
   const hh = String(now.getHours()).padStart(2, '0');
   const mm = String(now.getMinutes()).padStart(2, '0');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun',
-                  'Jul','Aug','Sep','Oct','Nov','Dec'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const dd = String(now.getDate()).padStart(2, '0');
   const mon = months[now.getMonth()];
   const yyyy = now.getFullYear();
@@ -195,7 +195,7 @@ function loadHtml2Canvas() {
   return new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    s.onload  = resolve;
+    s.onload = resolve;
     s.onerror = reject;
     document.head.appendChild(s);
   });
@@ -231,24 +231,24 @@ function detectLocale() {
    PHASE B — NETWORK FETCH (ipapi.co + 3s timeout + fallback)
    ============================================================ */
 
-const API_URL     = 'https://ipapi.co/json/';
+const API_URL = 'https://ipapi.co/json/';
 const SESSION_KEY = 'spidtes_network_cache';
 
 /** Fallback data used when offline, ad-blocked, or timed out */
 function getFallbackData(reason) {
   const isId = STATE.locale === 'id-ID';
   return {
-    ip:          null,
-    isp:         isId ? 'ISP Tidak Diketahui' : 'Unknown Provider',
-    org:         '',
-    city:        isId ? 'Entah Di Mana'       : 'Somewhere',
-    region:      '',
-    country:     isId ? 'Indonesia'            : 'Earth',
-    countryCode: isId ? 'ID'                   : 'XX',
-    latitude:    null,
-    longitude:   null,
-    _fallback:   true,
-    _reason:     reason,   // 'offline' | 'adblocker' | 'timeout' | 'ratelimit'
+    ip: null,
+    isp: isId ? 'ISP Tidak Diketahui' : 'Unknown Provider',
+    org: '',
+    city: isId ? 'Entah Di Mana' : 'Somewhere',
+    region: '',
+    country: isId ? 'Indonesia' : 'Earth',
+    countryCode: isId ? 'ID' : 'XX',
+    latitude: null,
+    longitude: null,
+    _fallback: true,
+    _reason: reason,   // 'offline' | 'adblocker' | 'timeout' | 'ratelimit'
   };
 }
 
@@ -279,7 +279,7 @@ async function fetchNetworkData() {
 
   // 3. Fetch with 3-second AbortController timeout
   const controller = new AbortController();
-  const timeoutId  = setTimeout(() => controller.abort(), 3000);
+  const timeoutId = setTimeout(() => controller.abort(), 3000);
 
   try {
     const response = await fetch(API_URL, {
@@ -299,22 +299,22 @@ async function fetchNetworkData() {
 
     // 5. Sanitise: extract only the fields we need (XSS-safe — all textContent later)
     const data = {
-      ip:          String(raw.ip          || ''),
-      isp:         String(raw.org         || raw.isp || ''),
-      org:         String(raw.org         || ''),
-      city:        String(raw.city        || ''),
-      region:      String(raw.region      || ''),
-      country:     String(raw.country_name|| ''),
-      countryCode: String(raw.country_code|| '').toUpperCase(),
-      latitude:    raw.latitude  || null,
-      longitude:   raw.longitude || null,
-      _fallback:   false,
-      _reason:     null,
-      _fetchedAt:  Date.now(),
+      ip: String(raw.ip || ''),
+      isp: String(raw.org || raw.isp || ''),
+      org: String(raw.org || ''),
+      city: String(raw.city || ''),
+      region: String(raw.region || ''),
+      country: String(raw.country_name || ''),
+      countryCode: String(raw.country_code || '').toUpperCase(),
+      latitude: raw.latitude || null,
+      longitude: raw.longitude || null,
+      _fallback: false,
+      _reason: null,
+      _fetchedAt: Date.now(),
     };
 
     // 6. Cache in sessionStorage
-    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(data)); } catch (_) {}
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(data)); } catch (_) { }
 
     return data;
 
@@ -339,9 +339,9 @@ async function measurePing() {
   const start = performance.now();
   try {
     const ctrl = new AbortController();
-    const tid  = setTimeout(() => ctrl.abort(), 5000);
+    const tid = setTimeout(() => ctrl.abort(), 5000);
     await fetch('https://www.cloudflare.com/cdn-cgi/trace', {
-      cache:  'no-store',
+      cache: 'no-store',
       signal: ctrl.signal,
     });
     clearTimeout(tid);
@@ -368,14 +368,14 @@ async function measureSpeed() {
 
   // Helper: time a fetch and compute Mbps from bytes received
   async function timedDownload(url, timeoutMs) {
-    const ctrl  = new AbortController();
-    const tid   = setTimeout(() => ctrl.abort(), timeoutMs);
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), timeoutMs);
     const start = performance.now();
-    const resp  = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
-    const buf   = await resp.arrayBuffer();
+    const resp = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+    const buf = await resp.arrayBuffer();
     clearTimeout(tid);
     const elapsed = (performance.now() - start) / 1000;
-    const mbps    = (buf.byteLength * 8) / (elapsed * 1_000_000);
+    const mbps = (buf.byteLength * 8) / (elapsed * 1_000_000);
     return Math.max(0.1, Math.round(mbps * 10) / 10);
   }
 
@@ -404,7 +404,7 @@ async function measureJitter() {
     samples.push(await measurePing());
     if (i < 2) await new Promise(r => setTimeout(r, 60));
   }
-  const mean   = samples.reduce((a, b) => a + b, 0) / samples.length;
+  const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
   const stdDev = Math.sqrt(samples.reduce((s, p) => s + (p - mean) ** 2, 0) / samples.length);
   return Math.round(stdDev);
 }
@@ -417,22 +417,23 @@ async function measureJitter() {
  */
 async function measureUpload() {
   const bytes = 100_000;
-  const data  = new Uint8Array(bytes);
+  const data = new Uint8Array(bytes);
   crypto.getRandomValues(data);
   const blob = new Blob([data]);
 
   async function timedUpload(url, timeoutMs) {
-    const ctrl  = new AbortController();
-    const tid   = setTimeout(() => ctrl.abort(), timeoutMs);
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), timeoutMs);
     const start = performance.now();
-    await fetch(url, { method: 'POST', body: blob, cache: 'no-store', signal: ctrl.signal });
+    const resp = await fetch(url, { method: 'POST', body: blob, cache: 'no-store', signal: ctrl.signal });
+    if (!resp.ok) throw new Error('Upload failed');
     clearTimeout(tid);
     const elapsed = (performance.now() - start) / 1000;
     return Math.max(0.1, Math.round((bytes * 8) / (elapsed * 1_000_000) * 10) / 10);
   }
 
-  try { return await timedUpload('https://speed.cloudflare.com/__up', 8000); } catch {}
-  try { return await timedUpload('https://httpbin.org/post', 8000);           } catch {}
+  try { return await timedUpload('https://speed.cloudflare.com/__up', 8000); } catch { }
+  try { return await timedUpload('https://httpbin.org/post', 8000); } catch { }
   return null;
 }
 
@@ -446,17 +447,17 @@ async function measureUpload() {
    ============================================================ */
 
 function runFakeOutSequence() {
-  schedule(phase1_rev,     0);
+  schedule(phase1_rev, 0);
   schedule(phase2_stutter, 1400);
-  schedule(phase3_crash,   2200);
-  schedule(phase4_broken,  2800);
-  schedule(phase5_reveal,  4000);
+  schedule(phase3_crash, 2200);
+  schedule(phase4_broken, 2800);
+  schedule(phase5_reveal, 4000);
 }
 
 /* ── Phase 1: Rev ── */
 function phase1_rev() {
   const TARGET_MBPS = 82;
-  const TARGET_ROT  = NEEDLE.mbpsToRot(TARGET_MBPS); // ≈ 437 deg
+  const TARGET_ROT = NEEDLE.mbpsToRot(TARGET_MBPS); // ≈ 437 deg
 
   // Add revving class first, force reflow so the new transition timing is
   // committed before the property change, otherwise the browser batches both
@@ -469,7 +470,7 @@ function phase1_rev() {
   // Count speed value up
   animateCounter(0, TARGET_MBPS, 1200, (v) => {
     DOM.speedValue.textContent = v;
-    DOM.pingValue.textContent  = `${Math.max(8, Math.round(80 - v * 0.8))} ms`;
+    DOM.pingValue.textContent = `${Math.max(8, Math.round(80 - v * 0.8))} ms`;
   });
 
   updateStatus('Scanning your connection...', 'Hold tight, running diagnostics.');
@@ -511,7 +512,7 @@ function phase3_crash() {
   // Glitch the speed value to 0
   DOM.speedValue.classList.add('is-glitching');
   DOM.speedValue.textContent = '0';
-  DOM.pingValue.textContent  = '999 ms';
+  DOM.pingValue.textContent = '999 ms';
 
   // Full-screen red flash
   flashCrashOverlay();
@@ -539,7 +540,7 @@ function phase4_broken() {
 function phase5_reveal() {
   // Use real network data if available, otherwise use fallback
   const networkData = STATE.networkData || getFallbackData('not_fetched');
-  const roastText   = generateRoast(networkData);
+  const roastText = generateRoast(networkData);
 
   // Inject all real data into both the on-screen UI and the hidden Cyber Receipt
   injectReceiptData(networkData, roastText);
@@ -571,9 +572,9 @@ function phase5_reveal() {
 
     // Privacy-respecting analytics beacon (grade + country only, no PII)
     sendAnalyticsEvent('scan_complete', {
-      grade:   gradeNow,
+      grade: gradeNow,
       country: STATE.networkData?.countryCode || 'XX',
-      locale:  STATE.locale,
+      locale: STATE.locale,
     });
   }, 480);
 }
@@ -590,58 +591,58 @@ function phase5_reveal() {
  * strongly suggests a VPN or proxy is active.
  */
 const LOCALE_COUNTRY_MAP = {
-  'id':  ['ID'],
-  'ms':  ['MY', 'BN', 'SG'],
+  'id': ['ID'],
+  'ms': ['MY', 'BN', 'SG'],
   'fil': ['PH'],
-  'th':  ['TH'],
-  'vi':  ['VN'],
-  'km':  ['KH'],
-  'my':  ['MM'],
-  'lo':  ['LA'],
-  'ja':  ['JP'],
-  'ko':  ['KR'],
-  'zh':  ['CN', 'TW', 'HK', 'MO', 'SG'],
-  'de':  ['DE', 'AT', 'CH'],
-  'fr':  ['FR', 'BE', 'CH', 'CA', 'LU'],
-  'es':  ['ES', 'MX', 'AR', 'CL', 'CO', 'PE', 'VE', 'EC', 'BO', 'PY', 'UY', 'CR', 'GT', 'HN', 'SV', 'NI', 'PA', 'DO', 'CU'],
-  'pt':  ['PT', 'BR', 'AO', 'MZ'],
-  'ru':  ['RU', 'BY', 'KZ'],
-  'uk':  ['UA'],
-  'pl':  ['PL'],
-  'cs':  ['CZ'],
-  'sk':  ['SK'],
-  'hu':  ['HU'],
-  'ro':  ['RO'],
-  'bg':  ['BG'],
-  'hr':  ['HR'],
-  'sr':  ['RS'],
-  'sl':  ['SI'],
-  'nl':  ['NL', 'BE'],
-  'sv':  ['SE'],
-  'da':  ['DK'],
-  'fi':  ['FI'],
-  'nb':  ['NO'],
-  'nn':  ['NO'],
-  'tr':  ['TR'],
-  'ar':  ['SA', 'AE', 'EG', 'IQ', 'MA', 'DZ', 'TN', 'LY', 'JO', 'LB', 'SY', 'YE', 'OM', 'KW', 'QA', 'BH'],
-  'fa':  ['IR', 'AF'],
-  'he':  ['IL'],
-  'hi':  ['IN'],
-  'bn':  ['BD', 'IN'],
-  'ta':  ['IN', 'LK'],
-  'te':  ['IN'],
-  'mr':  ['IN'],
-  'ur':  ['PK', 'IN'],
-  'el':  ['GR', 'CY'],
-  'it':  ['IT', 'CH'],
-  'lt':  ['LT'],
-  'lv':  ['LV'],
-  'et':  ['EE'],
-  'ka':  ['GE'],
-  'hy':  ['AM'],
-  'az':  ['AZ'],
-  'uz':  ['UZ'],
-  'kk':  ['KZ'],
+  'th': ['TH'],
+  'vi': ['VN'],
+  'km': ['KH'],
+  'my': ['MM'],
+  'lo': ['LA'],
+  'ja': ['JP'],
+  'ko': ['KR'],
+  'zh': ['CN', 'TW', 'HK', 'MO', 'SG'],
+  'de': ['DE', 'AT', 'CH'],
+  'fr': ['FR', 'BE', 'CH', 'CA', 'LU'],
+  'es': ['ES', 'MX', 'AR', 'CL', 'CO', 'PE', 'VE', 'EC', 'BO', 'PY', 'UY', 'CR', 'GT', 'HN', 'SV', 'NI', 'PA', 'DO', 'CU'],
+  'pt': ['PT', 'BR', 'AO', 'MZ'],
+  'ru': ['RU', 'BY', 'KZ'],
+  'uk': ['UA'],
+  'pl': ['PL'],
+  'cs': ['CZ'],
+  'sk': ['SK'],
+  'hu': ['HU'],
+  'ro': ['RO'],
+  'bg': ['BG'],
+  'hr': ['HR'],
+  'sr': ['RS'],
+  'sl': ['SI'],
+  'nl': ['NL', 'BE'],
+  'sv': ['SE'],
+  'da': ['DK'],
+  'fi': ['FI'],
+  'nb': ['NO'],
+  'nn': ['NO'],
+  'tr': ['TR'],
+  'ar': ['SA', 'AE', 'EG', 'IQ', 'MA', 'DZ', 'TN', 'LY', 'JO', 'LB', 'SY', 'YE', 'OM', 'KW', 'QA', 'BH'],
+  'fa': ['IR', 'AF'],
+  'he': ['IL'],
+  'hi': ['IN'],
+  'bn': ['BD', 'IN'],
+  'ta': ['IN', 'LK'],
+  'te': ['IN'],
+  'mr': ['IN'],
+  'ur': ['PK', 'IN'],
+  'el': ['GR', 'CY'],
+  'it': ['IT', 'CH'],
+  'lt': ['LT'],
+  'lv': ['LV'],
+  'et': ['EE'],
+  'ka': ['GE'],
+  'hy': ['AM'],
+  'az': ['AZ'],
+  'uz': ['UZ'],
+  'kk': ['KZ'],
 };
 
 /**
@@ -671,9 +672,9 @@ function detectLocaleFromNetwork(networkData) {
  * franca and would produce too many false positives.
  */
 function detectVpnMismatch(networkData) {
-  const lang    = navigator.language.toLowerCase();
-  const prefix  = lang.split('-')[0];
-  const ipCode  = networkData.countryCode;
+  const lang = navigator.language.toLowerCase();
+  const prefix = lang.split('-')[0];
+  const ipCode = networkData.countryCode;
 
   // Only flag if we have a specific country mapping for this language
   const expected = LOCALE_COUNTRY_MAP[prefix];
@@ -744,26 +745,26 @@ const ROAST_DICT = {
       'Angka {speed} Mbps ini bikin tetangga yang pake HP hotspot ikut kasihan.',
     ],
     ispRoast: {
-      'indihome':   [
+      'indihome': [
         'IndiHome, raja throttling nusantara. Mahal, lambat, tapi tetep dipake karena ga ada pilihan.',
         'IndiHome: karena monopoli itu nyata, dan kamu yang bayar ongkosnya.',
         'IndiHome FUP-nya kejam. Tanggal 20 speed langsung nyungsep ke dasar laut.',
         'Tagihan IndiHome naik tiap tahun. Speed-nya setia di angka yang sama.',
         'IndiHome: satu-satunya tempat di mana "gangguan jaringan" adalah fitur, bukan bug.',
       ],
-      'telkomsel':  [
+      'telkomsel': [
         'Telkomsel Orbit katanya solusi rumahan. Solusi apa, bro? Solusi bikin emosi.',
         'Orbit by Telkomsel: harga langit, speed tanah.',
         'Telkomsel: provider terbesar Indonesia, dengan keluhan terbesar juga.',
         'Orbit sudah orbit ke mana-mana, tapi signal-nya masih di bumi bawah.',
       ],
-      'biznet':     [
+      'biznet': [
         'Biznet harusnya kenceng. Harusnya. Kenyataannya? Ya gini deh.',
         'Biznet di kertasnya 100Mbps. Di realitanya tanya tetangga yang sama kecewanya.',
         'Biznet Metro: metronya macet juga rupanya.',
         'Biznet fiber optik katanya. Fiber-nya mungkin masih digulung di gudang.',
       ],
-      'xl':         [
+      'xl': [
         'XL Axiata. X-nya buat X-tras lambat.',
         'XL: Xtra Lemot, eXtra kecewa.',
         'XL Satu Home — satu paket, satu kekecewaan terpadu.',
@@ -774,25 +775,26 @@ const ROAST_DICT = {
         'MyRepublic: republiknya mana? Yang ini kayak monarki disconnect.',
         'MyRepublic fiber gaming — gaming paling mulus adalah saat server down.',
       ],
-      'smartfren':  [
+      'smartfren': [
         'Smartfren. Smart dari mana? Dari namanya doang.',
         'Smartfren: sinyal 4G, kecepatan nostalgia 2G.',
         'Smartfren WMS home broadband. W-nya untuk Waiting.',
         'Smartfren: satu-satunya provider yang bikin pengguna merasa lebih pintar setelah berhenti langganan.',
       ],
-      'first media':['First Media: first dalam harga, last dalam performa.', 'First Media fiber — first kali konek kenceng, abis itu silakan bersabar.'],
-      'iconnet':    ['IconNet by PLN. Listrik bisa, internet... ya masih sesuai anggaran PLN.', 'IconNet: icon-nya bisa, net-nya masih loading.', 'PLN masuk bisnis internet. Mati lampu masuk bundel gratis.'],
-      'mnc':        ['MNC Play. Main streaming di platform sendiri aja buffering, gimana yang lain.', 'MNC Play — media terbesar, bandwidth terkecil.'],
-      'tri':        ['Tri/3 Hutchison. Nomor tiga dalam nama, nomor tiga dari bawah dalam kecepatan.', '3 Indonesia: unlimited data, unlimited kekecewaan.'],
-      'axis':       ['Axis Telekom. Udah merger sama XL, speed-nya pun ikut merge jadi satu: lambat.', 'Axis: dulu murah meriah, sekarang... tetap saja.'],
-      'isat':       ['Indosat Ooredoo Hutchison. Tiga perusahaan bergabung, speed-nya tetap satu: biasa aja.', 'IM3 Ooredoo: rebranding keren, kecepatan original tetap terjaga.'],
-      'telkom':     ['Telkom Indonesia, BUMN kebanggaan bangsa. Bangga-banggain yang lain aja deh.', 'Astinet Telkom: harganya enterprise, feeling-nya warnet.'],
-      'orbit':      ['Telkomsel Orbit: bayar premium, dapat koneksi yang bikin melow.', 'Orbit Home: harga bintang lima, speed bintang satu.'],
-      'default':    [
-        'ISP "{isp}"? Baru denger. Kayaknya RT/RW Net patungan se-kosan ya?',
-        'Provider "{isp}" ini nggak masuk radar, tapi koneksinya udah cukup buat ngomong sendiri.',
-        '"{isp}" — nama baru, kekecewaan klasik.',
-        'Belum pernah denger "{isp}", tapi dari hasil ini, udah bisa ditebak ceritanya.',
+      'first media': ['First Media: first dalam harga, last dalam performa.', 'First Media fiber — first kali konek kenceng, abis itu silakan bersabar.'],
+      'iconnet': ['IconNet by PLN. Listrik bisa, internet... ya masih sesuai anggaran PLN.', 'IconNet: icon-nya bisa, net-nya masih loading.', 'PLN masuk bisnis internet. Mati lampu masuk bundel gratis.'],
+      'mnc': ['MNC Play. Main streaming di platform sendiri aja buffering, gimana yang lain.', 'MNC Play — media terbesar, bandwidth terkecil.'],
+      'tri': ['Tri/3 Hutchison. Nomor tiga dalam nama, nomor tiga dari bawah dalam kecepatan.', '3 Indonesia: unlimited data, unlimited kekecewaan.'],
+      'axis': ['Axis Telekom. Udah merger sama XL, speed-nya pun ikut merge jadi satu: lambat.', 'Axis: dulu murah meriah, sekarang... tetap saja.'],
+      'isat': ['Indosat Ooredoo Hutchison. Tiga perusahaan bergabung, speed-nya tetap satu: biasa aja.', 'IM3 Ooredoo: rebranding keren, kecepatan original tetap terjaga.'],
+      'telkom': ['Telkom Indonesia, BUMN kebanggaan bangsa. Bangga-banggain yang lain aja deh.', 'Astinet Telkom: harganya enterprise, feeling-nya warnet.'],
+      'orbit': ['Telkomsel Orbit: bayar premium, dapat koneksi yang bikin melow.', 'Orbit Home: harga bintang lima, speed bintang satu.'],
+      'fastly': ["Namanya aja 'Fastly', tapi koneksinya pelan banget. Ironic banget bang."],
+      'default': [
+        '"{isp}" — never heard of them, but based on these results, I\'m not surprised.',
+        '"{isp}" — obscure ISP, iconic disappointment.',
+        '"{isp}" — they exist. That\'s the nicest thing we can say right now.',
+        'Never heard of "{isp}," but the speed test results are a thorough introduction.',
         '"{isp}" ini apa singkatannya? Internet Sangat Tidak Enak?',
       ],
     },
@@ -802,20 +804,20 @@ const ROAST_DICT = {
         'Digital nomad masuk Denpasar pake WiFi kosan Rp150rb. Vibes bagus, koneksi nangis.',
         'Denpasar — turis datang buat sunset. Kamu duduk nungguin halaman web yang load.',
       ],
-      'bali':     [
+      'bali': [
         'Work From Bali tapi WiFi kosan Rp150rb sebulan. Vibes bagus, koneksi ngenes.',
         'Digital nomad di Bali pake WiFi warung. Respek tapi ya... upload foto aja pake jalur darat.',
         'Bali surganya dunia. WiFi-nya surganya disconnected.',
         'Semua orang WFB — Work From Bali. Tapi yang "B" itu Buffer, bukan Beach.',
       ],
-      'dalung':   [
+      'dalung': [
         'Dalung, Bali. Kosan WiFi patungan 6 orang. Speed dibagi rata: nol koma nol.',
         'Dalung: harga kosan naik, speed WiFi tetap di titik yang sama sejak 2017.',
       ],
-      'kuta':     ['Kuta, pantai paling rame di Bali. WiFi paling rame buffering-nya juga.', 'Kuta — turis ribuan, bandwidth ratusan kilobyte.'],
+      'kuta': ['Kuta, pantai paling rame di Bali. WiFi paling rame buffering-nya juga.', 'Kuta — turis ribuan, bandwidth ratusan kilobyte.'],
       'seminyak': ['Seminyak, area bule sultan. Internet-nya masih ala Bali pada umumnya: bisa nunggu.'],
-      'ubud':     ['Ubud, pusat seni dan spiritualitas. Internet-nya menguji kesabaran spiritual kamu.', 'Ubud: cocok buat healing, cocok juga buat detoks digital — karena internet-nya bikin kapok.'],
-      'jakarta':  [
+      'ubud': ['Ubud, pusat seni dan spiritualitas. Internet-nya menguji kesabaran spiritual kamu.', 'Ubud: cocok buat healing, cocok juga buat detoks digital — karena internet-nya bikin kapok.'],
+      'jakarta': [
         'Jakarta, ibu kota, tapi koneksinya masih kalah sama warnet 2008.',
         'DKI Jakarta: macetnya di jalan, macetnya di internet.',
         'Jakarta pusat ekonomi Indonesia. Ekonomi internet-mu? Jauh dari pusat.',
@@ -826,7 +828,7 @@ const ROAST_DICT = {
         'Surabaya kota terbesar kedua. Internet-nya? Juga nomor dua. Dari bawah.',
         'Arek Suroboyo biasanya keras kepala. Internet-nya lebih keras: keras susah konek.',
       ],
-      'bandung':  [
+      'bandung': [
         'Bandung kota kembang. Kembang kembali jadi dial-up ternyata.',
         'Silicon Valley-nya Indonesia katanya. Silicon iya, Valley speed-nya iya juga — turun terus.',
         'Bandung: startup-nya kenceng, internet rumahnya masih mengejar.',
@@ -841,7 +843,7 @@ const ROAST_DICT = {
         'Semarang: Rob air laut naik tiap tahun. Kecepatan internet turun tiap bulan.',
         'Kota atlas ini bisa ngangkat banyak hal. Internet kenceng belum termasuk.',
       ],
-      'medan':    [
+      'medan': [
         'Medan, kota terbesar di Sumatra. Internet-nya masih kalah sama warung kopi di Jawa.',
         'Orang Medan terkenal keras dan tegas. Coba tegas ke ISP-mu juga dong.',
         'Medan: kota sejuta durian, satu internet yang mengecewakan.',
@@ -851,17 +853,17 @@ const ROAST_DICT = {
         'Kota Daeng ini terkenal pemberani. Berani juga ya pake internet segini.',
         'Makassar punya bandara baru megah. Terminal internet-nya masih dalam renovasi.',
       ],
-      'malang':   [
+      'malang': [
         'Malang kota dingin dan sejuk. Koneksi internet-nya pun bikin hati dingin.',
         'Malang: kota apel dan pendidikan. Internet-nya bikin studi kasus sendiri.',
         'Kota Malang — nama kotanya tepat buat kondisi koneksi internet-mu.',
       ],
-      'bogor':    [
+      'bogor': [
         'Bogor, kota hujan. Yang jelas bukan hujan bandwidth.',
         'Istana Bogor ada di sini. Istana ISP-mu? Sudah lama ambruk.',
         'Bogor satu jam dari Jakarta. Speed internet-nya satu dekade dari normal.',
       ],
-      'depok':    [
+      'depok': [
         'Depok. UI dan Gunadarma ada di sini. Ironi internet-nya sangat nyata.',
         'Kota satelit Jakarta ini punya banyak mahasiswa IT. Mereka semua ngerasain pedihnya internet-mu.',
         'Depok: smart city in progress. Progress-nya lagi istirahat rupanya.',
@@ -871,7 +873,7 @@ const ROAST_DICT = {
         'BSD City ada di Tangerang. Kota baru, internet lama.',
         'Tangerang Selatan: kawasan elite, internet masih demokratis — lambat merata.',
       ],
-      'bekasi':   [
+      'bekasi': [
         'Bekasi. Udah jauh dari Jakarta, jauh juga dari kecepatan internet yang manusiawi.',
         'Orang Bekasi sering diledekin. Sekarang internet-nya ikut nimbrung.',
         'Bekasi: kemacetan kelas dunia, internet kelas RT/RW.',
@@ -892,15 +894,15 @@ const ROAST_DICT = {
         'Pontianak, tepat di garis khatulistiwa. Sinyal-nya bingung mau ke utara atau selatan.',
         'Kota khatulistiwa ini punya posisi unik di peta. Internet-nya punya posisi unik juga: di bawah ekspektasi.',
       ],
-      'manado':   [
+      'manado': [
         'Manado, ujung utara Sulawesi. Signal-nya juga nyungsep ke arah utara.',
         'Bunaken terdekat dari sini. Sayangnya bandwidth-mu udah tenggelam lebih dalam.',
       ],
-      'lombok':   [
+      'lombok': [
         'Lombok, surga wisata. Wisatawan datang, internet kabur ke gunung Rinjani.',
         'Pantai-pantai Lombok menakjubkan. WiFi-nya bikin takjub juga — takjub betapa lemotnya.',
       ],
-      'default':  [
+      'default': [
         'Dimanapun kamu berada, satu hal yang pasti: ISP-mu mengecewakan.',
         'Kota-mu nggak ada di daftar, tapi internet segini mah bikin tetangga kasihan.',
         'Lokasi nggak dikenal, tapi kualitas internet-nya sangat dikenali: mengecewakan.',
@@ -984,136 +986,136 @@ const ROAST_DICT = {
       '{speed} Mbps. You could out-download this by waving two tin cans on a string.',
     ],
     ispRoast: {
-      'comcast':   [
+      'comcast': [
         'Comcast: because you deserve to pay premium prices for mediocre service.',
         'Comcast Xfinity: infinity waits, finite speed.',
         'Comcast has been America\'s most hated company multiple years running. This result explains why.',
         'Xfinity: X marks the spot where your bandwidth went missing.',
       ],
-      'at&t':      [
+      'at&t': [
         'AT&T: Attempted Terrible Throughput.',
         'AT&T fiber? More like AT&T fi-blur.',
         'AT&T FirstNet: first in name, last in delivery.',
         'AT&T has been building fiber for 20 years. The truck never came to your street.',
       ],
-      'starlink':  [
+      'starlink': [
         'Starlink — technology from space, latency still from Earth.',
         'Elon sent satellites to orbit. Your ping is still in geostationary.',
         'Starlink: revolutionary concept, weather-dependent execution.',
         'You paid for a satellite dish and got satellite speeds from 2003.',
       ],
-      'spectrum':  [
+      'spectrum': [
         'Spectrum: the full spectrum of disappointment.',
         'Spectrum promises fast internet. Must be a different spectrum.',
         'Charter Spectrum — monopoly pricing, municipal pool speeds.',
         'Spectrum has no data caps, which is generous since there\'s barely any data to cap.',
       ],
-      'verizon':   [
+      'verizon': [
         'Verizon Fios: Fi-os as in "finally, oh slow."',
         'Can you hear me now? Verizon can. Your packets? Not so much.',
         'Verizon 5G Home: 5G in the name, 3G in the delivery.',
         'Verizon\'s marketing budget is larger than your actual connection speed.',
       ],
-      'cox':       [
+      'cox': [
         'Cox Communications. The name says it all, really.',
         'Cox: gigabit available in select areas. Your area selected "no."',
         'Cox Panoramic WiFi — panoramic view of all the buffering.',
       ],
-      'virgin':    [
+      'virgin': [
         'Virgin Media: still virgin to the concept of consistent speeds.',
         'Virgin Media — Richard Branson went to space. Your connection never left the ground floor.',
         'Virgin Media\'s speeds are measured in "up to." You got the "down from."',
       ],
-      'bt':        [
+      'bt': [
         'BT Broadband: British Throttling, as per tradition.',
         'BT Openreach — open to disappointment, closed to improvement.',
         'BT Full Fibre? Full of something, certainly.',
         'BT has been the UK\'s internet backbone since the 80s. It shows.',
       ],
-      'sky':       [
+      'sky': [
         'Sky Broadband — blue sky thinking, grey sky delivering.',
         'Sky: limitless above you, limited bandwidth below.',
         'Sky Ultrafast. Ultra is doing a lot of work in that name.',
       ],
-      'talktalk':  [
+      'talktalk': [
         'TalkTalk. At least you can still talk. The internet\'s done.',
         'TalkTalk: they got hacked so badly they had to rebrand twice. The speeds stayed the same.',
         'TalkTalk — Britain\'s most famous budget ISP. Budget quality included.',
       ],
-      'ee':        [
+      'ee': [
         'EE — everything\'s expensive, everything\'s eventually slow.',
         'EE Full Fibre. Full of something. Not bandwidth.',
         'EE acquired by BT. British tradition of underdelivering: maintained.',
       ],
-      'vodafone':  [
+      'vodafone': [
         'Vodafone — connecting people. Eventually. Maybe.',
         'Vodafone broadband: they do it better in some countries. This isn\'t one of them.',
         'Vodafone: global presence, local letdown.',
       ],
-      'plusnet':   [
+      'plusnet': [
         'Plusnet — Yorkshire\'s finest disappointment, delivered with a friendly voice.',
         'Plusnet: "doing you proud" is aspirational, apparently.',
         'Plusnet: budget tier. You got the budget experience.',
       ],
-      'telstra':   [
+      'telstra': [
         'Telstra — Australia\'s biggest ISP with Australia\'s biggest audacity.',
         'Telstra charges the most and delivers the least. Australian tradition.',
         'Telstra HFC: the H stands for Hoping it works.',
       ],
-      'optus':     [
+      'optus': [
         'Optus. Even their outages have outages.',
         'Optus had a national outage that left 10 million offline. Your connection is its own private tribute.',
         'Optus: second place in the Australian duopoly, first place in apologies.',
       ],
-      'rogers':    [
+      'rogers': [
         'Rogers Canada — monopoly pricing, municipal pool speeds.',
         'Rogers, Bell, or Telus. Doesn\'t matter which — same cartel, same sadness.',
         'Rogers: Canada\'s most complained-about ISP. Consistent at something, at least.',
       ],
-      'bell':      [
+      'bell': [
         'Bell Canada — ring ring, still buffering.',
         'Bell Fibe: the "e" stands for "eventually."',
         'Bell has been Canada\'s backbone since 1880. Still operating on original infrastructure, it seems.',
       ],
-      'bsnl':      [
+      'bsnl': [
         'BSNL — government-owned, government-paced.',
         'BSNL Bharat Fiber: the bharat is fast, the fiber is theoretical.',
         'BSNL: where technology goes to retire.',
       ],
-      'jio':       [
+      'jio': [
         'Jio disrupted the Indian market. Now the market is disrupted, and so is your connection.',
         'Jio: unlimited data, limited usefulness.',
         'Jio True 5G — 5G towers visible, 5G speed optional.',
       ],
-      'pldt':      [
+      'pldt': [
         'PLDT — Philippines\' finest exercise in managed expectations.',
         'PLDT: monopoly of a different kind. The kind where you pay more and get less.',
         'PLDT Fibr: the "r" replaced the "e" in "fiber." The speed replaced nothing.',
       ],
-      'globe':     [
+      'globe': [
         'Globe Telecom — the world is waiting. Apparently so is your data.',
         'Globe At Home: at home with buffering.',
         'Globe and PLDT. One ISP or two? Doesn\'t matter — same result.',
       ],
-      'singtel':   [
+      'singtel': [
         'Singtel in Singapore should be the gold standard. How did you end up with tin?',
         'Singapore has some of the fastest internet on Earth. You found the one dead zone.',
       ],
-      'tmobile':   [
+      'tmobile': [
         'T-Mobile Home Internet: magenta packaging, beige performance.',
         'T-Mobile merged with Sprint to become one. Unfortunately one disappointment.',
         'Un-carrier? More like un-fast.',
       ],
-      'xfinity':   [
+      'xfinity': [
         'Xfinity — infinite potential, finite delivery.',
         'Xfinity Gigabit: the gigabit is theoretical. This result is very real.',
         'Comcast rebranded to Xfinity to escape its reputation. The speeds came along anyway.',
       ],
-      'mediacom':  ['Mediacom: serving rural America with urban prices and rural speeds.', 'Mediacom — monopoly ISP for areas that deserve better.'],
-      'frontier':  ['Frontier Communications: on the frontier of slow.', 'Frontier fiber — frontier as in the lawless past where speeds roamed free and low.'],
-      'centurylink':['CenturyLink, now Lumen. New name. Century-old speeds.', 'Lumen Technologies: illuminating how bad your internet can be.'],
-      'optimum':   ['Optimum — optimistic name, pessimistic outcome.', 'Altice Optimum: they bought the company. Didn\'t buy faster infrastructure.'],
-      'default':   [
+      'mediacom': ['Mediacom: serving rural America with urban prices and rural speeds.', 'Mediacom — monopoly ISP for areas that deserve better.'],
+      'frontier': ['Frontier Communications: on the frontier of slow.', 'Frontier fiber — frontier as in the lawless past where speeds roamed free and low.'],
+      'centurylink': ['CenturyLink, now Lumen. New name. Century-old speeds.', 'Lumen Technologies: illuminating how bad your internet can be.'],
+      'optimum': ['Optimum — optimistic name, pessimistic outcome.', 'Altice Optimum: they bought the company. Didn\'t buy faster infrastructure.'],
+      'default': [
         '"{isp}" — never heard of them, but based on these results, I\'m not surprised.',
         '"{isp}" — obscure ISP, iconic disappointment.',
         '"{isp}" — they exist. That\'s the nicest thing we can say right now.',
@@ -1128,19 +1130,19 @@ const ROAST_DICT = {
         'LA traffic is legendary. So is your latency, apparently.',
         'San Francisco: $4,000/month rent, ISP still can\'t deliver gigabit to your door.',
       ],
-      'new york':  [
+      'new york': [
         'New York City. Fastest city in the world. Slowest Wi-Fi in the building.',
         'New York: everyone\'s in a rush. Your packets are not.',
         'Times Square has more bandwidth per square meter than your entire apartment.',
         'NYC — the city that never sleeps. Your connection already is.',
       ],
-      'london':    [
+      'london': [
         'London: world-class city, Victorian-era broadband.',
         'London has Openreach on every street. Still somehow ended up with this.',
         'City of London moves trillions a day. Your connection moves kilobytes.',
         'London calling. Nobody answered — the bandwidth was too low.',
       ],
-      'sydney':    [
+      'sydney': [
         'Australia: beautiful country, geographically cursed internet infrastructure.',
         'Sydney is a global financial hub. The NBN has not received the memo.',
         'Bondi Beach is stunning. Your download speeds are not.',
@@ -1156,37 +1158,37 @@ const ROAST_DICT = {
         'Singapore ranks top 5 globally for internet speed. Top 5 from the bottom, in your case.',
         'Changi Airport has better free WiFi than what you\'re paying for.',
       ],
-      'tokyo':     [
+      'tokyo': [
         'Tokyo has gigabit fiber on every corner. You found the one exception.',
         'Japan invented the bullet train. Your data is taking the scenic local route.',
         'Tokyo: anime streams at 8K nationwide. You\'re buffering at 480p.',
       ],
-      'seoul':     [
+      'seoul': [
         'South Korea averages some of the fastest internet on the planet. This is not that.',
         'Seoul: 10Gbps fiber is practically standard. You\'re experiencing the other standard.',
         'K-dramas are made in Seoul and stream flawlessly everywhere except here, apparently.',
       ],
-      'mumbai':    [
+      'mumbai': [
         'Mumbai: financial capital of India, Bollywood HQ, internet of a 90s cyber cafe.',
         'Mumbai doesn\'t sleep. Your connection apparently does.',
         'Dharavi is one of the most connected communities in Asia. Check your router.',
       ],
-      'dubai':     [
+      'dubai': [
         'Dubai built artificial islands in the ocean. They still can\'t build stable internet for you.',
         'Dubai: Burj Khalifa pierces the clouds. Your speeds are firmly underground.',
         'Everything in Dubai is luxury. Your ISP missed the memo.',
       ],
-      'toronto':   [
+      'toronto': [
         'Toronto: world-class city, Rogers-Bell duopoly, cartel-tier pricing for these speeds.',
         'Canada has some of the most expensive internet in the developed world. You\'re experiencing why.',
         'Toronto Film Festival, Raptors, maple syrup. Great city. Terrible ISP market.',
       ],
-      'berlin':    [
+      'berlin': [
         'Berlin: capital of countercultural freedom. Imprisoned by Deutsche Telekom.',
         'Berlin\'s start-up scene is one of Europe\'s best. They all have better WiFi than this.',
         'Berliners survived a lot. This connection is a new test of endurance.',
       ],
-      'paris':     [
+      'paris': [
         'Paris: city of light. Your latency is illuminating something different.',
         'Paris has some of Europe\'s best fiber infrastructure. Someone forgot to connect your building.',
         'Café WiFi in Paris is better than this. And it\'s free with a coffee.',
@@ -1196,12 +1198,12 @@ const ROAST_DICT = {
         'AMS-IX is one of the world\'s largest internet exchanges and it\'s literally there. Somehow.',
         'Amsterdam: liberal, progressive, fast on everything except your connection.',
       ],
-      'manila':    [
+      'manila': [
         'Manila: PLDT and Globe in a race to the bottom. Congrats, you\'re at the finish line.',
         'Philippines consistently ranks among the slowest internet in Asia. You\'re leading the statistic.',
         'Manila: 14 million people, 2 ISPs, somehow not enough bandwidth for either.',
       ],
-      'bangkok':   [
+      'bangkok': [
         'Bangkok: tech hub of Southeast Asia. Today is not a tech day for you.',
         'Thailand has invested heavily in digital infrastructure. The return on investment hasn\'t reached you.',
         'Bangkok traffic is legendary. Your packets are stuck in it too, apparently.',
@@ -1211,21 +1213,21 @@ const ROAST_DICT = {
         'KLCC towers are icons of modernity. Your connection is an icon of the past.',
         'Kuala Lumpur: everything going up. Bandwidth going nowhere.',
       ],
-      'auckland':  [
+      'auckland': [
         'Auckland: technically in the future time zone. Internet still stuck in the past.',
         'New Zealand has beautiful landscapes and challenging internet geography. You\'re experiencing both.',
         'Hobbiton is nearby. Your bandwidth belongs in the Shire.',
       ],
-      'nairobi':   [
+      'nairobi': [
         'Nairobi: M-Pesa invented mobile banking here. Mobile internet still catching up.',
         'Silicon Savannah is in Nairobi. The savannah part applies to your speeds too.',
       ],
-      'lagos':     [
+      'lagos': [
         'Lagos: 20 million people, entrepreneurial capital of Africa, bandwidth still an aspiration.',
         'Lagos doesn\'t stop. Your packets have stopped for a rest.',
       ],
-      'cairo':     ['Cairo: built the pyramids, invented writing. ISP still figuring out fiber.', 'Nile river has flowed for millennia. Your data flow is considerably less impressive.'],
-      'default':   [
+      'cairo': ['Cairo: built the pyramids, invented writing. ISP still figuring out fiber.', 'Nile river has flowed for millennia. Your data flow is considerably less impressive.'],
+      'default': [
         'Wherever you are, your ISP has clearly never been there.',
         'Location unknown, disappointment universal.',
         'We couldn\'t find your city. Your ISP couldn\'t find adequate bandwidth either.',
@@ -1265,12 +1267,20 @@ function pick(arr) {
  */
 function generateRoast(networkData) {
   const locale = STATE.locale;
-  const dict   = ROAST_DICT[locale] || ROAST_DICT['en-US'];
-  const parts  = [];
+  const dict = ROAST_DICT[locale] || ROAST_DICT['en-US'];
+  const parts = [];
 
   const speed = STATE.speedMbps;
-  const ping  = STATE.pingMs;
+  const ping = STATE.pingMs;
   const grade = calculateGrade(speed, ping);
+
+  // Helper for semantic adjectives
+  const getSpeedAdj = (s) => {
+    if (s < 1) return locale === 'id-ID' ? '(kecepatan prasejarah)' : '(prehistoric speeds)';
+    if (s < 5) return locale === 'id-ID' ? '(siput mager)' : '(snail pace)';
+    if (s > 100) return locale === 'id-ID' ? '(pamer doang)' : '(just flexin\')';
+    return '';
+  };
 
   // 1. VPN override prefix
   if (STATE.isVpn) {
@@ -1279,8 +1289,8 @@ function generateRoast(networkData) {
 
   // 2. React to the worst metric; for grade F always roast both ping AND speed
   const speedBad = speed < 10;
-  const pingBad  = ping  > 100;
-  const sub = (line) => line.replace('{ping}', ping).replace('{speed}', speed);
+  const pingBad = ping > 100;
+  const sub = (line) => line.replace('{ping}', ping).replace('{speed}', `${speed} Mbps ${getSpeedAdj(speed)}`);
 
   if (grade === 'F') {
     // Both are terrible — hit them with both barrels
@@ -1305,8 +1315,32 @@ function generateRoast(networkData) {
     parts.push(pick(dict.jitterReact).replace('{jitter}', STATE.jitterMs));
   }
 
-  // ISP roast — fuzzy match against dict keys
+  // 3c. Contextual "Irony & Shaming" Logic
   const ispLower = (networkData.isp || '').toLowerCase();
+  const cityLower = (networkData.city || '').toLowerCase();
+
+  // Irony check (Fiber/Turbo names vs slow speed)
+  const ironyKeywords = ['fiber', 'optic', 'ultra', 'fast', 'turbo', 'express', 'gigabit', 'orbit'];
+  const matchedKey = ironyKeywords.find(k => ispLower.includes(k));
+  if (matchedKey && speed < 30) {
+    if (locale === 'id-ID') parts.push(`Namanya pake '${matchedKey}', tapi speed-nya kayak siput lagi istirahat.`);
+    else parts.push(`They put '${matchedKey}' in the name, but delivered a dial-up experience.`);
+  }
+
+  // City shaming
+  const bigCities = ['jakarta', 'surabaya', 'singapore', 'london', 'new york', 'tokyo', 'sydney'];
+  if (bigCities.includes(cityLower) && speed < 10) {
+    if (locale === 'id-ID') parts.push(`Tinggal di ${networkData.city} tapi speed segini? Malu-maluin warga kota, bang.`);
+    else parts.push(`${networkData.city} is a global hub, and this is the best your ISP can do?`);
+  }
+
+  // Jitter personality
+  if (STATE.jitterMs > 50) {
+    if (locale === 'id-ID') parts.push("Koneksimu lebih labil dari mood mantan.");
+    else parts.push("Your connection is less stable than a house of cards in a hurricane.");
+  }
+
+  // ISP roast — fuzzy match against dict keys
   let ispLine = null;
   for (const [key, lines] of Object.entries(dict.ispRoast)) {
     if (key !== 'default' && ispLower.includes(key)) {
@@ -1315,12 +1349,20 @@ function generateRoast(networkData) {
     }
   }
   if (!ispLine) {
-    ispLine = pick(dict.ispRoast.default).replace('{isp}', networkData.isp || '???');
+    const ispName = networkData.isp || '???';
+    const firstWord = ispName.trim().split(' ')[0];
+    const isAcronym = /^[A-Z]{3,4}$/.test(firstWord);
+
+    let availableDefaults = dict.ispRoast.default;
+    if (!isAcronym) {
+      // Filter out acronym jokes if it's not a 3-4 letter uppercase name
+      availableDefaults = availableDefaults.filter(line => !line.includes('singkatannya?') && !line.includes('acronym'));
+    }
+    ispLine = pick(availableDefaults).replace('{isp}', ispName);
   }
   parts.push(ispLine);
 
   // Location roast — fuzzy match on city
-  const cityLower = (networkData.city || '').toLowerCase();
   let locLine = null;
   for (const [key, lines] of Object.entries(dict.locationRoast)) {
     if (key !== 'default' && cityLower.includes(key)) {
@@ -1350,16 +1392,25 @@ function generateRoast(networkData) {
  */
 function maskIp(ip) {
   if (!ip) return '***.***.***.***';
+  // IPv6: Check for colon
+  if (ip.includes(':')) {
+    let parts = ip.split(':');
+    // Aggressively mask last 3 blocks
+    for (let i = 1; i <= 3; i++) {
+      if (parts.length - i >= 0) {
+        parts[parts.length - i] = '****';
+      }
+    }
+    let masked = parts.join(':');
+    // Truncate if too long for UI
+    if (masked.length > 25) {
+      return masked.substring(0, 22) + '...';
+    }
+    return masked;
+  }
   // IPv4: 1.2.3.4 → 1.2.***.***
   if (/^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
     return ip.replace(/(\d+\.\d+)\.\d+\.\d+$/, '$1.***.***');
-  }
-  // IPv6: mask last 2 groups
-  const parts = ip.split(':');
-  if (parts.length >= 4) {
-    parts[parts.length - 1] = '****';
-    parts[parts.length - 2] = '****';
-    return parts.join(':');
   }
   return ip.slice(0, 6) + '...';
 }
@@ -1369,10 +1420,10 @@ function maskIp(ip) {
  * Returns letter grade A–F based on speed + ping thresholds.
  */
 function calculateGrade(speedMbps, pingMs) {
-  if (speedMbps > 50 && pingMs < 30)  return 'A';
-  if (speedMbps > 20 && pingMs < 60)  return 'B';
+  if (speedMbps > 50 && pingMs < 30) return 'A';
+  if (speedMbps > 20 && pingMs < 60) return 'B';
   if (speedMbps > 10 && pingMs < 100) return 'C';
-  if (speedMbps > 5  && pingMs < 200) return 'D';
+  if (speedMbps > 5 && pingMs < 200) return 'D';
   return 'F';
 }
 
@@ -1383,22 +1434,22 @@ function calculateGrade(speedMbps, pingMs) {
  */
 function injectReceiptData(networkData, roastText) {
   const speed = STATE.speedMbps;
-  const ping  = STATE.pingMs;
+  const ping = STATE.pingMs;
   const grade = calculateGrade(speed, ping);
   const location = [networkData.city, networkData.country].filter(Boolean).join(', ') || '—';
 
   // ── Meta bar (live header) ── textContent only
-  if (DOM.ispDisplay)      DOM.ispDisplay.textContent      = networkData.isp      || '—';
+  if (DOM.ispDisplay) DOM.ispDisplay.textContent = networkData.isp || '—';
   if (DOM.locationDisplay) DOM.locationDisplay.textContent = location;
   // Partial mask: first 2 octets visible, last 2 redacted — more readable than full *** mask
-  if (DOM.ipDisplay)       DOM.ipDisplay.textContent       = maskIp(networkData.ip);
+  if (DOM.ipDisplay) DOM.ipDisplay.textContent = maskIp(networkData.ip);
 
   // ── On-Screen Results (Desktop UI) ──
-  if (DOM.resultDlVal)     DOM.resultDlVal.textContent     = speed;
+  if (DOM.resultDlVal) DOM.resultDlVal.textContent = speed;
   if (DOM.resultUploadVal) DOM.resultUploadVal.textContent = STATE.uploadMbps !== null ? STATE.uploadMbps : 'N/A';
-  if (DOM.resultPingVal)   DOM.resultPingVal.textContent   = ping;
+  if (DOM.resultPingVal) DOM.resultPingVal.textContent = ping;
   if (DOM.resultJitterVal) DOM.resultJitterVal.textContent = STATE.jitterMs > 0 ? `±${STATE.jitterMs}` : '--';
-  if (DOM.resultGradeVal)  DOM.resultGradeVal.textContent  = ''; // grade shown in icon only (see below)
+  if (DOM.resultGradeVal) DOM.resultGradeVal.textContent = ''; // grade shown in icon only (see below)
 
   const roastTextEl = document.getElementById('roast-text');
   if (roastTextEl) roastTextEl.textContent = roastText;
@@ -1408,7 +1459,7 @@ function injectReceiptData(networkData, roastText) {
     const isBad = grade === 'F' || grade === 'D';
     const color = isBad ? 'var(--accent-warm)' : 'var(--accent-green)';
     DOM.resultGradeVal.style.color = color;
-    
+
     // The grade icon is outside result-data, it's the previous sibling of result-data
     const resultDataEl = DOM.resultGradeVal.parentElement;
     if (resultDataEl && resultDataEl.previousElementSibling) {
@@ -1419,20 +1470,20 @@ function injectReceiptData(networkData, roastText) {
 
   // ── Cyber Receipt fields (Hidden overlay for export) ──
   DOM.receiptTimestamp.textContent = formatTimestamp();
-  DOM.receiptSpeedVal.textContent  = speed;
-  DOM.receiptPingVal.textContent   = `${ping} ms`;
-  DOM.receiptGradeVal.textContent  = grade;
-  DOM.receiptIsp.textContent       = networkData.isp      || '—';
-  DOM.receiptLocation.textContent  = location;
-  DOM.receiptIp.textContent        = maskIp(networkData.ip);
-  if (DOM.receiptUpload)  DOM.receiptUpload.textContent  = STATE.uploadMbps !== null ? `${STATE.uploadMbps} Mbps` : 'N/A';
-  DOM.receiptLatency.textContent   = `${ping} ms`;
-  if (DOM.receiptJitter)  DOM.receiptJitter.textContent  = STATE.jitterMs > 0 ? `±${STATE.jitterMs} ms` : '—';
-  DOM.receiptConn.textContent      = networkData._fallback
+  DOM.receiptSpeedVal.textContent = speed;
+  DOM.receiptPingVal.textContent = `${ping} ms`;
+  DOM.receiptGradeVal.textContent = grade;
+  DOM.receiptIsp.textContent = networkData.isp || '—';
+  DOM.receiptLocation.textContent = location;
+  DOM.receiptIp.textContent = maskIp(networkData.ip);
+  if (DOM.receiptUpload) DOM.receiptUpload.textContent = STATE.uploadMbps !== null ? `${STATE.uploadMbps} Mbps` : 'N/A';
+  DOM.receiptLatency.textContent = `${ping} ms`;
+  if (DOM.receiptJitter) DOM.receiptJitter.textContent = STATE.jitterMs > 0 ? `±${STATE.jitterMs} ms` : '—';
+  DOM.receiptConn.textContent = networkData._fallback
     ? `Fallback (${networkData._reason})`
     : (networkData.org || networkData.isp || '—');
-  DOM.receiptVpn.textContent       = STATE.isVpn ? 'Yes 🔒' : 'No';
-  DOM.receiptRoast.textContent     = roastText;
+  DOM.receiptVpn.textContent = STATE.isVpn ? 'Yes 🔒' : 'No';
+  DOM.receiptRoast.textContent = roastText;
 
   // Grade banner colour on receipt
   const gradeBanner = document.getElementById('receipt-grade-banner');
@@ -1476,7 +1527,7 @@ function resetScan() {
   // Reset speed / ping readouts
   DOM.speedValue.textContent = '--';
   DOM.speedValue.classList.remove('is-glitching');
-  DOM.pingValue.textContent  = '-- ms';
+  DOM.pingValue.textContent = '-- ms';
 
   // Reset status
   updateStatus('Ready to profile your connection.', 'Hit GO and brace yourself.');
@@ -1503,13 +1554,13 @@ function updateStatus(primary, secondary = '') {
 function updateConnectionPill(label, state) {
   const pill = document.getElementById('connection-pill');
   if (!pill) return;
-  const dot   = pill.querySelector('.pulse-dot');
-  const text  = pill.querySelector('.pill-label');
+  const dot = pill.querySelector('.pulse-dot');
+  const text = pill.querySelector('.pill-label');
   if (text) text.textContent = label;
   if (dot) {
     dot.style.background = state === 'scanning' ? 'var(--accent-warm)'
-                         : state === 'done'     ? 'var(--accent-cyan)'
-                         : 'var(--accent-green)'; // idle
+      : state === 'done' ? 'var(--accent-cyan)'
+        : 'var(--accent-green)'; // idle
   }
 }
 
@@ -1532,7 +1583,7 @@ function sendAnalyticsEvent(eventName, props) {
     });
     // sendBeacon is fire-and-forget; never blocks the page; ignored silently if offline
     navigator.sendBeacon && navigator.sendBeacon(ANALYTICS_ENDPOINT, new Blob([payload], { type: 'application/json' }));
-  } catch (_) {}
+  } catch (_) { }
 }
 
 
@@ -1546,21 +1597,21 @@ const HISTORY_MAX = 5;
 function saveToHistory(networkData, grade) {
   try {
     const entry = {
-      ts:     Date.now(),
-      dl:     STATE.speedMbps,
-      ul:     STATE.uploadMbps,
-      ping:   STATE.pingMs,
+      ts: Date.now(),
+      dl: STATE.speedMbps,
+      ul: STATE.uploadMbps,
+      ping: STATE.pingMs,
       jitter: STATE.jitterMs,
       grade,
-      isp:    networkData?.isp  || '—',
-      city:   networkData?.city || '—',
+      isp: networkData?.isp || '—',
+      city: networkData?.city || '—',
     };
-    const raw     = localStorage.getItem(HISTORY_KEY);
+    const raw = localStorage.getItem(HISTORY_KEY);
     const history = raw ? JSON.parse(raw) : [];
     history.unshift(entry);
     if (history.length > HISTORY_MAX) history.length = HISTORY_MAX;
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  } catch (_) {}
+  } catch (_) { }
 }
 
 function loadHistory() {
@@ -1574,7 +1625,7 @@ function loadHistory() {
 
 function renderHistoryPanel() {
   const history = loadHistory();
-  const panel   = document.getElementById('history-panel');
+  const panel = document.getElementById('history-panel');
   if (!panel) return;
 
   if (history.length === 0) {
@@ -1588,13 +1639,13 @@ function renderHistoryPanel() {
   list.innerHTML = '';
   history.forEach((entry, i) => {
     const date = new Date(entry.ts);
-    const hh   = String(date.getHours()).padStart(2, '0');
-    const mm   = String(date.getMinutes()).padStart(2, '0');
-    const dd   = String(date.getDate()).padStart(2, '0');
-    const mon  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][date.getMonth()];
-    const gradeClass = ['A','B'].includes(entry.grade) ? 'grade--good'
-                     : entry.grade === 'F'              ? 'grade--fail'
-                     :                                    'grade--mid';
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][date.getMonth()];
+    const gradeClass = ['A', 'B'].includes(entry.grade) ? 'grade--good'
+      : entry.grade === 'F' ? 'grade--fail'
+        : 'grade--mid';
     const item = document.createElement('div');
     item.className = 'history-item';
     item.innerHTML = `
@@ -1626,17 +1677,17 @@ function encodeResultsToHash(networkData) {
     const payload = {
       dl: STATE.speedMbps,
       ul: STATE.uploadMbps,
-      p:  STATE.pingMs,
-      j:  STATE.jitterMs,
-      g:  calculateGrade(STATE.speedMbps, STATE.pingMs),
-      isp: (networkData && networkData.isp)  || '',
-      loc: (networkData && networkData.city)  || '',
-      r:  STATE.roastText,
+      p: STATE.pingMs,
+      j: STATE.jitterMs,
+      g: calculateGrade(STATE.speedMbps, STATE.pingMs),
+      isp: (networkData && networkData.isp) || '',
+      loc: (networkData && networkData.city) || '',
+      r: STATE.roastText,
     };
-    const json    = JSON.stringify(payload);
-    const b64     = btoa(unescape(encodeURIComponent(json)));
+    const json = JSON.stringify(payload);
+    const b64 = btoa(unescape(encodeURIComponent(json)));
     history.replaceState(null, '', `#r=${b64}`);
-  } catch (_) {}
+  } catch (_) { }
 }
 
 /**
@@ -1648,7 +1699,7 @@ function decodeResultsFromHash() {
   try {
     const hash = location.hash;
     if (!hash.startsWith('#r=')) return null;
-    const b64  = hash.slice(3);
+    const b64 = hash.slice(3);
     const json = decodeURIComponent(escape(atob(b64)));
     return JSON.parse(json);
   } catch (_) {
@@ -1663,11 +1714,11 @@ function decodeResultsFromHash() {
  */
 function loadSharedResult(payload) {
   // Reconstruct enough STATE for the receipt and roast to render
-  STATE.speedMbps  = payload.dl  ?? 0.1;
-  STATE.uploadMbps = payload.ul  ?? null;
-  STATE.pingMs     = payload.p   ?? 999;
-  STATE.jitterMs   = payload.j   ?? 0;
-  STATE.roastText  = payload.r   || '';
+  STATE.speedMbps = payload.dl ?? 0.1;
+  STATE.uploadMbps = payload.ul ?? null;
+  STATE.pingMs = payload.p ?? 999;
+  STATE.jitterMs = payload.j ?? 0;
+  STATE.roastText = payload.r || '';
 
   const fakeNetwork = {
     ip: null, isp: payload.isp || '—', org: '',
@@ -1690,7 +1741,7 @@ function loadSharedResult(payload) {
   const existing = document.getElementById('shared-result-banner');
   if (!existing) {
     const banner = document.createElement('div');
-    banner.id        = 'shared-result-banner';
+    banner.id = 'shared-result-banner';
     banner.className = 'shared-banner';
     banner.innerHTML = `
       <span class="shared-banner__label">👀 Someone shared their internet shame with you.</span>
@@ -1718,15 +1769,15 @@ async function startScan() {
   // Guard: prevent double-clicks
   if (STATE.isScanning) return;
 
-  STATE.isScanning  = true;
+  STATE.isScanning = true;
   STATE.scanCount++;
-  STATE.pingMs      = 999;
-  STATE.jitterMs    = 0;
-  STATE.speedMbps   = 0.1;
-  STATE.uploadMbps  = null;
+  STATE.pingMs = 999;
+  STATE.jitterMs = 0;
+  STATE.speedMbps = 0.1;
+  STATE.uploadMbps = null;
   STATE.networkData = null;
-  STATE.isVpn       = false;
-  try { localStorage.setItem('spidtes_scan_count', STATE.scanCount); } catch (_) {}
+  STATE.isVpn = false;
+  try { localStorage.setItem('spidtes_scan_count', STATE.scanCount); } catch (_) { }
 
   // Clear any leftover timers from previous run
   clearAllTimers();
@@ -1754,10 +1805,10 @@ async function startScan() {
     STATE.networkData = getFallbackData('error');
   });
 
-  measurePing().then((ms)    => { STATE.pingMs    = ms;    }).catch(() => {});
-  measureJitter().then((ms)  => { STATE.jitterMs  = ms;    }).catch(() => {});
-  measureSpeed().then((mbps) => { STATE.speedMbps = mbps;  }).catch(() => {});
-  measureUpload().then((mbps)=> { STATE.uploadMbps = mbps; }).catch(() => {});
+  measurePing().then((ms) => { STATE.pingMs = ms; }).catch(() => { });
+  measureJitter().then((ms) => { STATE.jitterMs = ms; }).catch(() => { });
+  measureSpeed().then((mbps) => { STATE.speedMbps = mbps; }).catch(() => { });
+  measureUpload().then((mbps) => { STATE.uploadMbps = mbps; }).catch(() => { });
 
   // Kick off the 4-second fake-out sequence
   runFakeOutSequence();
@@ -1775,7 +1826,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     const saved = parseInt(localStorage.getItem('spidtes_scan_count') || '0', 10);
     if (!isNaN(saved)) STATE.scanCount = saved;
-  } catch (_) {}
+  } catch (_) { }
 
   // Ensure needle starts at correct position
   setNeedle(NEEDLE.start);
@@ -1836,44 +1887,33 @@ document.addEventListener('DOMContentLoaded', () => {
       DOM.shareReceiptBtn.innerHTML = '<span aria-hidden="true">⏳</span> Generating...';
       DOM.shareReceiptBtn.disabled = true;
 
-      // html2canvas cannot render an element whose ancestor is at top:-9999px.
-      // Temporarily move the stage to the origin (hidden behind page with z-index:-1
-      // and visibility:hidden so the user never sees it) then restore after capture.
-      const stage = DOM.receiptStage;
-      const savedTop  = stage.style.top;
-      const savedLeft = stage.style.left;
-      const savedZ    = stage.style.zIndex;
-      const savedVis  = stage.style.visibility;
+      // Clone the receipt to avoid layout issues or visibility conflicts during capture
+      const clone = receiptEl.cloneNode(true);
 
-      stage.style.top        = '0px';
-      stage.style.left       = '0px';
-      stage.style.zIndex     = '-1';
-      stage.style.visibility = 'hidden';
-
-      // One frame for the browser to reflow the repositioned element
-      await new Promise(r => setTimeout(r, 80));
-
-      const restore = () => {
-        stage.style.top        = savedTop;
-        stage.style.left       = savedLeft;
-        stage.style.zIndex     = savedZ;
-        stage.style.visibility = savedVis;
-        DOM.shareReceiptBtn.innerHTML = origHTML;
-        DOM.shareReceiptBtn.disabled  = false;
-      };
+      // Ensure the clone is in the DOM but invisible to the user
+      Object.assign(clone.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        zIndex: '-9999',
+        visibility: 'visible', // Ensure it's not hidden
+        opacity: '1'
+      });
+      document.body.appendChild(clone);
 
       try {
-        const canvas = await window.html2canvas(receiptEl, {
-          scale:           2,
+        const canvas = await window.html2canvas(clone, {
+          scale: 2,
           backgroundColor: '#08080f',
-          logging:         false,
-          useCORS:         true,
-          allowTaint:      true,
-          width:           1080,
-          height:          1920,
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          width: 1080,
+          height: 1920,
         });
 
-        restore();
+        // Clean up immediately
+        document.body.removeChild(clone);
 
         canvas.toBlob(async (blob) => {
           if (!blob) {
@@ -1888,7 +1928,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
               await navigator.share({
                 title: 'My Network Roast by Spidtes',
-                text:  STATE.roastText || 'My internet just got roasted by Spidtes.',
+                text: STATE.roastText || 'My internet just got roasted by Spidtes.',
                 files: [file],
               });
               return;
@@ -1899,8 +1939,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Desktop / unsupported: trigger a direct PNG download
           const url = URL.createObjectURL(blob);
-          const a   = document.createElement('a');
-          a.href     = url;
+          const a = document.createElement('a');
+          a.href = url;
           a.download = 'spidtes-cyber-receipt.png';
           document.body.appendChild(a);
           a.click();
@@ -1910,7 +1950,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       } catch (err) {
         console.error('Share failed:', err);
-        restore();
+        // Fallback cleanup if capture fails
+        if (clone && clone.parentNode) {
+          document.body.removeChild(clone);
+        }
+        DOM.shareReceiptBtn.innerHTML = origHTML;
+        DOM.shareReceiptBtn.disabled = false;
         alert('Failed to generate image. Please try again.');
       }
     });
@@ -1926,7 +1971,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const historyClearBtn = document.getElementById('history-clear-btn');
   if (historyClearBtn) {
     historyClearBtn.addEventListener('click', () => {
-      try { localStorage.removeItem(HISTORY_KEY); } catch (_) {}
+      try { localStorage.removeItem(HISTORY_KEY); } catch (_) { }
       renderHistoryPanel();
     });
   }
