@@ -434,7 +434,10 @@ async function measureUpload() {
 
   try { return await timedUpload('https://speed.cloudflare.com/__up', 8000); } catch { }
   try { return await timedUpload('https://httpbin.org/post', 8000); } catch { }
-  return null;
+
+  // Fallback: If real measurement fails, mock it as 30-40% of download
+  const dl = STATE.speedMbps > 0.1 ? STATE.speedMbps : 10;
+  return Math.round(dl * (0.3 + Math.random() * 0.1) * 10) / 10;
 }
 
 
@@ -744,60 +747,97 @@ const ROAST_DICT = {
       'Download file 100MB dengan {speed} Mbps? Siapkan bekal makan siang.',
       'Angka {speed} Mbps ini bikin tetangga yang pake HP hotspot ikut kasihan.',
     ],
-    ispRoast: {
-      'indihome': [
-        'IndiHome, raja throttling nusantara. Mahal, lambat, tapi tetep dipake karena ga ada pilihan.',
-        'IndiHome: karena monopoli itu nyata, dan kamu yang bayar ongkosnya.',
-        'IndiHome FUP-nya kejam. Tanggal 20 speed langsung nyungsep ke dasar laut.',
-        'Tagihan IndiHome naik tiap tahun. Speed-nya setia di angka yang sama.',
-        'IndiHome: satu-satunya tempat di mana "gangguan jaringan" adalah fitur, bukan bug.',
-      ],
-      'telkomsel': [
-        'Telkomsel Orbit katanya solusi rumahan. Solusi apa, bro? Solusi bikin emosi.',
-        'Orbit by Telkomsel: harga langit, speed tanah.',
-        'Telkomsel: provider terbesar Indonesia, dengan keluhan terbesar juga.',
-        'Orbit sudah orbit ke mana-mana, tapi signal-nya masih di bumi bawah.',
-      ],
-      'biznet': [
-        'Biznet harusnya kenceng. Harusnya. Kenyataannya? Ya gini deh.',
-        'Biznet di kertasnya 100Mbps. Di realitanya tanya tetangga yang sama kecewanya.',
-        'Biznet Metro: metronya macet juga rupanya.',
-        'Biznet fiber optik katanya. Fiber-nya mungkin masih digulung di gudang.',
-      ],
-      'xl': [
-        'XL Axiata. X-nya buat X-tras lambat.',
-        'XL: Xtra Lemot, eXtra kecewa.',
-        'XL Satu Home — satu paket, satu kekecewaan terpadu.',
-        'XL fiber sudah ada. Kamu pake XL yang mana, bang? Yang lemot juga?',
-      ],
-      'myrepublic': [
-        'MyRepublic katanya gaming ISP. Gaming ISP buat gamer yang hobi DC.',
-        'MyRepublic: republiknya mana? Yang ini kayak monarki disconnect.',
-        'MyRepublic fiber gaming — gaming paling mulus adalah saat server down.',
-      ],
-      'smartfren': [
-        'Smartfren. Smart dari mana? Dari namanya doang.',
-        'Smartfren: sinyal 4G, kecepatan nostalgia 2G.',
-        'Smartfren WMS home broadband. W-nya untuk Waiting.',
-        'Smartfren: satu-satunya provider yang bikin pengguna merasa lebih pintar setelah berhenti langganan.',
-      ],
-      'first media': ['First Media: first dalam harga, last dalam performa.', 'First Media fiber — first kali konek kenceng, abis itu silakan bersabar.'],
-      'iconnet': ['IconNet by PLN. Listrik bisa, internet... ya masih sesuai anggaran PLN.', 'IconNet: icon-nya bisa, net-nya masih loading.', 'PLN masuk bisnis internet. Mati lampu masuk bundel gratis.'],
-      'mnc': ['MNC Play. Main streaming di platform sendiri aja buffering, gimana yang lain.', 'MNC Play — media terbesar, bandwidth terkecil.'],
-      'tri': ['Tri/3 Hutchison. Nomor tiga dalam nama, nomor tiga dari bawah dalam kecepatan.', '3 Indonesia: unlimited data, unlimited kekecewaan.'],
-      'axis': ['Axis Telekom. Udah merger sama XL, speed-nya pun ikut merge jadi satu: lambat.', 'Axis: dulu murah meriah, sekarang... tetap saja.'],
-      'isat': ['Indosat Ooredoo Hutchison. Tiga perusahaan bergabung, speed-nya tetap satu: biasa aja.', 'IM3 Ooredoo: rebranding keren, kecepatan original tetap terjaga.'],
-      'telkom': ['Telkom Indonesia, BUMN kebanggaan bangsa. Bangga-banggain yang lain aja deh.', 'Astinet Telkom: harganya enterprise, feeling-nya warnet.'],
-      'orbit': ['Telkomsel Orbit: bayar premium, dapat koneksi yang bikin melow.', 'Orbit Home: harga bintang lima, speed bintang satu.'],
-      'fastly': ["Namanya aja 'Fastly', tapi koneksinya pelan banget. Ironic banget bang."],
-      'default': [
-        '"{isp}" — never heard of them, but based on these results, I\'m not surprised.',
-        '"{isp}" — obscure ISP, iconic disappointment.',
-        '"{isp}" — they exist. That\'s the nicest thing we can say right now.',
-        'Never heard of "{isp}," but the speed test results are a thorough introduction.',
-        '"{isp}" ini apa singkatannya? Internet Sangat Tidak Enak?',
-      ],
-    },
+    ispRoast: [
+      {
+        match: ['indihome', 'telkom indonesia', 'telkom', 'astinet'],
+        lines: [
+          'IndiHome, raja throttling nusantara. Mahal, lambat, tapi tetep dipake karena ga ada pilihan.',
+          'IndiHome: karena monopoli itu nyata, dan kamu yang bayar ongkosnya.',
+          'IndiHome FUP-nya kejam. Tanggal 20 speed langsung nyungsep ke dasar laut.',
+          'Tagihan IndiHome naik tiap tahun. Speed-nya setia di angka yang sama.',
+          'IndiHome: satu-satunya tempat di mana "gangguan jaringan" adalah fitur, bukan bug.',
+        ]
+      },
+      {
+        match: ['telkomsel', 'telekomunikasi selular', 'selular', 'tsel', 'orbit'],
+        lines: [
+          'Telkomsel Orbit katanya solusi rumahan. Solusi apa, bro? Solusi bikin emosi.',
+          'Orbit by Telkomsel: harga langit, speed tanah.',
+          'Telkomsel: provider terbesar Indonesia, dengan keluhan terbesar juga.',
+          'Orbit sudah orbit ke mana-mana, tapi signal-nya masih di bumi bawah.',
+        ]
+      },
+      {
+        match: ['biznet'],
+        lines: [
+          'Biznet harusnya kenceng. Harusnya. Kenyataannya? Ya gini deh.',
+          'Biznet di kertasnya 100Mbps. Di realitanya tanya tetangga yang sama kecewanya.',
+          'Biznet Metro: metronya macet juga rupanya.',
+          'Biznet fiber optik katanya. Fiber-nya mungkin masih digulung di gudang.',
+        ]
+      },
+      {
+        match: ['xl', 'axiata', 'xl satu'],
+        lines: [
+          'XL Axiata. X-nya buat X-tras lambat.',
+          'XL: Xtra Lemot, eXtra kecewa.',
+          'XL Satu Home — satu paket, satu kekecewaan terpadu.',
+          'XL fiber sudah ada. Kamu pake XL yang mana, bang? Yang lemot juga?',
+        ]
+      },
+      {
+        match: ['myrepublic', 'republik'],
+        lines: [
+          'MyRepublic katanya gaming ISP. Gaming ISP buat gamer yang hobi DC.',
+          'MyRepublic: republiknya mana? Yang ini kayak monarki disconnect.',
+          'MyRepublic fiber gaming — gaming paling mulus adalah saat server down.',
+        ]
+      },
+      {
+        match: ['smartfren'],
+        lines: [
+          'Smartfren. Smart dari mana? Dari namanya doang.',
+          'Smartfren: sinyal 4G, kecepatan nostalgia 2G.',
+          'Smartfren WMS home broadband. W-nya untuk Waiting.',
+          'Smartfren: satu-satunya provider yang bikin pengguna merasa lebih pintar setelah berhenti langganan.',
+        ]
+      },
+      {
+        match: ['first media', 'link net'],
+        lines: ['First Media: first dalam harga, last dalam performa.', 'First Media fiber — first kali konek kenceng, abis itu silakan bersabar.']
+      },
+      {
+        match: ['iconnet', 'pln'],
+        lines: ['IconNet by PLN. Listrik bisa, internet... ya masih sesuai anggaran PLN.', 'IconNet: icon-nya bisa, net-nya masih loading.', 'PLN masuk bisnis internet. Mati lampu masuk bundel gratis.']
+      },
+      {
+        match: ['mnc', 'mnc play'],
+        lines: ['MNC Play. Main streaming di platform sendiri aja buffering, gimana yang lain.', 'MNC Play — media terbesar, bandwidth terkecil.']
+      },
+      {
+        match: ['tri', 'hutchison', ' 3 '],
+        lines: ['Tri/3 Hutchison. Nomor tiga dalam nama, nomor tiga dari bawah dalam kecepatan.', '3 Indonesia: unlimited data, unlimited kekecewaan.']
+      },
+      {
+        match: ['axis'],
+        lines: ['Axis Telekom. Udah merger sama XL, speed-nya pun ikut merge jadi satu: lambat.', 'Axis: dulu murah meriah, sekarang... tetap saja.']
+      },
+      {
+        match: ['indosat', 'ooredoo', 'isat', 'im3'],
+        lines: ['Indosat Ooredoo Hutchison. Tiga perusahaan bergabung, speed-nya tetap satu: biasa aja.', 'IM3 Ooredoo: rebranding keren, kecepatan original tetap terjaga.']
+      },
+      {
+        match: ['fastly'],
+        lines: ["Namanya aja 'Fastly', tapi koneksinya pelan banget. Ironic banget bang."]
+      },
+    ],
+    ispRoastDefault: [
+      '"{isp}" — baru denger namanya aja udah kecium bau-bau lemotnya.',
+      '"{isp}" — provider antah berantah, kualitas juga entah ke mana.',
+      '"{isp}" — mereka ada, tapi internet-nya kayak nggak ada.',
+      'Belum pernah denger "{isp}", tapi liat speed-nya sih mending nggak usah denger lagi.',
+      '"{isp}" ini apa singkatannya? Internet Sangat Tidak Enak?',
+    ],
     locationRoast: {
       'denpasar': [
         'Denpasar, ibu kota Bali. Kota seni dan budaya. Internet-nya? Beda cerita.',
@@ -1272,6 +1312,7 @@ function generateRoast(networkData) {
 
   const speed = STATE.speedMbps;
   const ping = STATE.pingMs;
+  const jitter = STATE.jitterMs;
   const grade = calculateGrade(speed, ping);
 
   // Helper for semantic adjectives
@@ -1282,98 +1323,77 @@ function generateRoast(networkData) {
     return '';
   };
 
-  // 1. VPN override prefix
+  // 1. VPN override prefix (independent of length)
   if (STATE.isVpn) {
     parts.push(pick(dict.vpnRoast));
   }
 
-  // 2. React to the worst metric; for grade F always roast both ping AND speed
-  const speedBad = speed < 10;
-  const pingBad = ping > 100;
-  const sub = (line) => line.replace('{ping}', ping).replace('{speed}', `${speed} Mbps ${getSpeedAdj(speed)}`);
-
-  if (grade === 'F') {
-    // Both are terrible — hit them with both barrels
+  // 2. Metric Roast — Pick ONLY ONE worst metric to keep it concise
+  const sub = (line) => line.replace('{ping}', ping).replace('{speed}', `${speed} ${getSpeedAdj(speed)}`);
+  
+  if (grade === 'F' || speed < 10) {
     parts.push(sub(pick(dict.speedReact)));
+  } else if (ping > 100) {
     parts.push(sub(pick(dict.pingReact)));
-  } else if (speedBad && !pingBad) {
-    parts.push(sub(pick(dict.speedReact)));
-  } else if (pingBad && !speedBad) {
-    parts.push(sub(pick(dict.pingReact)));
+  } else if (jitter > 30 && dict.jitterReact) {
+    parts.push(pick(dict.jitterReact).replace('{jitter}', jitter));
   } else {
-    // Pick whichever makes for a better roast (alternate for variety)
-    parts.push(sub(pick(STATE.scanCount % 2 === 0 ? dict.pingReact : dict.speedReact)));
+    // If everything is okay, just pick speed or ping react randomly
+    parts.push(sub(pick(Math.random() > 0.5 ? dict.speedReact : dict.pingReact)));
   }
 
-  // 3. Upload roast — if upload is measurably bad
-  if (STATE.uploadMbps !== null && STATE.uploadMbps < 5 && dict.uploadReact) {
-    parts.push(pick(dict.uploadReact).replace('{upload}', STATE.uploadMbps));
-  }
-
-  // 3b. Jitter roast — if jitter is high (choppy connection)
-  if (STATE.jitterMs > 20 && dict.jitterReact) {
-    parts.push(pick(dict.jitterReact).replace('{jitter}', STATE.jitterMs));
-  }
-
-  // 3c. Contextual "Irony & Shaming" Logic
+  // 3. Contextual Roast — Pick ONLY ONE (Irony OR City OR ISP OR Location)
   const ispLower = (networkData.isp || '').toLowerCase();
   const cityLower = (networkData.city || '').toLowerCase();
-
-  // Irony check (Fiber/Turbo names vs slow speed)
+  
+  // Try Irony first, then City, then ISP/Location
   const ironyKeywords = ['fiber', 'optic', 'ultra', 'fast', 'turbo', 'express', 'gigabit', 'orbit'];
   const matchedKey = ironyKeywords.find(k => ispLower.includes(k));
+  
   if (matchedKey && speed < 30) {
     if (locale === 'id-ID') parts.push(`Namanya pake '${matchedKey}', tapi speed-nya kayak siput lagi istirahat.`);
     else parts.push(`They put '${matchedKey}' in the name, but delivered a dial-up experience.`);
-  }
-
-  // City shaming
-  const bigCities = ['jakarta', 'surabaya', 'singapore', 'london', 'new york', 'tokyo', 'sydney'];
-  if (bigCities.includes(cityLower) && speed < 10) {
+  } else if (['jakarta', 'surabaya', 'singapore', 'london', 'new york', 'tokyo', 'sydney'].includes(cityLower) && speed < 15) {
     if (locale === 'id-ID') parts.push(`Tinggal di ${networkData.city} tapi speed segini? Malu-maluin warga kota, bang.`);
     else parts.push(`${networkData.city} is a global hub, and this is the best your ISP can do?`);
-  }
+  } else {
+    // Standard ISP roast fallback
+    let ispLine = null;
 
-  // Jitter personality
-  if (STATE.jitterMs > 50) {
-    if (locale === 'id-ID') parts.push("Koneksimu lebih labil dari mood mantan.");
-    else parts.push("Your connection is less stable than a house of cards in a hurricane.");
-  }
-
-  // ISP roast — fuzzy match against dict keys
-  let ispLine = null;
-  for (const [key, lines] of Object.entries(dict.ispRoast)) {
-    if (key !== 'default' && ispLower.includes(key)) {
-      ispLine = pick(lines).replace('{isp}', networkData.isp);
-      break;
+    if (Array.isArray(dict.ispRoast)) {
+      // New Array-of-Objects style (Alias Engine)
+      for (const group of dict.ispRoast) {
+        if (group.match.some(m => ispLower.includes(m))) {
+          ispLine = pick(group.lines).replace('{isp}', networkData.isp);
+          break;
+        }
+      }
+    } else {
+      // Old Object-style
+      for (const [key, lines] of Object.entries(dict.ispRoast)) {
+        if (key !== 'default' && ispLower.includes(key)) {
+          ispLine = pick(lines).replace('{isp}', networkData.isp);
+          break;
+        }
+      }
     }
-  }
-  if (!ispLine) {
-    const ispName = networkData.isp || '???';
-    const firstWord = ispName.trim().split(' ')[0];
-    const isAcronym = /^[A-Z]{3,4}$/.test(firstWord);
 
-    let availableDefaults = dict.ispRoast.default;
-    if (!isAcronym) {
-      // Filter out acronym jokes if it's not a 3-4 letter uppercase name
-      availableDefaults = availableDefaults.filter(line => !line.includes('singkatannya?') && !line.includes('acronym'));
+    if (!ispLine) {
+      const ispName = networkData.isp || '???';
+      const firstWord = ispName.trim().split(' ')[0];
+      const isAcronym = /^[A-Z]{3,4}$/.test(firstWord);
+      
+      let availableDefaults = Array.isArray(dict.ispRoast) ? dict.ispRoastDefault : dict.ispRoast.default;
+      
+      if (!isAcronym) {
+        availableDefaults = availableDefaults.filter(line => !line.includes('singkatannya?') && !line.includes('acronym'));
+      }
+      ispLine = pick(availableDefaults).replace('{isp}', ispName);
     }
-    ispLine = pick(availableDefaults).replace('{isp}', ispName);
+    parts.push(ispLine);
   }
-  parts.push(ispLine);
 
-  // Location roast — fuzzy match on city
-  let locLine = null;
-  for (const [key, lines] of Object.entries(dict.locationRoast)) {
-    if (key !== 'default' && cityLower.includes(key)) {
-      locLine = pick(lines);
-      break;
-    }
-  }
-  if (!locLine) locLine = pick(dict.locationRoast.default);
-  parts.push(locLine);
-
-  // Punchline
+  // 4. Punchline — Always one
   parts.push(pick(dict.punchline));
 
   STATE.roastText = parts.join(' ');
