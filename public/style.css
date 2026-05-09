@@ -308,10 +308,11 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 .speedometer-wrap {
   position: relative;
   width: min(420px, 92vw);
-  aspect-ratio: 1 / 1;
+  height: min(420px, 92vw); /* Solid height for better compatibility */
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto;
 }
 
 /* ── Ambient Glow Orbs ── */
@@ -356,6 +357,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
 /* Track arc */
 .gauge-track {
+  stroke: rgba(255, 255, 255, 0.1); /* Increased visibility from 0.04 */
   transition: stroke var(--transition-slow);
 }
 
@@ -367,23 +369,24 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 /* Tick marks */
 .gauge-tick {
   stroke: var(--text-muted);
-  stroke-width: 1;
+  stroke-width: 1.5; /* Slightly thicker */
   stroke-linecap: round;
-  opacity: 0.5;
+  opacity: 0.8; /* Increased opacity */
 }
 .gauge-tick--major {
   stroke: var(--text-secondary);
-  stroke-width: 2;
-  opacity: 0.7;
+  stroke-width: 2.5;
+  opacity: 1; /* Full opacity for major ticks */
 }
 
 /* Speed labels */
 .gauge-label {
   font-family: var(--font-mono);
-  font-size: 11px;
-  fill: var(--text-muted);
+  font-size: 12px; /* Slightly larger */
+  fill: var(--text-secondary); /* Brighter color */
   text-anchor: middle;
   dominant-baseline: middle;
+  font-weight: 500;
 }
 
 /* Needle */
@@ -518,10 +521,11 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 40px; /* Increased margin to prevent overlap */
   position: relative;
   z-index: 10;
+  width: 100%;
 }
 
 .status-primary {
