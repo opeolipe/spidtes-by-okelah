@@ -126,84 +126,95 @@ const ROAST_DICT = {
       {
         match: ['indihome', 'telkom indonesia', 'telkom', 'astinet'],
         lines: [
-          'IndiHome, raja throttling nusantara. Mahal, lambat, tapi tetep dipake karena ga ada pilihan.',
-          'IndiHome: karena monopoli itu nyata, dan kamu yang bayar ongkosnya.',
-          'IndiHome FUP-nya kejam. Tanggal 20 speed langsung nyungsep ke dasar laut.',
-          'Tagihan IndiHome naik tiap tahun. Speed-nya setia di angka yang sama.',
-          'IndiHome: satu-satunya tempat di mana "gangguan jaringan" adalah fitur, bukan bug.',
+          'Ah, pengalaman klasik "coba restart router-nya pak/bu".',
+          'Lampu LOS merah berkedip itu ibarat lampu disko harian kita.',
+          'Customer service bilang tiket sedang diproses. Silakan seduh kopi yang banyak.',
+          'Koneksi putus-nyambung kayak sinetron. Sudah biasa.',
         ]
       },
       {
         match: ['telkomsel', 'telekomunikasi selular', 'selular', 'tsel', 'orbit'],
         lines: [
-          'Telkomsel Orbit katanya solusi rumahan. Solusi apa, bro? Solusi bikin emosi.',
-          'Orbit by Telkomsel: harga langit, speed tanah.',
-          'Telkomsel: provider terbesar Indonesia, dengan keluhan terbesar juga.',
-          'Orbit sudah orbit ke mana-mana, tapi signal-nya masih di bumi bawah.',
+          'Sinyal penuh, tapi speed kosong? Ini trik sulap yang udah terlalu sering kita lihat.',
+          'Pembagian kuotanya rumit banget, butuh gelar S2 buat paham.',
+          'Harga paketnya terbang tinggi, speed-nya masih merangkak di tanah.',
         ]
       },
       {
         match: ['biznet'],
         lines: [
-          'Biznet harusnya kenceng. Harusnya. Kenyataannya? Ya gini deh.',
-          'Biznet di kertasnya 100Mbps. Di realitanya tanya tetangga yang sama kecewanya.',
-          'Biznet Metro: metronya macet juga rupanya.',
-          'Biznet fiber optik katanya. Fiber-nya mungkin masih digulung di gudang.',
+          'Speed bisnis di brosur, speed magang di dunia nyata.',
+          'Kata "Up To" di paket langgananmu sedang bekerja sangat keras.',
+          'Harusnya kenceng sih, tapi ya... mari kita nikmati saja loading screen ini.',
         ]
       },
       {
         match: ['xl', 'axiata', 'xl satu'],
         lines: [
-          'XL Axiata. X-nya buat X-tras lambat.',
-          'XL: Xtra Lemot, eXtra kecewa.',
-          'XL Satu Home — satu paket, satu kekecewaan terpadu.',
-          'XL fiber sudah ada. Kamu pake XL yang mana, bang? Yang lemot juga?',
+          'XL Axiata. X-nya mungkin singkatan dari X-tra Sabar.',
+          'Koneksinya bikin waktu terasa berhenti. Secanggih itu.',
+          'Sinyalnya ada, koneksinya entah kemana. Misteri abadi.',
         ]
       },
       {
         match: ['myrepublic', 'republik'],
         lines: [
-          'MyRepublic katanya gaming ISP. Gaming ISP buat gamer yang hobi DC.',
-          'MyRepublic: republiknya mana? Yang ini kayak monarki disconnect.',
-          'MyRepublic fiber gaming — gaming paling mulus adalah saat server down.',
+          'Katanya ISP gaming. Gaming paling seru emang pas nebak kapan putus koneksinya.',
+          'Republik yang satu ini sepertinya sering mengadakan pemadaman bandwidth.',
         ]
       },
       {
         match: ['smartfren'],
         lines: [
-          'Smartfren. Smart dari mana? Dari namanya doang.',
-          'Smartfren: sinyal 4G, kecepatan nostalgia 2G.',
-          'Smartfren WMS home broadband. W-nya untuk Waiting.',
-          'Smartfren: satu-satunya provider yang bikin pengguna merasa lebih pintar setelah berhenti langganan.',
+          'Namanya sih Smart, tapi router-nya lagi butuh istirahat panjang sepertinya.',
+          'Internet stabil... stabil di kecepatan rendah.',
         ]
       },
       {
         match: ['first media', 'link net'],
-        lines: ['First Media: first dalam harga, last dalam performa.', 'First Media fiber — first kali konek kenceng, abis itu silakan bersabar.']
+        lines: [
+          'First di nama, tapi loading page-nya sering masuk finish di urutan terakhir.',
+          'Koneksinya sangat mengajarkan kita arti kata ikhlas dan sabar.'
+        ]
       },
       {
         match: ['iconnet', 'pln'],
-        lines: ['IconNet by PLN. Listrik bisa, internet... ya masih sesuai anggaran PLN.', 'IconNet: icon-nya bisa, net-nya masih loading.', 'PLN masuk bisnis internet. Mati lampu masuk bundel gratis.']
+        lines: [
+          'Tagihan listrik lancar, sayangnya paket data ini kurang daya.',
+          'Sangat ramah lingkungan, kecepatannya hemat energi banget.'
+        ]
       },
       {
         match: ['mnc', 'mnc play'],
-        lines: ['MNC Play. Main streaming di platform sendiri aja buffering, gimana yang lain.', 'MNC Play — media terbesar, bandwidth terkecil.']
+        lines: [
+          'Buffering-nya lebih lama dari durasi iklan di TV.',
+          'Koneksi eksklusif, saking eksklusifnya jarang bisa masuk.'
+        ]
       },
       {
         match: ['tri', 'hutchison', ' 3 '],
-        lines: ['Tri/3 Hutchison. Nomor tiga dalam nama, nomor tiga dari bawah dalam kecepatan.', '3 Indonesia: unlimited data, unlimited kekecewaan.']
+        lines: [
+          'Harganya emang ramah kantong, speed-nya juga ramah banget (gak berani ngebut).',
+          'Sinyalnya sering main petak umpet. Dan jago banget sembunyinya.'
+        ]
       },
       {
         match: ['axis'],
-        lines: ['Axis Telekom. Udah merger sama XL, speed-nya pun ikut merge jadi satu: lambat.', 'Axis: dulu murah meriah, sekarang... tetap saja.']
+        lines: [
+          'Axis emang hits. Hits the buffering icon every 5 seconds.',
+          'Cocok banget buat melatih kesabaran generasi muda.'
+        ]
       },
       {
         match: ['indosat', 'ooredoo', 'isat', 'im3'],
-        lines: ['Indosat Ooredoo Hutchison. Tiga perusahaan bergabung, speed-nya tetap satu: biasa aja.', 'IM3 Ooredoo: rebranding keren, kecepatan original tetap terjaga.']
+        lines: [
+          'Koneksinya warna-warni, kadang kenceng, seringnya diam membisu.',
+          'Sinyalnya kuning, artinya hati-hati jangan berekspektasi tinggi.'
+        ]
       },
       {
         match: ['fastly'],
-        lines: ["Namanya aja 'Fastly', tapi koneksinya pelan banget. Ironic banget bang."]
+        lines: ["Namanya aja 'Fastly', realitanya bikin pengen nangis."]
       },
     ],
     ispRoastDefault: [

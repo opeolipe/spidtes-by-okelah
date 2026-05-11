@@ -15,8 +15,8 @@ export const getRoast = (speed: number, isp: string, isVPN: boolean, country: st
   if (isVPN) {
     return {
       grade: "C",
-      comment: "Trying to hide with a VPN, huh? I still see your packets shivering.",
-      advice: "The IT Dept knows you're browsing something you shouldn't."
+      comment: "A VPN? Very mysterious. Unfortunately, encrypting slow packets just makes them slow and encrypted.",
+      advice: "The IT Dept is logging this as 'Suspiciously Cautious'."
     };
   }
 
@@ -24,55 +24,55 @@ export const getRoast = (speed: number, isp: string, isVPN: boolean, country: st
   if (speed < 2) {
     return {
       grade: "F",
-      comment: "Is this internet or a carrier pigeon? Dial-up called, they want their latency back.",
-      advice: "Move your router out of the microwave. Or pay your bill."
+      comment: "Is your router taking a nap? Because this connection is deeply relaxed.",
+      advice: "Have you tried turning it off, waiting 10 years, and turning it back on?"
     };
   }
 
   if (speed < 10) {
     return {
       grade: "D",
-      comment: `Slow and steady wins the race... but not in ${country}. This is painful.`,
-      advice: "Upgrade from that 'Paket Hemat' already."
+      comment: "We call this 'Scenic Route' internet. Enjoy the view while the page loads.",
+      advice: "Perhaps it's time to politely ask your ISP what you're actually paying for."
     };
   }
 
   if (speed < 50) {
     return {
       grade: "B",
-      comment: `Typical ${isp} experience. Not great, not terrible. Just... meh.`,
-      advice: "Restart your router. It won't help, but it'll give you something to do."
+      comment: "Not bad, but not exactly breaking any speed limits either. It's aggressively average.",
+      advice: "Perfect speed for accidentally unmuting yourself on a conference call."
     };
   }
 
   if (speed >= 100) {
     return {
       grade: "S",
-      comment: "Flexing much? You're definitely skipping the meeting and just downloading 4K memes.",
-      advice: "Share some bandwidth with your neighbors, you legend."
+      comment: "Whoa, look at you go! Did you plug your laptop directly into the mainframe?",
+      advice: "Your router deserves a raise. Or at least a little pat on the antennae."
     };
   }
 
   return {
     grade: "A",
-    comment: "Decent speed. You can finally watch a YouTube video in 1080p without buffering for 20 minutes.",
-    advice: "Don't get too comfortable. ${isp} is watching."
+    comment: "Actually pretty solid! You must be the ISP's favorite customer today.",
+    advice: "Don't get used to it. The universe demands buffering eventually."
   };
 };
 
 export const ISP_JOKES: Record<string, string[]> = {
   "indihome": [
-    "Indihome? More like Indi-hang.",
-    "Customer service is checking your terminal... for the 10th time today.",
-    "Red light blinking? Take a nap, it'll be fixed by next year."
+    "Ah, the classic 'please restart your router' experience.",
+    "Customer service says your ticket is 'in progress'. Grab a coffee.",
+    "The red LOS light blinking is basically a national past-time."
   ],
   "telkomsel": [
-    "Signal full bar, speed zero? Must be a holiday.",
-    "Beli kuota 50GB, yang bisa dipake cuma 2GB 'lokal'. Genius."
+    "Full bars, zero bytes. A classic magic trick.",
+    "The quota division math here requires a PhD to understand."
   ],
   "biznet": [
-    "Biznet in the streets, 502 Bad Gateway in the sheets.",
-    "Paying for business speed, getting intern coffee-run results."
+    "Business speeds on paper, scenic route speeds in reality.",
+    "The 'up to' in your speed tier is doing a lot of heavy lifting."
   ]
 };
 
