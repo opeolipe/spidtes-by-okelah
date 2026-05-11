@@ -16,7 +16,7 @@ export const getRoast = (speed: number, isp: string, isVPN: boolean, country: st
     return {
       grade: "C",
       comment: "Trying to hide with a VPN, huh? I still see your packets shivering.",
-      advice: "Mas-Mas IT knows you're browsing something you shouldn't."
+      advice: "The IT Dept knows you're browsing something you shouldn't."
     };
   }
 

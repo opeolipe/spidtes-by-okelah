@@ -72,14 +72,14 @@ export default function CyberReceipt({ info, roast }: CyberReceiptProps) {
           <DetailRow label="Public IPv4" value={maskIP(info.ip)} />
           <DetailRow 
             label="Privacy State" 
-            value={info.is_vpn ? "MASKED (VPN)" : "EXPOSED (RAW)"} 
+            value={info.is_vpn ? "MASKED (VPN)" : "UNMASKED (Direct)"} 
             className={info.is_vpn ? "text-blue-600" : "text-amber-600"}
           />
         </div>
 
         {/* The Roast */}
         <div className="bg-zinc-100 p-4 border-l-4 border-black mb-6">
-          <p className="text-xs font-bold uppercase mb-1">Mas-Mas IT says:</p>
+          <p className="text-xs font-bold uppercase mb-1">The IT Dept says:</p>
           <p className="text-sm italic leading-tight">"{roast.comment}"</p>
         </div>
 
@@ -111,7 +111,7 @@ export default function CyberReceipt({ info, roast }: CyberReceiptProps) {
             if (navigator.share) {
                navigator.share({
                  title: 'My Spidtes Roast',
-                 text: `I got a ${roast.grade} on Spidtes! Mas-Mas IT says: ${roast.comment}`,
+                 text: `I got a ${roast.grade} on Spidtes! The IT Dept says: ${roast.comment}`,
                  url: window.location.href
                });
             }

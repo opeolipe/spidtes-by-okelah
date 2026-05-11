@@ -166,7 +166,7 @@ async function startScan() {
 
   // Settle to Real Value
   schedule(() => {
-    DOM.testPhaseLabel.textContent = 'Decrypting "Mas-Mas IT" thoughts...';
+    DOM.testPhaseLabel.textContent = 'Decrypting cynical IT thoughts...';
     const realSpeed = STATE.speedMbps > 0.1 ? STATE.speedMbps : 12.5;
     setGauge(realSpeed);
     updateIntegrity(realSpeed);
@@ -211,7 +211,7 @@ function injectReceiptData(networkData, roastText) {
   if (DOM.receiptLocation) DOM.receiptLocation.textContent = location;
   if (DOM.receiptIp) DOM.receiptIp.textContent = maskIp(networkData.ip);
   if (DOM.receiptPrivacy) {
-    DOM.receiptPrivacy.textContent = STATE.isVpn ? 'MASKED (VPN)' : 'EXPOSED (RAW)';
+    DOM.receiptPrivacy.textContent = STATE.isVpn ? 'MASKED (VPN)' : 'UNMASKED (Direct)';
     DOM.receiptPrivacy.className = `text-[11px] font-bold text-right truncate ${STATE.isVpn ? 'text-blue-600' : 'text-amber-600'}`;
   }
   

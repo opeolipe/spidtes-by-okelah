@@ -66,7 +66,7 @@ export default function App() {
         setSpeed(Math.max(0, base + wobble));
         
         if (progress > 0.3) setTestPhase("Checking ISP bad habits...");
-        if (progress > 0.6) setTestPhase("Decrypting 'Mas-Mas IT' thoughts...");
+        if (progress > 0.6) setTestPhase("Decrypting cynical IT thoughts...");
       }
     }, 50);
   }, [networkInfo]);
@@ -137,8 +137,8 @@ export default function App() {
               </h2>
               
               <p className="max-w-md text-zinc-500 mb-12 text-sm leading-relaxed">
-                The most sarcastic network profiler in Dalung. 
-                Test your connection and get roasted by the ghost of "Mas-Mas IT".
+                The most sarcastic network profiler. <br/>
+                Test your connection and get roasted by the cynical IT Dept.
               </p>
 
               <motion.button
