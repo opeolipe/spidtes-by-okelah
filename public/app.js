@@ -257,7 +257,14 @@ function generateRoast(networkData) {
   const ping = STATE.pingMs;
   const grade = calculateGrade(speed, ping);
 
-  const sub = (line) => line.replace('{ping}', ping).replace('{speed}', speed).replace('{isp}', networkData.isp);
+  const getSpeedAdj = (s) => {
+    if (s < 1) return locale === 'id-ID' ? '(kecepatan prasejarah)' : '(prehistoric speeds)';
+    if (s < 5) return locale === 'id-ID' ? '(siput mager)' : '(snail pace)';
+    if (s > 100) return locale === 'id-ID' ? '(pamer doang)' : '(just flexin\')';
+    return '';
+  };
+
+  const sub = (line) => line.replace('{ping}', ping).replace('{speed}', `${speed} ${getSpeedAdj(speed)}`).replace('{isp}', networkData.isp);
 
   // 1. Metric Roast
   if (grade === 'F' || speed < 10) {
@@ -302,7 +309,10 @@ function maskIp(ip) {
   if (!ip || ip === 'Checking IP...') return '***.***.***.***';
   if (ip.includes(':')) {
     let parts = ip.split(':');
-    return parts.slice(0, 2).join(':') + ':****:****';
+    if (parts.length > 2) {
+        return parts.slice(0, 2).join(':') + ':****:****';
+    }
+    return ip.slice(0, 8) + '...';
   }
   if (/^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
     return ip.replace(/(\d+\.\d+)\.\d+\.\d+$/, '$1.***.***');
@@ -370,7 +380,28 @@ async function measureJitter() {
 }
 
 async function measureUpload() {
-  return Math.round(STATE.speedMbps * (0.3 + Math.random() * 0.2) * 10) / 10;
+  const bytes = 100_000;
+  const data = new Uint8Array(bytes);
+  crypto.getRandomValues(data);
+  const blob = new Blob([data]);
+
+  async function timedUpload(url, timeoutMs) {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), timeoutMs);
+    const start = performance.now();
+    const resp = await fetch(url, { method: 'POST', body: blob, cache: 'no-store', signal: ctrl.signal });
+    if (!resp.ok) throw new Error('Upload failed');
+    clearTimeout(tid);
+    const elapsed = (performance.now() - start) / 1000;
+    return Math.max(0.1, Math.round((bytes * 8) / (elapsed * 1_000_000) * 10) / 10);
+  }
+
+  try { return await timedUpload('https://speed.cloudflare.com/__up', 3000); } catch { }
+  try { return await timedUpload('https://httpbin.org/post', 3000); } catch { }
+
+  // Fallback: If real measurement fails, mock it as 30-40% of download
+  const dl = STATE.speedMbps > 0.1 ? STATE.speedMbps : 10;
+  return Math.round(dl * (0.3 + Math.random() * 0.1) * 10) / 10;
 }
 
 function detectLocale() {

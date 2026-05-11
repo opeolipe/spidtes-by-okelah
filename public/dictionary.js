@@ -378,10 +378,13 @@ const ROAST_DICT = {
     ],
     speedReact: [
       "{speed} Mbps? I remember my first 56k modem too. Nostalgic.",
+      "Is this internet or a carrier pigeon? Dial-up called, they want their latency back.",
       "{speed} Mbps. It's not a speed test, it's a patience test.",
       "Welcome to the fast lane! Just kidding, you're at {speed} Mbps.",
       "{speed} Mbps? Netflix is going to need a lot of snacks while it buffers.",
       "Your speed is {speed} Mbps. A carrier pigeon would be faster. Seriously.",
+      "Decent speed. You can finally watch a YouTube video in 1080p without buffering for 20 minutes.",
+      "Flexing much? You're definitely skipping the meeting and just downloading 4K memes.",
     ],
     ispRoast: [
       {
