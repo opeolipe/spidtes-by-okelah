@@ -20,473 +20,280 @@
   <meta name="twitter:description" content="Your ISP deserves to be roasted. Let us do it for you." />
   <meta name="twitter:image"       content="https://spidtes.my.id/og-preview.png" />
 
-  <!-- Favicon (SVG emoji, supported by all modern browsers) -->
+  <!-- Favicon (SVG emoji) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕷️</text></svg>" />
   <link rel="manifest" href="manifest.json" />
 
   <title>Spidtes by Okelah™ — Network Roast Profiler</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          animation: {
+            'spin-slow': 'spin 10s linear infinite',
+          }
+        }
+      }
+    }
+  </script>
+  
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="min-h-screen bg-[#050505] text-zinc-100 font-sans selection:bg-white selection:text-black overflow-x-hidden flex flex-col">
+  
+  <!-- Dynamic Background Noise/Grid -->
+  <div class="fixed inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+  
+  <!-- Decorative Lights -->
+  <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-red-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-  <!-- ═══════════════════════════════════════ -->
-  <!--  HEADER                                  -->
-  <!-- ═══════════════════════════════════════ -->
-  <header class="site-header" role="banner">
-    <div class="header-inner">
+  <main class="relative z-10 max-w-4xl mx-auto px-6 pt-12 pb-24 flex flex-col items-center flex-grow w-full">
+    
+    <!-- ═══════════════════════════════════════ -->
+    <!--  HEADER                                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <header class="w-full flex justify-between items-center mb-16">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-black rounded-lg">S</div>
+        <h1 class="text-xl font-bold tracking-tighter">SPIDTES</h1>
+      </div>
+      <div class="hidden md:flex items-center gap-6 text-[10px] uppercase tracking-widest font-bold text-zinc-500">
+        <span class="flex items-center gap-1">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          CLI v1.2.1
+        </span>
+        <span class="flex items-center gap-1">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+          Serverless
+        </span>
+        <span class="flex items-center gap-1 text-zinc-400" id="ip-display-header">
+          Checking IP...
+        </span>
+      </div>
+    </header>
 
-      <div class="logo" aria-label="Spidtes by Okelah">
-        <div class="logo-icon" aria-hidden="true">🕷️</div>
-        <div class="logo-wordmark">
-          <span class="logo-name">SPIDTES</span>
-          <span class="logo-byline">by Okelah™</span>
+    <!-- ═══════════════════════════════════════ -->
+    <!--  STATE: IDLE                             -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="state-idle" class="flex flex-col items-center text-center mt-12 w-full transition-all duration-500">
+      <div class="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400">
+        <span class="text-amber-500">🛡️</span>
+        Zero-Log PII Protection Active
+      </div>
+      
+      <h2 class="text-5xl md:text-8xl font-black mb-6 tracking-tight leading-none" id="idle-heading">
+        ENOUGH <br />
+        <span class="text-zinc-600">POLITE SPEEDS.</span>
+      </h2>
+      
+      <p class="max-w-md text-zinc-500 mb-12 text-sm leading-relaxed" id="idle-subtext">
+        The most sarcastic network profiler in Dalung. 
+        Test your connection and get roasted by the ghost of "Mas-Mas IT".
+      </p>
+
+      <button id="go-btn" class="group relative flex items-center justify-center">
+        <div class="absolute inset-0 bg-white blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+        <div class="relative w-32 h-32 md:w-40 md:h-40 rounded-full bg-white text-black font-black text-3xl flex items-center justify-center tracking-tighter shadow-2xl transition-transform active:scale-95">
+          GO
+        </div>
+        <!-- Orbital Ring -->
+        <div class="absolute w-48 h-48 md:w-56 md:h-56 border border-zinc-800 rounded-full animate-spin-slow"></div>
+      </button>
+
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-16">
+        <div class="flex flex-col items-center gap-2">
+            <span class="text-zinc-600">🌐</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 whitespace-nowrap">100% Client Side</span>
+        </div>
+        <div class="flex flex-col items-center gap-2">
+            <span class="text-zinc-600">📈</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 whitespace-nowrap">Network+ Verified</span>
+        </div>
+        <div class="flex flex-col items-center gap-2">
+            <span class="text-zinc-600">⚡</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 whitespace-nowrap">Real-time Roasting</span>
         </div>
       </div>
-
-      <div class="connection-pill" id="connection-pill" aria-live="polite">
-        <span class="pulse-dot" aria-hidden="true"></span>
-        <span class="pill-label">Network Active</span>
-      </div>
-
-    </div>
-  </header>
-
-  <!-- ═══════════════════════════════════════ -->
-  <!--  MAIN APP                                -->
-  <!-- ═══════════════════════════════════════ -->
-  <main class="app-main" id="main-content">
-
-    <!-- Network Meta Bar -->
-    <div class="meta-bar" id="meta-bar" role="region" aria-label="Network information">
-      <div class="meta-item">
-        <span class="meta-label">ISP</span>
-        <span class="meta-value" id="isp-display">Scanning...</span>
-      </div>
-      <div class="meta-divider" aria-hidden="true"></div>
-      <div class="meta-item">
-        <span class="meta-label">Location</span>
-        <span class="meta-value" id="location-display">Detecting...</span>
-      </div>
-      <div class="meta-divider" aria-hidden="true"></div>
-      <div class="meta-item meta-item--ip">
-        <span class="meta-label">IP Address</span>
-        <span class="meta-value meta-value--ip" id="ip-display">***.***.***.***</span>
-        <button class="ip-reveal-btn" id="ip-reveal-btn" aria-label="Tap and hold to reveal IP address" title="Tap and hold to reveal">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </button>
-      </div>
     </div>
 
-    <!-- ─── Speedometer Section ─── -->
-    <section class="speedometer-section" aria-label="Speed test interface">
+    <!-- ═══════════════════════════════════════ -->
+    <!--  STATE: TESTING                          -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="state-testing" class="hidden flex flex-col items-center py-12 w-full transition-all duration-500">
+      <div class="mb-12 flex flex-col items-center gap-2">
+        <span class="text-[10px] uppercase tracking-[0.2em] font-black text-blue-500 animate-pulse" id="test-state-label">
+          TESTING
+        </span>
+        <h3 class="text-xl font-mono text-zinc-400" id="test-phase-label">Initializing...</h3>
+      </div>
 
-      <div class="speedometer-wrap">
-
-        <!-- Decorative ambient glow layers -->
-        <div class="glow-orb glow-orb--left"></div>
-        <div class="glow-orb glow-orb--right"></div>
-
+      <!-- Gauge Container -->
+      <div id="gauge-container" class="relative flex flex-col items-center justify-center w-64 h-64 md:w-80 md:h-80">
         <!-- SVG Gauge -->
-        <svg class="gauge-svg" viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg" focusable="false">
-          <defs>
-
-            <!-- Gauge gradient: cyan → purple -->
-            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stop-color="#00d4ff" />
-              <stop offset="50%"  stop-color="#7b5fff" />
-              <stop offset="100%" stop-color="#c85bff" />
-            </linearGradient>
-
-            <!-- Subtle track gradient -->
-            <linearGradient id="trackGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stop-color="rgba(255,255,255,0.04)" />
-              <stop offset="50%"  stop-color="rgba(255,255,255,0.07)" />
-              <stop offset="100%" stop-color="rgba(255,255,255,0.04)" />
-            </linearGradient>
-
-            <!-- Glow filter for the fill arc -->
-            <filter id="arcGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-
-            <!-- Needle glow -->
-            <filter id="needleGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-
-            <!-- Clip for center hole -->
-            <clipPath id="centerClip">
-              <circle cx="160" cy="160" r="78" />
-            </clipPath>
-
-          </defs>
-
-          <!-- ── Outer decorative rings ── -->
-          <circle cx="160" cy="160" r="152" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1" />
-          <circle cx="160" cy="160" r="144" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" />
-
-          <!-- ── Background track arc ──
-               From 150° to 30° (East), clockwise through top.
-               Start: (52, 222)  End: (268, 222)
-               large-arc=1, sweep=1 (clockwise) -->
-          <path
-            class="gauge-track"
-            d="M 52 222 A 125 125 0 1 1 268 222"
-            fill="none"
-            stroke="url(#trackGradient)"
-            stroke-width="10"
-            stroke-linecap="round"
-          />
-
-          <!-- ── Active fill arc (JS-driven in Sprint 2, placeholder 0) ── -->
-          <path
-            id="gauge-fill"
-            class="gauge-fill"
-            d="M 52 222 A 125 125 0 1 1 268 222"
-            fill="none"
-            stroke="url(#gaugeGradient)"
-            stroke-width="10"
-            stroke-linecap="round"
-            stroke-dasharray="0 524"
-            filter="url(#arcGlow)"
-          />
-
-          <!-- ── Tick marks (major every 60° = 25 Mbps) ── -->
-          <!-- 0 Mbps  @ 150° from East -->
-          <line class="gauge-tick gauge-tick--major" x1="52"  y1="222" x2="67"  y2="214" />
-          <!-- 25 Mbps @ 210° from East -->
-          <line class="gauge-tick gauge-tick--major" x1="41"  y1="91"  x2="57"  y2="99"  />
-          <!-- 50 Mbps @ 270° from East (top) -->
-          <line class="gauge-tick gauge-tick--major" x1="160" y1="22"  x2="160" y2="40"  />
-          <!-- 75 Mbps @ 330° from East -->
-          <line class="gauge-tick gauge-tick--major" x1="279" y1="91"  x2="263" y2="99"  />
-          <!-- 100 Mbps @ 30° from East -->
-          <line class="gauge-tick gauge-tick--major" x1="268" y1="222" x2="253" y2="214" />
-
-          <!-- Minor ticks (every 30°) -->
-          <line class="gauge-tick" x1="28"  y1="157" x2="40"  y2="157" />
-          <line class="gauge-tick" x1="77"  y1="51"  x2="85"  y2="62"  />
-          <line class="gauge-tick" x1="243" y1="51"  x2="235" y2="62"  />
-          <line class="gauge-tick" x1="292" y1="157" x2="280" y2="157" />
-
-          <!-- ── Speed labels ── -->
-          <text class="gauge-label" x="35"  y="248">0</text>
-          <text class="gauge-label" x="20"  y="82">25</text>
-          <text class="gauge-label" x="148" y="15">50</text>
-          <text class="gauge-label" x="278" y="82">75</text>
-          <text class="gauge-label" x="270" y="248">100</text>
-
-          <!-- ── Needle (points at 0 Mbps = 240° from North = lower-left) ── -->
-          <g id="gauge-needle-group" style="transform: rotate(240deg);" class="gauge-needle-group">
-            <!-- Needle body -->
-            <line
-              id="gauge-needle"
-              class="gauge-needle"
-              x1="160" y1="160"
-              x2="160" y2="50"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              filter="url(#needleGlow)"
-            />
-            <!-- Counter weight -->
-            <line
-              class="gauge-needle-tail"
-              x1="160" y1="160"
-              x2="160" y2="178"
-              stroke="rgba(255,255,255,0.3)"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
-          </g>
-
-          <!-- ── Center pivot circle ── -->
-          <circle cx="160" cy="160" r="8"  fill="#1a1a2e" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
-          <circle cx="160" cy="160" r="3"  fill="rgba(0,212,255,0.8)" />
-
+        <svg class="absolute w-full h-full transform -rotate-[120deg]" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="8" stroke-dasharray="180 282" stroke-linecap="round" />
+          <!-- Progress Track -->
+          <circle id="gauge-progress" cx="50" cy="50" r="45" fill="none" stroke="#ef4444" stroke-width="8" stroke-dasharray="0 282" stroke-linecap="round" class="transition-all duration-500" />
         </svg>
-        <!-- /gauge-svg -->
 
-        <!-- Center overlay: Speed readout + GO button -->
-        <div class="gauge-center" id="gauge-center">
+        <!-- Needle -->
+        <div id="gauge-needle" class="absolute w-1 h-32 md:h-40 bg-red-500 origin-bottom left-1/2 -ml-[0.125rem] bottom-1/2 z-10 rounded-full transition-transform duration-500" style="transform: rotate(-120deg); box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);"></div>
+        
+        <!-- Center Cap -->
+        <div class="absolute w-6 h-6 bg-zinc-800 border-4 border-zinc-700 rounded-full z-20 shadow-xl"></div>
 
-          <div class="speed-readout" aria-live="polite" aria-label="Current speed reading">
-            <span class="speed-value" id="speed-value">--</span>
-            <span class="speed-unit">Mbps</span>
+        <!-- Speed Display -->
+        <div class="mt-20 flex flex-col items-center z-30">
+          <span id="speed-value" class="text-6xl md:text-7xl font-mono font-bold tracking-tighter text-white">0.0</span>
+          <span class="text-zinc-500 font-mono text-xs uppercase tracking-widest mt-1">Mbps</span>
+        </div>
+      </div>
+
+      <div class="mt-16 w-full max-w-sm space-y-4">
+        <div class="flex justify-between items-center text-[10px] font-mono uppercase text-zinc-500">
+          <span>Downlink Integrity</span>
+          <span id="integrity-value">0%</span>
+        </div>
+        <div class="h-1 bg-zinc-900 rounded-full overflow-hidden">
+          <div id="integrity-bar" class="h-full bg-blue-500 w-0 transition-all duration-500"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!--  STATE: RESULT                           -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="state-result" class="hidden flex flex-col items-center py-12 w-full transition-all duration-500">
+      <div class="mb-12 flex flex-col items-center gap-4 text-center">
+        <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-500 uppercase tracking-widest">
+          <span>⚠️</span> Critical Analysis Complete
+        </div>
+        <h3 class="text-3xl font-black tracking-tighter">THE CYBER RECEIPT</h3>
+        <p class="text-zinc-500 text-sm max-w-xs" id="result-joke">
+          Typical experience.
+        </p>
+      </div>
+
+      <!-- Receipt Container -->
+      <div id="receipt-container-wrap" class="w-full max-w-sm flex flex-col items-center gap-6">
+        <div id="cyber-receipt" class="w-full bg-[#fafafa] text-black p-8 font-mono shadow-2xl relative border-t-8 border-black overflow-hidden">
+          <!-- Satirical Branding -->
+          <div class="flex flex-col items-center gap-2 mb-8 border-b-2 border-dashed border-zinc-300 pb-4">
+            <h2 class="text-2xl font-black tracking-tighter">SPIDTES by Okelah</h2>
+            <p class="text-[10px] uppercase text-zinc-500">Official Roast Receipt • No PII Saved</p>
           </div>
 
-          <button class="go-button" id="go-btn" aria-label="Start network scan">
-            <span class="go-btn-ring" aria-hidden="true"></span>
-            <span class="go-btn-text">GO</span>
+          <!-- The Grade - Massive -->
+          <div class="flex justify-between items-start mb-6">
+            <div class="flex flex-col">
+              <span class="text-[10px] uppercase font-bold text-zinc-400">Network Grade</span>
+              <span id="receipt-grade" class="text-8xl font-black text-zinc-800 leading-none">F</span>
+            </div>
+            <div class="text-right flex flex-col items-end">
+              <span class="text-[10px] uppercase font-bold text-zinc-400">Timestamp</span>
+              <span id="receipt-time" class="text-xs">00:00:00</span>
+              <span id="receipt-date" class="text-xs">01/01/2026</span>
+            </div>
+          </div>
+
+          <!-- Network Details -->
+          <div class="space-y-3 mb-8">
+            <div class="flex justify-between items-baseline gap-4 border-b border-zinc-200 pb-1">
+              <span class="text-[9px] uppercase font-bold text-zinc-400 whitespace-nowrap">ISP Provider</span>
+              <span id="receipt-isp" class="text-[11px] font-bold text-right truncate">Unknown</span>
+            </div>
+            <div class="flex justify-between items-baseline gap-4 border-b border-zinc-200 pb-1">
+              <span class="text-[9px] uppercase font-bold text-zinc-400 whitespace-nowrap">Location</span>
+              <span id="receipt-location" class="text-[11px] font-bold text-right truncate">Unknown</span>
+            </div>
+            <div class="flex justify-between items-baseline gap-4 border-b border-zinc-200 pb-1">
+              <span class="text-[9px] uppercase font-bold text-zinc-400 whitespace-nowrap">Public IPv4</span>
+              <span id="receipt-ip" class="text-[11px] font-bold text-right truncate">***.***.***.***</span>
+            </div>
+            <div class="flex justify-between items-baseline gap-4 border-b border-zinc-200 pb-1">
+              <span class="text-[9px] uppercase font-bold text-zinc-400 whitespace-nowrap">Privacy State</span>
+              <span id="receipt-privacy" class="text-[11px] font-bold text-right truncate">EXPOSED (RAW)</span>
+            </div>
+          </div>
+
+          <!-- The Roast -->
+          <div class="bg-zinc-100 p-4 border-l-4 border-black mb-6">
+            <p class="text-xs font-bold uppercase mb-1">Mas-Mas IT says:</p>
+            <p id="receipt-roast" class="text-sm italic leading-tight">"..."</p>
+          </div>
+
+          <!-- Security Flex -->
+          <div class="flex items-center gap-2 pt-4 border-t-2 border-dashed border-zinc-300">
+            <span>🛡️</span>
+            <span class="text-[9px] uppercase tracking-wider font-bold">PII Redaction Engine Active v1.0.4</span>
+          </div>
+
+          <!-- Decorative Scalloped Bottom -->
+          <div class="absolute bottom-0 left-0 right-0 h-4 flex overflow-hidden opacity-10 pointer-events-none">
+            <div class="flex -mb-4">
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+              <div class="min-w-[40px] h-8 bg-zinc-400 rounded-full mx-[-10px]"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-4 w-full">
+          <button id="share-receipt-btn" class="flex-1 flex items-center justify-center gap-2 bg-white text-black py-4 rounded-xl font-bold hover:bg-zinc-200 transition-colors shadow-lg">
+            <span>📥</span> Get Receipt
           </button>
-
-          <div class="ping-readout" aria-live="polite">
-            <span class="ping-label">PING</span>
-            <span class="ping-value" id="ping-value">-- ms</span>
-          </div>
-
+          <button id="native-share-btn" class="w-16 flex items-center justify-center bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors shadow-lg border border-zinc-700">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+          </button>
         </div>
-        <!-- /gauge-center -->
-
-      </div>
-      <!-- /speedometer-wrap -->
-
-      <!-- Status message beneath gauge -->
-      <div class="status-block" id="status-block" role="status" aria-live="polite">
-        <p class="status-primary">Ready to profile your connection.</p>
-        <p class="status-secondary">Hit <strong>GO</strong> and brace yourself.</p>
       </div>
 
-    </section>
-    <!-- /speedometer-section -->
-
-    <!-- ─── Roast Output (Primary Hero) ─── -->
-    <div class="roast-container" id="roast-container" aria-hidden="true">
-      <div class="roast-card">
-        <div class="roast-header">
-          <span class="roast-badge">🔥 ROAST RESULT</span>
-        </div>
-        <blockquote class="roast-text" id="roast-text">
-          Diagnose your network to receive your personalised roast.
-        </blockquote>
-      </div>
-    </div>
-
-    <!-- ─── Results Row (Secondary Metrics) ─── -->
-    <div class="results-row" id="results-row" aria-hidden="true">
-
-      <div class="result-card" id="result-download">
-        <div class="result-icon" aria-hidden="true">↓</div>
-        <div class="result-data">
-          <span class="result-value" id="result-download-val">--</span>
-          <span class="result-unit">Mbps</span>
-        </div>
-        <span class="result-label">Download</span>
-      </div>
-
-      <div class="result-card" id="result-upload">
-        <div class="result-icon result-icon--upload" aria-hidden="true">↑</div>
-        <div class="result-data">
-          <span class="result-value" id="result-upload-val">--</span>
-          <span class="result-unit">Mbps</span>
-        </div>
-        <span class="result-label">Upload</span>
-      </div>
-
-      <div class="result-card" id="result-ping">
-        <div class="result-icon" aria-hidden="true">◎</div>
-        <div class="result-data">
-          <span class="result-value" id="result-ping-val">--</span>
-          <span class="result-unit">ms</span>
-        </div>
-        <span class="result-label">Ping</span>
-      </div>
-
-      <div class="result-card" id="result-jitter">
-        <div class="result-icon result-icon--jitter" aria-hidden="true">≈</div>
-        <div class="result-data">
-          <span class="result-value" id="result-jitter-val">--</span>
-          <span class="result-unit">ms</span>
-        </div>
-        <span class="result-label">Jitter</span>
-      </div>
-
-      <div class="result-card result-card--tooltip" id="result-grade"
-           data-tooltip="A ≥50 Mbps &lt;30ms · B ≥20 Mbps &lt;60ms · C ≥10 Mbps &lt;100ms · D ≥5 Mbps &lt;200ms · F everything else">
-        <div class="result-icon result-icon--grade" aria-hidden="true">F</div>
-        <div class="result-data">
-          <span class="result-value result-value--grade" id="result-grade-val">--</span>
-        </div>
-        <span class="result-label">Network Grade <span class="grade-info-icon" aria-hidden="true">ⓘ</span></span>
-      </div>
-
-    </div>
-    <!-- /results-row -->
-
-    <!-- ─── Actions ─── -->
-    <div class="share-actions-wrap" id="share-actions-wrap" aria-hidden="true">
-      <div class="share-actions" id="share-actions">
-        <button class="share-btn share-btn--primary" id="share-receipt-btn" aria-label="Export receipt for social media">
-          <span aria-hidden="true">📋</span> Share My Shame
-        </button>
-        <button class="share-btn share-btn--rescan" id="scan-again-trigger" aria-label="Run scan again">
-          <span aria-hidden="true">↺</span> Scan Again
-        </button>
-      </div>
+      <button id="scan-again-trigger" class="mt-12 text-zinc-500 hover:text-white flex items-center gap-2 transition-colors uppercase text-[10px] tracking-widest font-bold">
+        <span>🔄</span> Reset Profiler
+      </button>
     </div>
 
     <!-- ─── Scan History Panel ─── -->
-    <div class="history-panel" id="history-panel" aria-hidden="true" aria-label="Previous scans">
-      <div class="history-header">
-        <span class="history-title">📊 Previous Scans</span>
-        <button class="history-clear-btn" id="history-clear-btn" aria-label="Clear history">Clear</button>
+    <div class="history-panel mt-16 w-full max-w-sm border-t border-zinc-900/50 pt-8" id="history-panel" aria-hidden="true">
+      <div class="flex justify-between items-center mb-4">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-zinc-500">📊 History</span>
+        <button class="text-[10px] uppercase font-bold text-red-500/50 hover:text-red-500 transition-colors" id="history-clear-btn">Clear</button>
       </div>
-      <div class="history-list" role="list"></div>
+      <div class="history-list space-y-2" role="list"></div>
     </div>
 
   </main>
-  <!-- /app-main -->
 
-
-  <!-- ═══════════════════════════════════════════════════════════════════ -->
-  <!--  CYBER RECEIPT — Off-screen canvas element for html2canvas          -->
-  <!--  Strictly bounded to 1080x1920px (9:16). ARIA hidden.              -->
-  <!-- ═══════════════════════════════════════════════════════════════════ -->
-  <div class="receipt-stage" aria-hidden="true" id="receipt-stage">
-    <div class="cyber-receipt" id="cyber-receipt">
-
-      <!-- Receipt Header -->
-      <div class="receipt-header">
-        <div class="receipt-logo">
-          <span class="receipt-logo-icon">🕷️</span>
-          <div class="receipt-logo-text">
-            <span class="receipt-logo-main">SPIDTES</span>
-            <span class="receipt-logo-sub">by Okelah™ — Network Roast Profiler</span>
-          </div>
-        </div>
-        <div class="receipt-timestamp" id="receipt-timestamp">00:00 · DD MMM YYYY</div>
-      </div>
-
-      <!-- Receipt Divider -->
-      <div class="receipt-divider receipt-divider--dashed" aria-hidden="true"></div>
-
-      <!-- Receipt Speed Hero -->
-      <div class="receipt-speed-hero">
-        <div class="receipt-speed-circle">
-          <span class="receipt-speed-value" id="receipt-speed-val">--</span>
-          <span class="receipt-speed-unit">Mbps</span>
-        </div>
-        <div class="receipt-ping-badge">
-          <span class="receipt-ping-label">PING</span>
-          <span class="receipt-ping-value" id="receipt-ping-val">-- ms</span>
-        </div>
-      </div>
-
-      <!-- Network Grade -->
-      <div class="receipt-grade-banner" id="receipt-grade-banner">
-        <span class="receipt-grade-label">Network Grade</span>
-        <span class="receipt-grade-value" id="receipt-grade-val">--</span>
-      </div>
-
-      <!-- Receipt Divider -->
-      <div class="receipt-divider" aria-hidden="true"></div>
-
-      <!-- Receipt Meta Table -->
-      <div class="receipt-meta">
-        <div class="receipt-row">
-          <span class="receipt-key">ISP</span>
-          <span class="receipt-val" id="receipt-isp">—</span>
-        </div>
-        <div class="receipt-row">
-          <span class="receipt-key">Location</span>
-          <span class="receipt-val" id="receipt-location">—</span>
-        </div>
-        <div class="receipt-row">
-          <span class="receipt-key">IP Address</span>
-          <span class="receipt-val receipt-val--mono" id="receipt-ip">***.***.***.***</span>
-        </div>
-      </div>
-
-      <!-- Roast Section (Primary Highlight) -->
-      <div class="receipt-roast" id="receipt-roast-container">
-        <div class="receipt-roast-header">🔥 OFFICIAL ROAST</div>
-        <p class="receipt-roast-text" id="receipt-roast-text">
-          Your internet speed has been assessed. The results are... illuminating.
-        </p>
-      </div>
-
-      <!-- Detailed Metrics -->
-      <div class="receipt-meta">
-        <div class="receipt-row">
-          <span class="receipt-key">Upload</span>
-          <span class="receipt-val" id="receipt-upload">— Mbps</span>
-        </div>
-        <div class="receipt-row">
-          <span class="receipt-key">Latency</span>
-          <span class="receipt-val" id="receipt-latency">— ms</span>
-        </div>
-        <div class="receipt-row">
-          <span class="receipt-key">Jitter</span>
-          <span class="receipt-val" id="receipt-jitter">± — ms</span>
-        </div>
-        <div class="receipt-row">
-          <span class="receipt-key">Connection</span>
-          <span class="receipt-val" id="receipt-connection">—</span>
-        </div>
-        <div class="receipt-row">
-          <span class="receipt-key">VPN Detected</span>
-          <span class="receipt-val" id="receipt-vpn">No</span>
-        </div>
-      </div>
-
-      <!-- Receipt Divider -->
-      <div class="receipt-divider" aria-hidden="true"></div>
-
-      <!-- Security / Privacy Block -->
-      <div class="receipt-privacy">
-        <div class="receipt-privacy-row">
-          <span class="receipt-privacy-icon">🛡️</span>
-          <span class="receipt-privacy-text">Zero-Log. Computed locally. Not stored.</span>
-        </div>
-        <div class="receipt-privacy-row">
-          <span class="receipt-privacy-icon">🔒</span>
-          <span class="receipt-privacy-text">XSS-Safe · PII Redacted · HTTPS Only</span>
-        </div>
-      </div>
-
-      <!-- Receipt Footer / Watermark -->
-      <div class="receipt-footer">
-        <div class="receipt-watermark">spidtes.my.id</div>
-        <div class="receipt-powered">Powered by the Sarcasm Engine v1.0</div>
-        <div class="receipt-barcode" aria-hidden="true">
-          <div class="barcode-lines"></div>
-        </div>
-      </div>
-
-    </div>
-    <!-- /cyber-receipt -->
-  </div>
-  <!-- /receipt-stage -->
-
-
-  <!-- ═══════════════════════════════════════ -->
-  <!--  PRIVACY FOOTER                          -->
-  <!-- ═══════════════════════════════════════ -->
-  <footer class="privacy-footer" role="contentinfo">
-    <div class="footer-inner">
-
-      <div class="footer-privacy-block">
-        <span class="footer-shield" aria-hidden="true">🛡️</span>
-        <p class="footer-privacy-text">
-          <strong>Zero-Log Policy:</strong> Your network data is computed locally and in real-time.
-          We do not track, store, or transmit your IP address or any personally identifiable information.
-        </p>
-      </div>
-
-      <div class="footer-links" role="navigation" aria-label="Footer navigation">
-        <a class="footer-link" href="https://github.com/opeolipe/spidtes-by-okelah" target="_blank" rel="noopener noreferrer" id="footer-github-link">GitHub</a>
-      </div>
-
-      <p class="footer-legal">
-        © 2026 Spidtes by Okelah™ · For entertainment purposes. Not affiliated with Ookla.
-      </p>
-
-    </div>
+  <!-- Footer Branding -->
+  <footer class="w-full py-8 border-t border-zinc-900/50 mt-auto flex flex-col items-center opacity-50">
+    <p class="text-[10px] uppercase tracking-widest font-bold flex items-center gap-2">
+      MADE WITH ATTITUDE BY <span class="bg-white text-black px-1">OKELAH</span>
+    </p>
+    <p class="text-[8px] uppercase tracking-[0.3em] text-zinc-600 mt-2">© 2026 Spidtes · For entertainment only</p>
   </footer>
+
+  <!-- Receipt Stage (Hidden for Snapshotting) -->
+  <div id="receipt-stage" class="fixed left-[-9999px] top-0 pointer-events-none"></div>
 
   <script src="dictionary.js?v=1.2.1" defer></script>
   <script src="app.js?v=1.2.1" defer></script>
