@@ -31,6 +31,7 @@ export default function App() {
   const [roast, setRoast] = useState<RoastResult | null>(null);
   const [testPhase, setTestPhase] = useState<string>("Initializing...");
   const [sessionToken, setSessionToken] = useState<string | null>(null);
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
 
   // Initial load: fetch basic network info (masked)
   useEffect(() => {
@@ -82,11 +83,13 @@ export default function App() {
     setTestPhase("Finalizing report...");
 
     // Mint a server-side session token so the download gate can validate it.
-    // Failures are non-fatal — the receipt still renders; the download button
-    // will prompt the user to retry if the session check returns 403.
+    // isCreatingSession gates the download button while the round-trip is in
+    // flight, closing the race window between RESULT render and token arrival.
+    setIsCreatingSession(true);
     createSession(result.grade, networkInfo.isp)
       .then(setSessionToken)
-      .catch((err) => console.warn('[session] Could not create session:', err));
+      .catch((err) => console.warn('[session] Could not create session:', err))
+      .finally(() => setIsCreatingSession(false));
 
     setTimeout(() => {
       setState("RESULT");
@@ -226,13 +229,14 @@ export default function App() {
                 </p>
               </div>
 
-              <CyberReceipt info={networkInfo} roast={roast} sessionToken={sessionToken} />
+              <CyberReceipt info={networkInfo} roast={roast} sessionToken={sessionToken} isCreatingSession={isCreatingSession} />
 
               <button
                 onClick={() => {
                   setState("IDLE");
                   setSpeed(0);
                   setSessionToken(null);
+                  setIsCreatingSession(false);
                   clearSession();
                 }}
                 className="mt-12 text-zinc-500 hover:text-white flex items-center gap-2 transition-colors uppercase text-[10px] tracking-widest font-bold"

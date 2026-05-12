@@ -32,9 +32,12 @@ export async function createSession(grade: string, isp: string): Promise<string>
   if (!res.ok) {
     throw new Error(`Failed to create session: ${res.status} ${res.statusText}`);
   }
-  const { token } = (await res.json()) as { token: string };
-  sessionStorage.setItem(TOKEN_KEY, token);
-  return token;
+  const body = (await res.json()) as { token?: unknown };
+  if (!body.token || typeof body.token !== 'string') {
+    throw new Error('Server returned an invalid or missing token');
+  }
+  sessionStorage.setItem(TOKEN_KEY, body.token);
+  return body.token;
 }
 
 /**

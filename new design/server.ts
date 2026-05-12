@@ -12,21 +12,30 @@ const PORT = Number(process.env.PORT) || 3001;
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 const SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
+// Hard cap prevents unbounded memory growth from unauthenticated POST floods.
+// At ~200 bytes per session entry, 5 000 sessions ≈ 1 MB.
+const MAX_SESSIONS = 5_000;
+
+const VALID_GRADES = new Set(['S', 'A', 'B', 'C', 'D', 'F']);
+const MAX_ISP_LENGTH = 200;
+
 interface Session {
   createdAt: number;
   grade: string;
   isp: string;
 }
 
-// In-memory session store — swap for Redis on multi-instance deployments
+// In-memory session store — swap for Redis on multi-instance deployments.
 const sessions = new Map<string, Session>();
 
-function pruneExpired(): void {
+// Prune on a fixed interval rather than on every hot-path request.
+// Avoids linear Map scans on every API call.
+setInterval(() => {
   const now = Date.now();
   for (const [token, session] of sessions) {
     if (now - session.createdAt > SESSION_TTL_MS) sessions.delete(token);
   }
-}
+}, 5 * 60 * 1000); // every 5 minutes
 
 // ---------------------------------------------------------------------------
 // CORS — must run before all routes so OPTIONS preflight gets proper headers
@@ -62,14 +71,22 @@ app.use(express.json());
 // Body: { grade: string; isp: string }
 // ---------------------------------------------------------------------------
 app.post('/api/create-session', (req: Request, res: Response) => {
-  pruneExpired();
-  const { grade, isp } = req.body ?? {};
-  if (!grade || typeof grade !== 'string') {
-    res.status(400).json({ error: 'Missing required field: grade' });
+  // Reject when the store is full — prevents memory exhaustion from POST floods.
+  if (sessions.size >= MAX_SESSIONS) {
+    res.status(503).json({ error: 'Service temporarily unavailable. Please try again shortly.' });
     return;
   }
+
+  const { grade, isp } = req.body ?? {};
+
+  if (!grade || typeof grade !== 'string' || !VALID_GRADES.has(grade)) {
+    res.status(400).json({ error: `Invalid grade. Expected one of: ${[...VALID_GRADES].join(', ')}` });
+    return;
+  }
+
+  const safeIsp = typeof isp === 'string' ? isp.slice(0, MAX_ISP_LENGTH) : '';
   const token = crypto.randomBytes(32).toString('hex');
-  sessions.set(token, { createdAt: Date.now(), grade, isp: String(isp ?? '') });
+  sessions.set(token, { createdAt: Date.now(), grade, isp: safeIsp });
   res.status(201).json({ token });
 });
 
@@ -80,7 +97,6 @@ app.post('/api/create-session', (req: Request, res: Response) => {
 // Returns 200 { valid: true } or 403 { error: string }
 // ---------------------------------------------------------------------------
 app.get('/api/check-session', (req: Request, res: Response) => {
-  pruneExpired();
   const auth = req.headers.authorization ?? '';
   if (!auth.startsWith('Bearer ')) {
     res.status(403).json({ error: 'Missing or malformed Authorization header. Expected: Bearer <token>' });
@@ -106,7 +122,10 @@ app.get('/api/check-session', (req: Request, res: Response) => {
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.join(__dirname, 'dist');
   app.use(express.static(distPath));
-  app.get('*', (_req: Request, res: Response) => res.sendFile(path.join(distPath, 'index.html')));
+  // Only serve index.html for non-API routes to avoid masking missing endpoints.
+  app.get(/^(?!\/api\/).*$/, (_req: Request, res: Response) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
 }
 
 app.listen(PORT, () => {

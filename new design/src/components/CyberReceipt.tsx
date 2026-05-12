@@ -17,11 +17,15 @@ interface CyberReceiptProps {
   /** Token minted by App.tsx after the test — passed here so the component
    *  knows a session was created before the user clicks download. */
   sessionToken: string | null;
+  /** True while the createSession() network round-trip is still in flight.
+   *  Disables the download button to close the race window where sessionToken
+   *  is null but the session is already being created on the server. */
+  isCreatingSession: boolean;
 }
 
 type ExportState = "idle" | "validating" | "exporting" | "error";
 
-export default function CyberReceipt({ info, roast, sessionToken }: CyberReceiptProps) {
+export default function CyberReceipt({ info, roast, sessionToken, isCreatingSession }: CyberReceiptProps) {
   const receiptRef = useRef<HTMLDivElement>(null);
   const [exportState, setExportState] = useState<ExportState>("idle");
   const [exportError, setExportError] = useState<string | null>(null);
@@ -64,7 +68,7 @@ export default function CyberReceipt({ info, roast, sessionToken }: CyberReceipt
     }
   };
 
-  const isLoading = exportState === "validating" || exportState === "exporting";
+  const isLoading = isCreatingSession || exportState === "validating" || exportState === "exporting";
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-sm">
@@ -150,7 +154,11 @@ export default function CyberReceipt({ info, roast, sessionToken }: CyberReceipt
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              {exportState === "validating" ? "Checking session..." : "Generating..."}
+              {isCreatingSession
+                ? "Preparing session..."
+                : exportState === "validating"
+                ? "Checking session..."
+                : "Generating..."}
             </>
           ) : (
             <>
