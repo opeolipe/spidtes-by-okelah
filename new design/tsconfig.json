@@ -1,4 +1,5 @@
 {
+  "exclude": ["server.ts"],
   "compilerOptions": {
     "target": "ES2022",
     "experimentalDecorators": true,

@@ -19,6 +19,7 @@ import Gauge from "./components/Gauge";
 import CyberReceipt from "./components/CyberReceipt";
 import { fetchNetworkInfo, NetworkInfo, maskIP } from "./lib/api";
 import { getRoast, RoastResult, getISPJoke } from "./lib/roasts";
+import { createSession, clearSession } from "./lib/session";
 import confetti from "canvas-confetti";
 
 type AppState = "IDLE" | "PREPARING" | "TESTING" | "RESULT";
@@ -29,6 +30,7 @@ export default function App() {
   const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null);
   const [roast, setRoast] = useState<RoastResult | null>(null);
   const [testPhase, setTestPhase] = useState<string>("Initializing...");
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
 
   // Initial load: fetch basic network info (masked)
   useEffect(() => {
@@ -73,12 +75,19 @@ export default function App() {
 
   const finalizeTest = (finalSpeed: number) => {
     if (!networkInfo) return;
-    
+
     setSpeed(finalSpeed);
     const result = getRoast(finalSpeed, networkInfo.isp, networkInfo.is_vpn, networkInfo.country);
     setRoast(result);
     setTestPhase("Finalizing report...");
-    
+
+    // Mint a server-side session token so the download gate can validate it.
+    // Failures are non-fatal — the receipt still renders; the download button
+    // will prompt the user to retry if the session check returns 403.
+    createSession(result.grade, networkInfo.isp)
+      .then(setSessionToken)
+      .catch((err) => console.warn('[session] Could not create session:', err));
+
     setTimeout(() => {
       setState("RESULT");
       if (result.grade === "S" || result.grade === "A") {
@@ -217,12 +226,14 @@ export default function App() {
                 </p>
               </div>
 
-              <CyberReceipt info={networkInfo} roast={roast} />
+              <CyberReceipt info={networkInfo} roast={roast} sessionToken={sessionToken} />
 
               <button
                 onClick={() => {
                   setState("IDLE");
                   setSpeed(0);
+                  setSessionToken(null);
+                  clearSession();
                 }}
                 className="mt-12 text-zinc-500 hover:text-white flex items-center gap-2 transition-colors uppercase text-[10px] tracking-widest font-bold"
               >

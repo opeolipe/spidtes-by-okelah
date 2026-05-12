@@ -17,8 +17,18 @@ export default defineConfig(({mode}) => {
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      // Do not modify - file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
+      // Forward /api/* to the Express backend during development.
+      // Without this proxy, the browser sends /api requests to the Vite port
+      // which has no API handler, causing 403/404 errors on every session call.
+      proxy: {
+        '/api': {
+          target: `http://localhost:${env.API_PORT || 3001}`,
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     },
   };
 });
