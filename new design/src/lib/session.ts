@@ -61,9 +61,18 @@ export async function checkSession(): Promise<SessionCheckResult> {
       },
     });
     if (res.status === 403) {
-      const body = (await res.json()) as { error?: string };
+      // Always clear the dead token regardless of whether we can parse the body.
+      // If res.json() throws (non-JSON 403 from a proxy/CDN), the catch block
+      // would skip this removeItem, leaving a stale token that loops forever.
       sessionStorage.removeItem(TOKEN_KEY);
-      return { valid: false, error: body.error ?? 'Session rejected by server.' };
+      let errorMessage = 'Session rejected by server.';
+      try {
+        const body = (await res.json()) as { error?: string };
+        errorMessage = body.error ?? errorMessage;
+      } catch {
+        // Non-JSON body — keep the default message
+      }
+      return { valid: false, error: errorMessage };
     }
     if (!res.ok) {
       return { valid: false, error: `Unexpected server response: ${res.status}` };

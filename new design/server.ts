@@ -55,8 +55,14 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   }
-  // Respond to preflight immediately — no 403, no body
+  // Reject preflights from disallowed origins explicitly.
+  // Returning 204 with no CORS headers would also block the browser, but 403
+  // is more precise and avoids leaking a "server is alive" signal to unknown origins.
   if (req.method === 'OPTIONS') {
+    if (!allowedOrigins.has(origin)) {
+      res.status(403).end();
+      return;
+    }
     res.status(204).end();
     return;
   }
@@ -71,7 +77,15 @@ app.use(express.json());
 // Body: { grade: string; isp: string }
 // ---------------------------------------------------------------------------
 app.post('/api/create-session', (req: Request, res: Response) => {
-  // Reject when the store is full — prevents memory exhaustion from POST floods.
+  // Prune expired sessions inline before checking capacity.
+  // The background interval only runs every 5 minutes, so the raw Map.size can
+  // include thousands of stale entries — checking it without pruning first would
+  // cause false 503s even when almost all sessions have expired.
+  const now = Date.now();
+  for (const [token, session] of sessions) {
+    if (now - session.createdAt > SESSION_TTL_MS) sessions.delete(token);
+  }
+
   if (sessions.size >= MAX_SESSIONS) {
     res.status(503).json({ error: 'Service temporarily unavailable. Please try again shortly.' });
     return;
