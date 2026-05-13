@@ -87,31 +87,30 @@ const ROAST_DICT = {
       'Dengan jitter ±{jitter}ms, meeting online-mu pasti sering "halo? halo? masih ada?"',
     ],
     vpnRoast: [
-      'Browser-mu Indo, IP-mu Amerika. Pake VPN gratisan ya bang? Kirain pro.',
-      'Detected VPN. Sok internasional, padahal koneksinya tetep lemot.',
-      'IP-mu abroad tapi ping-mu tetap nangis. VPN gratisan atau berbayar juga sama aja hasilnya.',
-      'Pake VPN biar kelihatan keren. Speed-nya tetap bikin malu.',
       'VPN aktif, bandwidth tetap pingsan. Tunneling ke mana, bang?',
-      'IP-mu keluar negeri tapi jiwa koneksinya masih di warnet pinggir jalan.',
-      'Nyamar jadi bule di internet, tapi speed-nya masih ala kosan Rp800rb sebulan.',
-      'VPN-nya bisa nyembunyiin lokasi. Nggak bisa nyembunyiin kenyataan ini.',
-      'Encrypt traffic boleh. Tapi kekecewaan ini nggak bisa dienkripsi.',
-      'Pakai VPN biar "aman". Aman dari siapa? Speed-mu tetap ketangkap basah.',
+      'IP-mu abroad tapi ping-mu tetap nangis. VPN gratisan atau berbayar, hasilnya sama aja.',
+      'VPN-nya bisa nyembunyiin lokasi. Nggak bisa nyembunyiin kenyataan koneksi ini.',
+      'Encrypt traffic boleh. Tapi kekecewaan soal speed-nya nggak bisa dienkripsi.',
+      'Tunnel VPN-nya lancar. Sayang bandwidth di ujung tunnel-nya masih seret.',
+      'IP keluar negeri, tapi latensi-nya masih betah di sini.',
+      'VPN menyala, paket data tetap merana. Tunneling nggak nambah bandwidth.',
+      'Kalau VPN bisa ningkatin speed, semua orang udah pakai dari dulu.',
     ],
     pingReact: [
-      "Ping {ping} ms. Ini main game apa nunggu balasan chat dari gebetan?",
       "Latency {ping} ms? Sinyalnya lagi mampir ngopi dulu ya?",
       "Ping {ping} ms itu bukan gaming, itu meditasi digital.",
-      "Ping {ping} ms? Koneksi gini mending dipake buat mining batu bata aja.",
-      'Ping-mu lebih tinggi dari harapan hidupmu.',
-      'Dengan ping segitu, kamu udah kalah sebelum mulai.',
-      'Ping {ping}ms? Paket internet-mu kayak kirim surat lewat kantor pos.',
-      '{ping}ms. Itu bukan latency, itu penantian eksistensial.',
+      "Ping {ping} ms? Paket internet-mu kayak kirim surat lewat kantor pos.",
+      '{ping}ms. Itu bukan latency, itu penantian eksistensial dari ISP-mu.',
       'Ping {ping}ms bikin game online jadi catur pos.',
-      'Dengan ping {ping}ms, musuh udah respawn sebelum peluru-mu nyampe.',
+      'Dengan ping {ping}ms, musuh udah respawn sebelum peluru nyampe.',
+      'Ping {ping}ms. Datanya berangkat, belum tentu tiba.',
+      '{ping}ms? Kurir paket fisik lebih cepat sampai dari request-mu.',
+      'Ping segini bikin AI real-time jadi AI slow-motion. Tanya ISP-mu kenapa.',
+      'Dengan {ping}ms, koneksi ini bukan online — lebih ke slideshow online.',
+      '{ping}ms latency. Server-nya nggak lambat — jalan menuju server-nya yang sibuk istirahat.',
     ],
     speedReact: [
-      "{speed} (siput mager) Mbps di 2025. Warnet tahun 2005 lebih kenceng dari ini.",
+      "{speed} (siput mager) Mbps di 2026. Warnet tahun 2005 lebih kenceng dari ini.",
       "{speed} Mbps? Ini internet apa paket hemat kuota keluarga?",
       "Cuma dapet {speed} Mbps? Kecepatan segini mending buat kirim SMS aja.",
       "{speed} Mbps itu bukan speed, itu angka harapan hidup ISP-mu.",
@@ -121,6 +120,10 @@ const ROAST_DICT = {
       '{speed} Mbps. WhatsApp voice note aja nge-buffer.',
       'Kecepatan {speed} Mbps. Kenangan masa lalu load lebih cepet.',
       'Netflix minimum 3 Mbps buat 720p. Kamu di {speed} Mbps. Selamat nonton slideshow.',
+      'Tahun 2026 dan kamu masih di {speed} Mbps? Hebat konsistensinya.',
+      '{speed} Mbps itu bukan internet, itu nostalgia era dial-up yang nggak diminta.',
+      'AI udah bisa ngobrol kayak manusia, tapi internet {speed} Mbps-mu masih primitif.',
+      'Startup lokal udah IPO, tapi infrastruktur ISP-mu masih beta testing.',
     ],
     ispRoast: [
       {
@@ -225,9 +228,9 @@ const ROAST_DICT = {
       '"{isp}" ini apa singkatannya? Internet Sangat Tidak Enak?',
     ],
     deviceRoast: {
-      iphone: "Beli iPhone sanggup, beli kuota kok pelit banget?",
-      android: "HP-nya udah flagship, speed-nya masih ala warnet gembel.",
-      desktop: "Monitor doang gede, bandwidth-nya sekecil harapan lulus tepat waktu."
+      iphone: "iPhone di tangan, koneksi 5G diklaim provider, kenyataannya tetap segini.",
+      android: "Chipset kenceng, tapi bandwidth yang disediakan ISP-nya nggak ikut kenceng.",
+      desktop: "Komputer stasioner, koneksi stasioner juga ternyata — stuck di kecepatan segini."
     },
     locationRoast: {
       'denpasar': [
@@ -357,6 +360,11 @@ const ROAST_DICT = {
       'Ping-mu lebih tinggi dari ekspektasi, speed-mu lebih rendah dari harga paket.',
       'Coba ganti posisi router. Tetap nggak akan ngaruh, tapi lumayan buat olahraga.',
       'Lapor ke BRTI kalau mau. Antrinya lebih lama dari loading halaman web-mu.',
+      'Internet-mu lebih lambat dari proses pengaduan ke BRTI itu sendiri.',
+      'Tarik napas. Tahan. Buang. Itu tadi lebih cepet dari load halaman kamu.',
+      'Kamu bisa beli kopi, minum, balik, dan halaman ini masih loading.',
+      'ISP-mu harus bayar kamu balik atas kerugian waktu dan martabat.',
+      'Di era AI, kamu masih streaming audio pake buffer. Luar biasa.',
     ],
   },
 
@@ -375,10 +383,11 @@ const ROAST_DICT = {
       '±{jitter}ms — your connection is literally vibrating with inadequacy.',
     ],
     vpnRoast: [
-      'Using a VPN? Stealth mode won\'t hide this tragic bandwidth.',
-      'VPN detected. Privacy is great, but browsing at the speed of a carrier pigeon isn\'t.',
-      'Nice tunnel. Too bad it\'s a tunnel to 1996.',
-      'Masking your IP doesn\'t mask the fact that your internet is struggling.',
+      'VPN detected. The tunnel is encrypted. The slow speed is not.',
+      'Nice tunnel. Too bad it leads to 1996-era bandwidth.',
+      'Masking the IP doesn\'t mask the bottleneck — that\'s still your ISP\'s problem.',
+      'VPN active, bandwidth still absent. Encryption doesn\'t add megabits.',
+      'A VPN says "privacy first." The speed says "infrastructure last."',
     ],
     pingReact: [
       "Ping: {ping} ms. You're living in the past. Literally.",
@@ -386,6 +395,10 @@ const ROAST_DICT = {
       "Your ping is {ping} ms. Are you communicating via satellite or smoke signals?",
       "Latency: {ping} ms. Even light speed gave up on you.",
       "Ping {ping} ms. Your packets are probably stopping for a coffee break.",
+      "{ping} ms ping. Your opponents didn't beat you — the laws of physics did.",
+      "Latency {ping} ms means your inputs arrive as a historical artifact.",
+      "{ping}ms. You're not online. You're adjacent to online.",
+      "With {ping} ms, 'real-time' is more of a generous suggestion.",
     ],
     speedReact: [
       "{speed} Mbps? I remember my first 56k modem too. Nostalgic.",
@@ -396,6 +409,11 @@ const ROAST_DICT = {
       "Your speed is {speed} Mbps. A carrier pigeon would be faster. Seriously.",
       "Decent speed. You can finally watch a YouTube video in 1080p without buffering for 20 minutes.",
       "Flexing much? You're definitely skipping the meeting and just downloading 4K memes.",
+      "It's 2026 and you're at {speed} Mbps. Your ISP is deeply committed to the past.",
+      "{speed} Mbps in the age of AI. Your chatbot is going to need a nap between responses.",
+      "Web3 promised a decentralized future. Your ISP delivered a deprecated past: {speed} Mbps.",
+      "{speed} Mbps? You could mail a USB drive across the country faster.",
+      "At {speed} Mbps, your video calls aren't buffering — they're impressionist paintings.",
     ],
     ispRoast: [
       {
@@ -439,6 +457,36 @@ const ROAST_DICT = {
         lines: [
           'Starlink: High-speed satellite internet. High-latency satellite reality.',
           'Starlink — for when you want to be disappointed from space.',
+          'You literally pay for space lasers and this is what you get.',
+        ]
+      },
+      {
+        match: ['t-mobile', 'tmobile', 't mobile'],
+        lines: [
+          'T-Mobile: Magenta on the outside, disappointingly beige on the inside.',
+          '"Un-carrier" energy, very much carrier-quality throttling.',
+          'T-Mobile: 5G coverage map is beautiful. Your actual speed? Less so.',
+        ]
+      },
+      {
+        match: ['cox'],
+        lines: [
+          'Cox: They charge like a luxury ISP and deliver like a suggestion.',
+          '"Gigablast" is a great name for a speed you\'ll never actually see.',
+        ]
+      },
+      {
+        match: ['centurylink', 'lumen', 'quantum fiber'],
+        lines: [
+          'CenturyLink — because "century" is how long the page takes to load.',
+          'Quantum Fiber? The only quantum thing here is how uncertain your speed is.',
+        ]
+      },
+      {
+        match: ['optimum', 'altice'],
+        lines: [
+          'Optimum by name, pessimistic by nature.',
+          'Altice: The ISP that boldly charges for speeds it boldly doesn\'t deliver.',
         ]
       },
     ],
@@ -450,9 +498,9 @@ const ROAST_DICT = {
       'Is your router just a potato with an antenna? Ask {isp}.',
     ],
     deviceRoast: {
-      iphone: "That dynamic island doesn't hide your terrible speed.",
-      android: "Great phone, shame about the connection.",
-      desktop: "Big screen, small bandwidth. Tragic."
+      iphone: "5G-capable device. 5G-incapable ISP. The hardware did its part.",
+      android: "The hardware supports the speed. The ISP just doesn't.",
+      desktop: "Wired connection, wireless-quality bandwidth. The cable is fine — check the ISP."
     },
     punchline: [
       'Have you tried turning it off and leaving it off?',
@@ -461,10 +509,16 @@ const ROAST_DICT = {
       'I\'d tell you a joke about UDP, but you might not get it.',
       'Your bandwidth called. It wants a divorce.',
       'I\'ve seen dial-up connections with more ambition.',
-      'Is your neighbor stealing your WiFi? Because they\'re clearly not using it.',
+      'Something is consuming all the bandwidth. Spoiler: it\'s your ISP\'s infrastructure.',
       'You pay for this? On purpose?',
       'I hope you have a good data plan. You\'re going to need it.',
       'Upgrade your plan. Or your life. Ideally both.',
+      'At this speed, the AI revolution will be over by the time your page loads.',
+      'File a complaint. The hold music will finish before anything changes.',
+      'Your ISP\'s SLA says "up to." "Up to" is doing a lot of heavy lifting here.',
+      'Breathe in. Breathe out. That took less time than your last DNS lookup.',
+      'Other people are downloading entire movies. You\'re still loading the thumbnail.',
+      'It\'s not you, it\'s your ISP. Except it\'s also kind of you for still paying them.',
     ],
   },
 };
